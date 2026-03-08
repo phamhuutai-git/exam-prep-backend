@@ -12,6 +12,7 @@ import lombok.Setter;
 public class BaseResponse<T> {
     private T data;
     private String message;
+
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(data, "SUCCESS");
     }
