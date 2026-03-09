@@ -2,6 +2,7 @@ package com.example.examprepbackend.entity;
 
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name="users")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Users {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
