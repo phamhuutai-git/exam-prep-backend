@@ -142,13 +142,11 @@ create table exam_attempt
 -- ================= STUDENT ANSWER =================
 create table student_answer
 (
-    id          int primary key auto_increment,
-    attempt_id  int not null,
-    question_id int not null,
-    answer_id   int not null,
+    id         int primary key auto_increment,
+    attempt_id int not null,
+    answer_id  int not null,
 
     foreign key (attempt_id) references exam_attempt (id),
-    foreign key (question_id) references question (id),
     foreign key (answer_id) references answer (id)
 );
 
@@ -201,12 +199,38 @@ VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01'),
        ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04'),
        ('What is HTML?', 'EASY', 4, 3, '2024-02-05');
 
+
 INSERT INTO answer (content, question_id, is_correct)
-VALUES ('Programming Language', 1, true),
-       ('Database', 1, false),
-       ('Encapsulation, Inheritance', 2, true),
-       ('Framework', 3, true),
-       ('Unique identifier', 4, true);
+VALUES
+-- Question 1
+('Programming Language', 1, true),
+('Database', 1, false),
+('Operating System', 1, false),
+('Web Browser', 1, false),
+
+-- Question 2
+('Encapsulation', 2, true),
+('Inheritance', 2, false),
+('Compilation', 2, false),
+('Indexing', 2, false),
+
+-- Question 3
+('Java Framework', 3, false),
+('Spring Boot Framework', 3, true),
+('Database Tool', 3, false),
+('Programming Language', 3, false),
+
+-- Question 4
+('Primary key is unique identifier', 4, true),
+('Primary key allows duplicate', 4, false),
+('Primary key can be null', 4, false),
+('Primary key is optional', 4, false),
+
+-- Question 5
+('Programming Language', 5, false),
+('Markup Language', 5, true),
+('Database System', 5, false),
+('Operating System', 5, false);
 
 INSERT INTO exam
     (code, title, duration, category_id, creator_id, create_date)
@@ -237,11 +261,12 @@ VALUES (1, 4, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (3, 4, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
        (4, 5, '2024-04-02 10:00:00', '2024-04-02 10:20:00', 9, 'SUBMITTED'),
        (5, 4, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 10, 'SUBMITTED');
-INSERT INTO student_answer (attempt_id, question_id, answer_id)
-VALUES (1, 1, 1),
-       (2, 3, 4),
-       (3, 4, 5),
-       (4, 5, 4),
-       (5, 2, 3);
+
+INSERT INTO student_answer (attempt_id, answer_id)
+VALUES (1, 1),
+       (2, 10),
+       (3, 13),
+       (4, 18),
+       (5, 5);
 
 
