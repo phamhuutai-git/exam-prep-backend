@@ -18,11 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
+
 
     private ExamResponse convertToDto(Exam exam) {
 
@@ -68,5 +70,25 @@ public class ExamServiceImpl implements ExamService {
 //        }
 
         return examRepository.findAll(pageable).map(this::convertToDto);
+    }
+    @Override
+    public List<ExamResponse> getExamByCategory(Integer categoryId) {
+
+        List<Exam> exams = examRepository.findByCategoryId(categoryId);
+
+        return exams.stream().map(exam -> {
+
+            ExamResponse response = new ExamResponse();
+
+            response.setId(exam.getId());
+            response.setCode(exam.getCode());
+            response.setTitle(exam.getTitle());
+            response.setDuration(exam.getDuration());
+            response.setCategory(exam.getCategory());
+            response.setCreateDate(exam.getCreateDate());
+
+            return response;
+
+        }).toList();
     }
 }

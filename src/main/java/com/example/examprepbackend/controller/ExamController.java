@@ -14,7 +14,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -26,5 +29,12 @@ public class ExamController {
     @GetMapping
     public ResponseEntity<BaseResponse<Page<ExamResponse>>> getAllExams(ExamRequestParam examRequestParam, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(examRequestParam, pageable), "get all"));
+    }
+    @GetMapping("/by-category")
+    public BaseResponse<List<ExamResponse>> getExamByCategory(@RequestParam Integer categoryId) {
+
+        List<ExamResponse> exams = examService.getExamByCategory(categoryId);
+
+        return BaseResponse.success(exams);
     }
 }
