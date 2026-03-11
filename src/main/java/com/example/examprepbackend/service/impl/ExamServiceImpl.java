@@ -72,23 +72,10 @@ public class ExamServiceImpl implements ExamService {
         return examRepository.findAll(pageable).map(this::convertToDto);
     }
     @Override
-    public List<ExamResponse> getExamByCategory(Integer categoryId) {
+    public Page<ExamResponse> getExamByCategory(Integer categoryId, Pageable pageable) {
 
-        List<Exam> exams = examRepository.findByCategoryId(categoryId);
-
-        return exams.stream().map(exam -> {
-
-            ExamResponse response = new ExamResponse();
-
-            response.setId(exam.getId());
-            response.setCode(exam.getCode());
-            response.setTitle(exam.getTitle());
-            response.setDuration(exam.getDuration());
-            response.setCategory(exam.getCategory());
-            response.setCreateDate(exam.getCreateDate());
-
-            return response;
-
-        }).toList();
+        return examRepository
+                .findByCategoryId(categoryId, pageable)
+                .map(this::convertToDto);
     }
 }

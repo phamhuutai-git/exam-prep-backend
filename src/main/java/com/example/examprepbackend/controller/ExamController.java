@@ -31,10 +31,7 @@ public class ExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(examRequestParam, pageable), "get all"));
     }
     @GetMapping("/by-category")
-    public BaseResponse<List<ExamResponse>> getExamByCategory(@RequestParam Integer categoryId) {
-
-        List<ExamResponse> exams = examService.getExamByCategory(categoryId);
-
-        return BaseResponse.success(exams);
+    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamByCategory(@RequestParam Integer categoryId, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamByCategory(categoryId, pageable), "get exam by category"));
     }
 }

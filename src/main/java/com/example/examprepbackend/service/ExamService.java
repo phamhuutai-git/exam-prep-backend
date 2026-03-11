@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface ExamService {
     Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable);
-    List<ExamResponse> getExamByCategory(Integer categoryId);
+    Page<ExamResponse> getExamByCategory(Integer categoryId, Pageable pageable);
 }
