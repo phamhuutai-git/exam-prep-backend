@@ -1,6 +1,8 @@
 package com.example.examprepbackend.controller;
 
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.dto.request.ExamRequestParam;
+import com.example.examprepbackend.dto.response.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class ExamController {
     private final ExamService examService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<Exam>>> getAllExams(@PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(pageable), "get all"));
+    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getAllExams(ExamRequestParam examRequestParam, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(examRequestParam, pageable), "get all"));
     }
 }
