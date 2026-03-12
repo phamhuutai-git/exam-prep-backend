@@ -24,20 +24,23 @@ create table department
 -- ================= USERS =================
 create table users
 (
-    id                    int primary key auto_increment,
-    email                 varchar(255) not null unique,
-    username              varchar(255) not null unique,
-    password              varchar(255) not null,
-    first_name            varchar(255) not null,
-    last_name             varchar(255) not null,
-    role                  enum('ADMIN','TEACHER','STUDENT') not null,
-    is_active             boolean      not null default true,
-    status                enum('ACTIVED','LOCKED') not null,
-    class_id              int,
-    department_id         int,
-    create_date           datetime,
---     đếm số lần login sai
-    failed_login_attempts INT                   DEFAULT 0,
+    id            int primary key auto_increment,
+    email         varchar(255) not null unique,
+    username      varchar(255) not null unique,
+    password      varchar(255) not null,
+    first_name    varchar(255) not null,
+    last_name     varchar(255) not null,
+    role          enum('ADMIN','TEACHER','STUDENT') not null,
+    is_active     boolean      not null default true,
+    status        enum('ACTIVED','LOCKED') not null,
+    class_id      int,
+    department_id int,
+    create_date   datetime,
+    -- đếm số lần bị khóa
+    fail_count    INT                   DEFAULT 0,
+    -- thời gian bị khóa
+    lock_time     datetime,
+
     foreign key (class_id) references classes (id),
     foreign key (department_id) references department (id)
 );
@@ -151,11 +154,12 @@ create table student_answer
 );
 CREATE TABLE otps
 (
-    id        INT AUTO_INCREMENT PRIMARY KEY,
-    email     VARCHAR(50) NOT NULL,
-    otp       INT         NOT NULL,
-    type      VARCHAR(50),
-    expire_at datetime,
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    email      VARCHAR(50) NOT NULL,
+    otp        INT         NOT NULL,
+    type       VARCHAR(50),
+    expire_at  datetime,
+    created_at datetime,
     FOREIGN KEY (email) REFERENCES users (email)
 );
 INSERT INTO classes (name, create_date)
@@ -287,6 +291,9 @@ where id = 2; -- TEACHER:12345
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
 where id = 4; -- STUDENT:1234
+update users
+set email ='ngoquangtruongjk05@gmail.com'
+where id = 1;
 
 select*
 from users;
