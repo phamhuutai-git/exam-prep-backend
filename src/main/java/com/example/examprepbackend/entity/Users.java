@@ -42,6 +42,7 @@ public class Users {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
+
     private Classes classes;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,5 +51,10 @@ public class Users {
 
     @Column(name = "create_date")
     private LocalDateTime createdDate;
-
+// thêm cột này để đếm số lần bị khóa
+    @Column(name = "fail_count")
+    private Integer failCount;
+// hiển thị thời gian bị khóa
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
 }

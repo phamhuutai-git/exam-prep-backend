@@ -24,23 +24,23 @@ create table department
 -- ================= USERS =================
 create table users
 (
-    id            int primary key auto_increment,
-    email         varchar(255) not null unique,
-    username      varchar(255) not null unique,
-    password      varchar(255) not null,
-    first_name    varchar(255) not null,
-    last_name     varchar(255) not null,
-    role          enum('ADMIN','TEACHER','STUDENT') not null,
-    is_active     boolean      not null default true,
-    status        enum('ACTIVED','LOCKED') not null,
-    class_id      int,
-    department_id int,
-    create_date   datetime,
-
+    id                    int primary key auto_increment,
+    email                 varchar(255) not null unique,
+    username              varchar(255) not null unique,
+    password              varchar(255) not null,
+    first_name            varchar(255) not null,
+    last_name             varchar(255) not null,
+    role                  enum('ADMIN','TEACHER','STUDENT') not null,
+    is_active             boolean      not null default true,
+    status                enum('ACTIVED','LOCKED') not null,
+    class_id              int,
+    department_id         int,
+    create_date           datetime,
+--     đếm số lần login sai
+    failed_login_attempts INT                   DEFAULT 0,
     foreign key (class_id) references classes (id),
     foreign key (department_id) references department (id)
 );
-
 -- ================= CLASS TEACHER =================
 create table class_teacher
 (
@@ -149,7 +149,15 @@ create table student_answer
     foreign key (attempt_id) references exam_attempt (id),
     foreign key (answer_id) references answer (id)
 );
-
+CREATE TABLE otps
+(
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    email     VARCHAR(50) NOT NULL,
+    otp       INT         NOT NULL,
+    type      VARCHAR(50),
+    expire_at datetime,
+    FOREIGN KEY (email) REFERENCES users (email)
+);
 INSERT INTO classes (name, create_date)
 VALUES ('Railway01', '2024-01-01 08:00:00'),
        ('Railway02', '2024-01-02 08:00:00'),
@@ -166,15 +174,15 @@ VALUES ('Backend', '2024-01-01 09:00:00'),
 
 INSERT INTO users
 (email, username, password, first_name, last_name, role, is_active, status, class_id, department_id, create_date)
-VALUES ('admin@mail.com', 'admin', '123456', 'An', 'Nguyen', 'ADMIN', true, 'ACTIVED', NULL, NULL,
+VALUES ('admin@mail.com', 'admin', 'admin123', 'An', 'Nguyen', 'ADMIN', true, 'ACTIVED', NULL, NULL,
         '2024-01-01 10:00:00'),
-       ('teacher1@mail.com', 'teacher1', '123456', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, 1,
+       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, 1,
         '2024-01-02 10:00:00'),
-       ('teacher2@mail.com', 'teacher2', '123456', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, 2,
+       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, 2,
         '2024-01-03 10:00:00'),
-       ('student1@mail.com', 'student1', '123456', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, NULL,
+       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, NULL,
         '2024-01-04 10:00:00'),
-       ('student2@mail.com', 'student2', '123456', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, NULL,
+       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, NULL,
         '2024-01-05 10:00:00');
 
 INSERT INTO class_teacher (class_id, teacher_id)
@@ -270,3 +278,17 @@ VALUES (1, 1),
        (5, 5);
 
 
+update users
+set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
+where id = 1; -- ADMIN:admin123
+update users
+set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
+where id = 2; -- TEACHER:12345
+update users
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 4; -- STUDENT:1234
+
+select*
+from users;
+select id, username, email, password
+from users;

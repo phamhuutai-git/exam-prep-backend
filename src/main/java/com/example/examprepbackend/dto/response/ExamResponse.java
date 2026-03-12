@@ -1,10 +1,6 @@
 package com.example.examprepbackend.dto.response;
 
 import com.example.examprepbackend.entity.CategoryQuestion;
-import com.example.examprepbackend.entity.Users;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
