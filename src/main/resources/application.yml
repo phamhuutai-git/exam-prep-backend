@@ -36,7 +36,7 @@ spring:
 jwt:
   secret: my-super-secret-key-my-super-secret-key
   expiration: 18000000 # 5 tiếng (5 * 60 * 60 * 1000) bị out token
-#debag
+#debug
 logging:
   level:
     org.springframework.web: DEBUG
