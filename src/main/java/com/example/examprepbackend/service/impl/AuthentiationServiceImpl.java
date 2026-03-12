@@ -12,6 +12,7 @@ import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.OtpRepository;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.AuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -112,7 +113,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
                 user.getFailCount()
         );
     }
-
+    @Transactional
     @Override
     public String sendOtp(ForgotPassword forgetpw) {
         Optional<Users> user = userRepository.findByEmail(forgetpw.getEmail());
