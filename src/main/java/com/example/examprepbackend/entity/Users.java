@@ -2,6 +2,7 @@ package com.example.examprepbackend.entity;
 
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Users {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
     @Column(name="first_name")
@@ -42,6 +44,7 @@ public class Users {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
+
     private Classes classes;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,5 +53,10 @@ public class Users {
 
     @Column(name = "create_date")
     private LocalDateTime createdDate;
-
+// thêm cột này để đếm số lần bị khóa
+    @Column(name = "fail_count")
+    private Integer failCount;
+// hiển thị thời gian bị khóa
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
 }
