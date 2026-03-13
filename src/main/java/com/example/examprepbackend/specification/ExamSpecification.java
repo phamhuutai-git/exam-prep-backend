@@ -1,16 +1,9 @@
 package com.example.examprepbackend.specification;
 
-import com.example.examprepbackend.entity.CategoryQuestion;
 import com.example.examprepbackend.entity.Exam;
-import com.example.examprepbackend.entity.Users;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public class ExamSpecification {
 //    private String code;

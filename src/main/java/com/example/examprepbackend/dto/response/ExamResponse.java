@@ -1,10 +1,6 @@
 package com.example.examprepbackend.dto.response;
 
 import com.example.examprepbackend.entity.CategoryQuestion;
-import com.example.examprepbackend.entity.Users;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,11 +19,13 @@ public class ExamResponse {
 
     private LocalTime duration;
 
-    private CategoryQuestion category;
-
-    private UserSummaryResponse creator;
+    private String category;
 
     private LocalDateTime createDate;
+
+    private Long questions;
+
+    private Long attempts;
 
 
 }

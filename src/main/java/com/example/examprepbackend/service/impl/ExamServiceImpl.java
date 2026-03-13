@@ -5,6 +5,8 @@ import com.example.examprepbackend.dto.response.ExamResponse;
 import com.example.examprepbackend.dto.response.UserSummaryResponse;
 import com.example.examprepbackend.entity.CategoryQuestion;
 import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.repository.ExamAttemptRepository;
+import com.example.examprepbackend.repository.ExamQuestionRepository;
 import com.example.examprepbackend.repository.ExamRepository;
 import com.example.examprepbackend.service.ExamService;
 import com.example.examprepbackend.specification.ExamSpecification;
@@ -24,20 +26,22 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
 
+    private final ExamRepository examRepository;
+    private final ExamQuestionRepository examQuestionRepository;
+    private final ExamAttemptRepository examAttemptRepository;
+
     private ExamResponse convertToDto(Exam exam) {
 
         ExamResponse examResponse = new ExamResponse();
-        UserSummaryResponse creator = new UserSummaryResponse();
 
         BeanUtils.copyProperties(exam, examResponse);
-        BeanUtils.copyProperties(exam.getCreator(), creator);
+        examResponse.setCategory(exam.getCategory().getName());
+        examResponse.setQuestions(examQuestionRepository.countByExam_Id(exam.getId()));
+        examResponse.setAttempts(examAttemptRepository.countByExam_Id(exam.getId()));
 
-        examResponse.setCreator(creator);
 
         return examResponse;
     }
-
-    private final ExamRepository examRepository;
 
     @Override
     public Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable) {
@@ -48,25 +52,28 @@ public class ExamServiceImpl implements ExamService {
         LocalDate minDate = examRequestParam.getMinDate();
         LocalDate maxDate = examRequestParam.getMaxDate();
 
-        log.info("aa1111111111");
-//        Specification<Exam> spec = Specification.where((Specification<Exam>) null);
-//
-//        if (code != null && !code.isBlank()) {
-//            spec = spec.and(ExamSpecification.hasCodeLike(code));
-//        }
-//
-//        if (title != null && !title.isBlank()) {
-//            spec = spec.and(ExamSpecification.hasTitleLike(title));
-//        }
-//
-//        if (categoryName != null && !categoryName.isBlank()) {
-//            spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
-//        }
-//
-//        if (minDate != null && maxDate != null) {
-//            spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
-//        }
+//        log.info("aa1111111111");
+//        Specification<Exam> spec = Specification.where(null);   //ver 3.5.7
+//        Specification<Exam> spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction(); // ver 4.0.3 lamda
 
-        return examRepository.findAll(pageable).map(this::convertToDto);
+        Specification<Exam> spec = Specification.unrestricted();  //ver 4.0.3
+
+        if (code != null && !code.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCodeLike(code));
+        }
+
+        if (title != null && !title.isBlank()) {
+            spec = spec.and(ExamSpecification.hasTitleLike(title));
+        }
+
+        if (categoryName != null && !categoryName.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
+        }
+
+        if (minDate != null && maxDate != null) {
+            spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
+        }
+
+        return examRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 }
