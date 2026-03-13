@@ -8,4 +8,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ExamService {
     Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable);
+
+    Page<ExamResponse> getExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable);
 }

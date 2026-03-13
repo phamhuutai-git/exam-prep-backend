@@ -35,5 +35,11 @@ public class ExamSpecification {
         };
     }
 
+    public static Specification<Exam> hasClassId(Integer classId) {
+        return (root, query, criteriaBuilder) -> {
+            if (classId == null) return null;
+            return criteriaBuilder.equal(root.join("examClasses").join("classes").get("id"), classId);
+        };
 
+    }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -21,5 +22,8 @@ public class Classes {
 
     @Column(name="create_date")
     private LocalDateTime createDate;
+
+    @OneToMany(mappedBy = "classes", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExamClass> examClasses;
 
 }

@@ -115,6 +115,18 @@ create table exam_question
     foreign key (question_id) references question (id)
 );
 
+-- ================= EXAM CLASS  =================
+create table exam_class
+(
+    exam_id  int not null,
+    class_id int not null,
+
+    primary key (exam_id, class_id),
+
+    foreign key (exam_id) references exam (id),
+    foreign key (class_id) references classes (id)
+);
+
 -- ================= FAVORITE EXAM =================
 create table favorite_exam
 (
@@ -258,6 +270,14 @@ VALUES (1, 1),
        (2, 3),
        (3, 4),
        (4, 5);
+
+INSERT INTO exam_class (exam_id, class_id)
+VALUES
+    (1, 1), -- Lớp Railway01 (id=1) được giao đề Java Basic (id=1)
+    (2, 1), -- Lớp Railway01 (id=1) được giao đề Spring Test (id=2)
+    (3, 2), -- Lớp Railway02 (id=2) được giao đề SQL Test (id=3)
+    (4, 4), -- Lớp Rocket01 (id=4) được giao đề HTML Test (id=4)
+    (5, 5); -- Lớp Rocket02 (id=5) được giao đề JS Test (id=5)
 
 INSERT INTO favorite_exam (exam_id, student_id)
 VALUES (1, 4),
