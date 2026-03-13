@@ -1,9 +1,8 @@
-package com.example.examprepbackend.controller;
+package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.ExamRequestParam;
-import com.example.examprepbackend.dto.response.ExamResponse;
-import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.dto.response.teacher.ExamResponse;
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/exams")
+@RequestMapping("/api/teacher/exams")
 @RequiredArgsConstructor
-public class ExamController {
+public class TeacherExamController {
     private final ExamService examService;
 
     @GetMapping

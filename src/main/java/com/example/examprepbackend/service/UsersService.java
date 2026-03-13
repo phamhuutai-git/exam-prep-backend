@@ -6,6 +6,5 @@ import com.example.examprepbackend.entity.Users;
 
 public interface UsersService {
 
-    List<Users> getAllUsers();
 
 }

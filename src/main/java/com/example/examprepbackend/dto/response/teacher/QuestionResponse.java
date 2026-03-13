@@ -1,16 +1,14 @@
-package com.example.examprepbackend.dto.response;
+package com.example.examprepbackend.dto.response.teacher;
 
 import com.example.examprepbackend.constant.DifficultyLevel;
-import com.example.examprepbackend.entity.CategoryQuestion;
-import com.example.examprepbackend.entity.Users;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
+@JsonPropertyOrder({"id","content","difficulty","category"})
 public class QuestionResponse {
     private Integer id;
 
@@ -21,7 +19,4 @@ public class QuestionResponse {
 
     private String category;
 
-//    private UserSummaryResponse creator;
-//
-//    private LocalDateTime createDate;
 }

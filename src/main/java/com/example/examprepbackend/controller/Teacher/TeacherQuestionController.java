@@ -1,8 +1,7 @@
 package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.dto.response.QuestionResponse;
-import com.example.examprepbackend.entity.Question;
+import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import com.example.examprepbackend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

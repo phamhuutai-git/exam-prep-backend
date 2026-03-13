@@ -12,9 +12,6 @@ public class UsersController {
 
     private final UsersService usersService;
 
-    @GetMapping
-    public BaseResponse<?> getAllUsers(){
-        return BaseResponse.success(usersService.getAllUsers());
-    }
+
 
 }
