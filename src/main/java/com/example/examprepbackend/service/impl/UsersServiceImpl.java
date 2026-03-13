@@ -7,6 +7,7 @@ import com.example.examprepbackend.service.UsersService;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public List<Users> getAllUsers() {
@@ -29,11 +31,17 @@ public class UsersServiceImpl implements UsersService {
         if (existedUser != null) {
             throw new RuntimeException("Email already exists");
         }
-        if (request.getPassword() == null || !request.getPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Password and confirm password do not match");
+        if (request.getUsername() != null) {
+            existedUser = usersRepository.findByUsername(request.getUsername());
+            if (existedUser != null) {
+                throw new RuntimeException("Username already exists");
+            }
         }
 
-        Users user = new Users();
+
+
+
+        Users user = modelMapper.map(request,Users.class);
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
