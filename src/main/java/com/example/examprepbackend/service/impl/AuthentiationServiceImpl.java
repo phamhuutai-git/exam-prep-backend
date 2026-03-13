@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.time.ZoneId;
@@ -38,7 +39,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
     private final MailService mailService;
     private final ModelMapper modelMapper;
 
-//fomat giờ vn
+    //fomat giờ vn
     ZoneId vnZone = ZoneId.of("Asia/Ho_Chi_Minh");
     LocalDateTime vnTime = LocalDateTime.now(vnZone);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -113,6 +114,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
                 user.getFailCount()
         );
     }
+
     @Transactional
     @Override
     public String sendOtp(ForgotPassword forgetpw) {
@@ -141,7 +143,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
         newOtp.setExpireAt(LocalDateTime.now().plusMinutes(5));
         newOtp.setCreatedAt(LocalDateTime.now());
         otpRepository.save(newOtp);
-        log.info("Send OTP for user {} : {}", forgetpw.getEmail(),otp);
+        log.info("Send OTP for user {} : {}", forgetpw.getEmail(), otp);
         mailService.sendEmail(
                 user.get().getEmail(),
                 "Mã OTP xác thực lấy lại mật khẩu",
@@ -152,7 +154,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
                         + "Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn cho tài khoản.\n\n"
                         + "Trân trọng"
         );
-        return "OTP đã được gửi qua email :"+ forgetpw.getEmail();
+        return "OTP đã được gửi qua email :" + forgetpw.getEmail();
     }
 
     @Override
@@ -201,7 +203,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
         if (user.isEmpty()) {
             throw new ApplicationException("Account not found ID");
         }
-    Users users = user.get();
+        Users users = user.get();
         users.setStatus(Status.ACTIVED);
         users.setFailCount(0);
         users.setLockTime(null);

@@ -19,11 +19,13 @@ public class ExamResponse {
 
     private LocalTime duration;
 
-    private CategoryQuestion category;
-
-    private UserSummaryResponse creator;
+    private String category;
 
     private LocalDateTime createDate;
+
+    private Long questions;
+
+    private Long attempts;
 
 
 }
