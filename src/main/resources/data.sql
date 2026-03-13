@@ -37,7 +37,7 @@ create table users
     department_id int,
     create_date   datetime,
     -- đếm số lần bị khóa
-    fail_count    INT                   DEFAULT 0,
+    fail_count    INT DEFAULT 0,
     -- thời gian bị khóa
     lock_time     datetime,
 
@@ -291,6 +291,8 @@ where id = 2; -- TEACHER:12345
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
 where id = 4; -- STUDENT:1234
+
+
 update users
 set email ='ngoquangtruongjk05@gmail.com'
 where id = 1;
