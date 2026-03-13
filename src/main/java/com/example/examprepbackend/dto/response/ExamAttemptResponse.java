@@ -1,33 +1,25 @@
-package com.example.examprepbackend.entity;
+package com.example.examprepbackend.dto.response;
 
 import com.example.examprepbackend.constant.AttemptStatus;
+import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.entity.Users;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "exam_attempt")
-public class ExamAttempt {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ExamAttemptResponse {
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "exam_id")
     private Exam exam;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
     private Users student;
 
-    @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     private Double score;
