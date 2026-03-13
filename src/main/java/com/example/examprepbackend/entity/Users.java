@@ -2,6 +2,7 @@ package com.example.examprepbackend.entity;
 
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Users {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
     @Column(name="first_name")
