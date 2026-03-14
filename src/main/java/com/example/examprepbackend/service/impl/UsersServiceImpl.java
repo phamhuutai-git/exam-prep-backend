@@ -1,13 +1,14 @@
 package com.example.examprepbackend.service.impl;
 
 import com.example.examprepbackend.dto.request.CreateUserRequest;
+import com.example.examprepbackend.dto.response.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
+import com.example.examprepbackend.mapper.UserMapper;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.UsersService;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.Optional;
 public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -31,7 +32,7 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public Users createUser(CreateUserRequest request) {
+    public UserSummaryResponse createUser(CreateUserRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("CreateUserRequest must not be null");
         }
@@ -65,7 +66,7 @@ public class UsersServiceImpl implements UsersService {
         }
 
 
-        Users user = modelMapper.map(request, Users.class);
+        Users user = userMapper.toEntity(request);
         user.setEmail(email);
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -77,7 +78,9 @@ public class UsersServiceImpl implements UsersService {
         user.setCreatedDate(LocalDateTime.now());
         user.setFailCount(0);
 
-        return usersRepository.save(user);
+        Users saved = usersRepository.save(user);
+        // map to DTO before returning
+        return userMapper.toDto(saved);
     }
 
 }

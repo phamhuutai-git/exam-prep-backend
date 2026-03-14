@@ -2,7 +2,7 @@ package com.example.examprepbackend.controller;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.CreateUserRequest;
-import com.example.examprepbackend.entity.Users;
+import com.example.examprepbackend.dto.response.UserSummaryResponse;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,9 @@ public class UsersController {
     }
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Users>> createUser(@RequestBody @Valid CreateUserRequest request) {
-        return ResponseEntity.ok(new BaseResponse<>(usersService.createUser(request), "User created successfully"));
+    public ResponseEntity<BaseResponse<UserSummaryResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
+        UserSummaryResponse dto = usersService.createUser(request);
+        return ResponseEntity.ok(new BaseResponse<>(dto, "User created successfully"));
     }
 
 }
