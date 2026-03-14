@@ -18,14 +18,23 @@ import com.example.examprepbackend.repository.QuestionRepository;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.QuestionService;
 import com.example.examprepbackend.specification.QuestionSpecification;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -121,7 +130,7 @@ public class QuestionServiceImpl implements QuestionService {
         return convertToDto(question.get());
     }
 
-
+    @Transactional
     @Override
     public QuestionResponse createQuestion(CreateQuestionRequest request) {
 
@@ -130,21 +139,19 @@ public class QuestionServiceImpl implements QuestionService {
         question.setContent(request.getContent());
         question.setDifficultyLevel(request.getDifficulty());
 
-        CategoryQuestion category = categoryRepository
-                .findById(request.getCategoryId())
-                .orElseThrow(() ->
-                        new ApplicationException("Category not found")
-                );
-
-        question.setCategory(category);
+        Optional<CategoryQuestion> categoryQuestion  = categoryRepository.findById(request.getCategoryId());
+        if (categoryQuestion.isEmpty()) {
+            throw new ApplicationException("Category with id " + request.getCategoryId() + " not found");
+        }
+        question.setCategory(categoryQuestion.get());
 
         String username = SecurityUtils.getCurrentUsername();
 
 
-Optional<Users> user = userRepository.findByUsername(username);
-if (user.isEmpty()) {
-    throw new ApplicationException("User with name " + username + " not found");
-}
+        Optional<Users> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new ApplicationException("User with name " + username + " not found");
+        }
         question.setCreator(user.get());
 
         question.setCreateDate(LocalDateTime.now());
@@ -172,20 +179,21 @@ if (user.isEmpty()) {
     @Override
     public QuestionResponse updateQuestion(Integer id, CreateQuestionRequest request) {
 
-Optional<Question> question = questionRepository.findById(id);
-if (question.isEmpty()) {
-    throw new ApplicationException("Question with id " + id + " not found");
-}
-Question questions = question.get();
+        Optional<Question> question = questionRepository.findById(id);
+        if (question.isEmpty()) {
+            throw new ApplicationException("Question with id " + id + " not found");
+        }
+        Question questions = question.get();
         // update question
         questions.setContent(request.getContent());
         questions.setDifficultyLevel(request.getDifficulty());
 
-        CategoryQuestion category = categoryRepository
-                .findById(request.getCategoryId())
-                .orElseThrow(() -> new ApplicationException("Category not found"));
+        Optional<CategoryQuestion> categoryQuestion  = categoryRepository.findById(request.getCategoryId());
+        if (categoryQuestion.isEmpty()) {
+            throw new ApplicationException("Category with id " + request.getCategoryId() + " not found");
+        }
 
-        questions.setCategory(category);
+        questions.setCategory(categoryQuestion.get());
 
         Question savedQuestion = questionRepository.save(questions);
 
@@ -220,5 +228,147 @@ Question questions = question.get();
         }
 
         questionRepository.delete(question.get());
+    }
+
+    @Override
+    public void exportQuestionToExcel(HttpServletResponse response) throws IOException {
+
+        List<Question> questions = questionRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Questions");
+
+        // ===== HEADER STYLE =====
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+
+        // ===== HEADER =====
+        Row headerRow = sheet.createRow(0);
+
+        String[] columns = {
+                "ID",
+                "Content",
+                "Difficulty",
+                "Category",
+                "Created Date"
+        };
+
+        for (int i = 0; i < columns.length; i++) {
+
+            Cell cell = headerRow.createCell(i);
+
+            cell.setCellValue(columns[i]);
+
+            cell.setCellStyle(headerStyle);
+        }
+
+        // ===== DATA =====
+
+        int rowIndex = 1;
+
+        for (Question question : questions) {
+
+            Row row = sheet.createRow(rowIndex++);
+
+            row.createCell(0).setCellValue(question.getId());
+
+            row.createCell(1).setCellValue(question.getContent());
+
+            row.createCell(2).setCellValue(
+                    question.getDifficultyLevel() != null ?
+                            question.getDifficultyLevel().toString() : ""
+            );
+
+            row.createCell(3).setCellValue(
+                    question.getCategory() != null ?
+                            question.getCategory().getName() : ""
+            );
+
+            row.createCell(4).setCellValue(
+                    question.getCreateDate() != null ?
+                            question.getCreateDate().toString() : ""
+            );
+        }
+
+        // ===== AUTO SIZE =====
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // ===== WRITE FILE =====
+
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        workbook.write(outputStream);
+        workbook.close();
+
+        outputStream.close();
+    }
+
+    @Override
+    @Transactional
+    public void importQuestionFromExcel(MultipartFile file) throws IOException {
+        if(!file.getOriginalFilename().endsWith(".xlsx")){
+            throw new ApplicationException("Only Excel file allowed");
+        }
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+
+            Row row = sheet.getRow(i);
+
+            if (row == null) continue;
+
+            Question question = new Question();
+
+            question.setContent(row.getCell(0).getStringCellValue());
+
+            question.setDifficultyLevel(
+                    DifficultyLevel.valueOf(row.getCell(1).getStringCellValue())
+            );
+
+            Integer categoryId = (int) row.getCell(2).getNumericCellValue();
+
+            CategoryQuestion category = categoryRepository
+                    .findById(categoryId)
+                    .orElseThrow(() -> new ApplicationException("Category not found"));
+
+            question.setCategory(category);
+
+            String username = SecurityUtils.getCurrentUsername();
+
+            Users user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ApplicationException("User not found"));
+
+            question.setCreator(user);
+
+            question.setCreateDate(LocalDateTime.now());
+
+            Question savedQuestion = questionRepository.save(question);
+
+            List<Answer> answers = new ArrayList<>();
+
+            for (int j = 0; j < 4; j++) {
+
+                Answer answer = new Answer();
+
+                answer.setContent(row.getCell(3 + j * 2).getStringCellValue());
+
+                answer.setIsCorrect(row.getCell(4 + j * 2).getBooleanCellValue());
+
+                answer.setQuestion(savedQuestion);
+
+                answers.add(answer);
+            }
+
+            answerRepository.saveAll(answers);
+        }
+
+        workbook.close();
     }
 }

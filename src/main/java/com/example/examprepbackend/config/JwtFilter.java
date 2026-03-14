@@ -49,11 +49,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 String username = jwtUtils.getUsernameFromToken(token);
 
-                Optional<Users> user = userRepository
-                        .findByUsername(username);
-                if(user.isEmpty()){
-                    throw new ApplicationException("account is empty");
-                }
+                Optional<Users> userOpt = userRepository.findByUsername(username);
+
+                Users user = userOpt.orElseThrow(() ->
+                        new ApplicationException("User not found")
+                );
 
                 if(user != null){
 
