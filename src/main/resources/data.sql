@@ -37,9 +37,9 @@ create table users
     department_id int,
     create_date   datetime,
     -- đếm số lần bị khóa
-    fail_count    INT DEFAULT 0,
+    fail_count INT DEFAULT 0,
     -- thời gian bị khóa
-    lock_time     datetime,
+    lock_time  datetime,
 
     foreign key (class_id) references classes (id),
     foreign key (department_id) references department (id)
@@ -85,7 +85,7 @@ create table answer
     question_id int     not null,
     is_correct  boolean not null,
 
-    foreign key (question_id) references question (id)
+    foreign key (question_id) references question (id) on delete cascade
 );
 
 -- ================= EXAM =================
@@ -111,8 +111,8 @@ create table exam_question
 
     primary key (exam_id, question_id),
 
-    foreign key (exam_id) references exam (id),
-    foreign key (question_id) references question (id)
+    foreign key (exam_id) references exam (id) on delete cascade,
+    foreign key (question_id) references question (id) on delete cascade
 );
 
 -- ================= FAVORITE EXAM =================
@@ -123,8 +123,9 @@ create table favorite_exam
 
     primary key (exam_id, student_id),
 
-    foreign key (exam_id) references exam (id),
-    foreign key (student_id) references users (id)
+
+    foreign key (exam_id) references exam (id) on delete cascade,
+    foreign key (student_id) references users (id) on delete cascade
 );
 
 -- ================= EXAM ATTEMPT =================
@@ -138,8 +139,9 @@ create table exam_attempt
     score      decimal(4, 2),
     status     enum('IN_PROGRESS','SUBMITTED') not null,
 
-    foreign key (exam_id) references exam (id),
-    foreign key (student_id) references users (id)
+
+    foreign key (exam_id) references exam (id) on delete cascade,
+    foreign key (student_id) references users (id) on delete cascade
 );
 
 -- ================= STUDENT ANSWER =================
@@ -149,8 +151,8 @@ create table student_answer
     attempt_id int not null,
     answer_id  int not null,
 
-    foreign key (attempt_id) references exam_attempt (id),
-    foreign key (answer_id) references answer (id)
+    foreign key (attempt_id) references exam_attempt (id) on delete cascade,
+    foreign key (answer_id) references answer (id) on delete cascade
 );
 CREATE TABLE otps
 (
@@ -291,8 +293,6 @@ where id = 2; -- TEACHER:12345
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
 where id = 4; -- STUDENT:1234
-
-
 update users
 set email ='ngoquangtruongjk05@gmail.com'
 where id = 1;
@@ -301,3 +301,5 @@ select*
 from users;
 select id, username, email, password
 from users;
+SELECT *
+FROM category_question;
