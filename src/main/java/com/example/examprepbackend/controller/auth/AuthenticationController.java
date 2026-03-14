@@ -1,4 +1,4 @@
-package com.example.examprepbackend.controller;
+package com.example.examprepbackend.controller.auth;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.authentication.ForgotPassword;

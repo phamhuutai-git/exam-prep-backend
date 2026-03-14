@@ -1,4 +1,4 @@
-package com.example.examprepbackend.controller;
+package com.example.examprepbackend.controller.auth;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
