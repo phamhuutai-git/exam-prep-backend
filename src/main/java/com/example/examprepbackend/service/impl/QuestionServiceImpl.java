@@ -1,35 +1,224 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.config.SecurityUtils;
+import com.example.examprepbackend.constant.DifficultyLevel;
+import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequest;
+import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
+import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
+import com.example.examprepbackend.entity.Answer;
+import com.example.examprepbackend.entity.CategoryQuestion;
 import com.example.examprepbackend.entity.Question;
+import com.example.examprepbackend.entity.Users;
+import com.example.examprepbackend.exception.ApplicationException;
+import com.example.examprepbackend.repository.AnswerRepository;
+import com.example.examprepbackend.repository.CategoryQuestionRepository;
 import com.example.examprepbackend.repository.QuestionRepository;
+import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.QuestionService;
+import com.example.examprepbackend.specification.QuestionSpecification;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
 
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
+    private final UsersRepository userRepository;
+    private final CategoryQuestionRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
     //Map question -> questionResponse
     private QuestionResponse convertToDto(Question question) {
+
         QuestionResponse questionResponse = new QuestionResponse();
 
         BeanUtils.copyProperties(question, questionResponse);
 
         questionResponse.setCategory(question.getCategory().getName());
+
         questionResponse.setDifficulty(question.getDifficultyLevel());
+
+        questionResponse.setCreator(question.getCreator().getUsername());
+
+        questionResponse.setCreatedDate(
+                question.getCreateDate().toLocalDate().toString()
+        );
+
+        // lấy answers
+        List<Answer> answers = answerRepository.findByQuestion_Id(question.getId());
+
+        List<AnswerResponse> answerResponses = answers.stream().map(a -> {
+            AnswerResponse dto = new AnswerResponse();
+            dto.setContent(a.getContent());
+            dto.setIsCorrect(a.getIsCorrect());
+            return dto;
+        }).toList();
+
+        questionResponse.setAnswers(answerResponses);
+
         return questionResponse;
     }
 
 
     @Override
-    public Page<QuestionResponse> getAllQuestions(Pageable pageable) {
-        return questionRepository.findAll(pageable).map(this::convertToDto);
+    public Page<QuestionResponse> getAllQuestions(QuestionRequestParam param, Pageable pageable) {
+
+        String content = param.getContent();
+        DifficultyLevel difficulty = param.getDifficulty();
+        Integer categoryId = param.getCategoryId();
+        Integer creatorId = param.getCreatorId();
+        LocalDate minDate = param.getMinDate();
+        LocalDate maxDate = param.getMaxDate();
+
+        Specification<Question> spec = Specification.unrestricted();
+
+        if (content != null && !content.isBlank()) {
+            spec = spec.and(QuestionSpecification.hasContentLike(content));
+        }
+
+        if (difficulty != null) {
+            spec = spec.and(QuestionSpecification.hasDifficulty(difficulty));
+        }
+
+        if (categoryId != null) {
+            spec = spec.and(QuestionSpecification.hasCategoryId(categoryId));
+        }
+
+        if (creatorId != null) {
+            spec = spec.and(QuestionSpecification.hasCreatorId(creatorId));
+        }
+
+        if (minDate != null && maxDate != null) {
+            spec = spec.and(QuestionSpecification.hasCreateDate(minDate, maxDate));
+        }
+
+        return questionRepository.findAll(spec, pageable)
+                .map(this::convertToDto);
+    }
+
+
+    @Override
+    public QuestionResponse getQuestionById(Integer id) {
+        Optional<Question> question = questionRepository.findById(id);
+        if (question.isEmpty()) {
+            throw new ApplicationException("Question with id " + id + " not found");
+        }
+        return convertToDto(question.get());
+    }
+
+
+    @Override
+    public QuestionResponse createQuestion(CreateQuestionRequest request) {
+
+        Question question = new Question();
+
+        question.setContent(request.getContent());
+        question.setDifficultyLevel(request.getDifficulty());
+
+        CategoryQuestion category = categoryRepository
+                .findById(request.getCategoryId())
+                .orElseThrow(() ->
+                        new ApplicationException("Category not found")
+                );
+
+        question.setCategory(category);
+
+        String username = SecurityUtils.getCurrentUsername();
+
+
+Optional<Users> user = userRepository.findByUsername(username);
+if (user.isEmpty()) {
+    throw new ApplicationException("User with name " + username + " not found");
+}
+        question.setCreator(user.get());
+
+        question.setCreateDate(LocalDateTime.now());
+
+        Question savedQuestion = questionRepository.save(question);
+
+        List<Answer> answers = new ArrayList<>();
+
+        for (CreateAnswerRequest a : request.getAnswers()) {
+
+            Answer answer = new Answer();
+            answer.setContent(a.getContent());
+            answer.setIsCorrect(a.getIsCorrect());
+            answer.setQuestion(savedQuestion);
+
+            answers.add(answer);
+        }
+
+        answerRepository.saveAll(answers);
+
+        return convertToDto(savedQuestion);
+    }
+
+    @Transactional
+    @Override
+    public QuestionResponse updateQuestion(Integer id, CreateQuestionRequest request) {
+
+Optional<Question> question = questionRepository.findById(id);
+if (question.isEmpty()) {
+    throw new ApplicationException("Question with id " + id + " not found");
+}
+Question questions = question.get();
+        // update question
+        questions.setContent(request.getContent());
+        questions.setDifficultyLevel(request.getDifficulty());
+
+        CategoryQuestion category = categoryRepository
+                .findById(request.getCategoryId())
+                .orElseThrow(() -> new ApplicationException("Category not found"));
+
+        questions.setCategory(category);
+
+        Question savedQuestion = questionRepository.save(questions);
+
+        // xóa answers cũ
+        answerRepository.deleteByQuestion_Id(id);
+
+        // thêm answers mới
+        List<Answer> answers = new ArrayList<>();
+
+        for (CreateAnswerRequest a : request.getAnswers()) {
+
+            Answer answer = new Answer();
+            answer.setContent(a.getContent());
+            answer.setIsCorrect(a.getIsCorrect());
+            answer.setQuestion(savedQuestion);
+
+            answers.add(answer);
+        }
+
+        answerRepository.saveAll(answers);
+
+        return convertToDto(savedQuestion);
+    }
+
+    @Transactional
+    @Override
+    public void deleteQuestion(Integer id) {
+
+        Optional<Question> question = questionRepository.findById(id);
+        if (question.isEmpty()) {
+            throw new ApplicationException("Question with id " + id + " not found");
+        }
+
+        questionRepository.delete(question.get());
     }
 }

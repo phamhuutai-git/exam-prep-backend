@@ -1,7 +1,7 @@
 package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.dto.request.ExamRequestParam;
+import com.example.examprepbackend.dto.request.teacher.Exam.ExamRequestParam;
 import com.example.examprepbackend.dto.response.teacher.ExamResponse;
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;

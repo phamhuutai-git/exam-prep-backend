@@ -1,6 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.request.ExamRequestParam;
+import com.example.examprepbackend.dto.request.teacher.Exam.ExamRequestParam;
 import com.example.examprepbackend.dto.response.teacher.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
