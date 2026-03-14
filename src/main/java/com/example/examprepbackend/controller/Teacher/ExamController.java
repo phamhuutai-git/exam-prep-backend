@@ -1,9 +1,8 @@
-package com.example.examprepbackend.controller;
+package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.dto.request.ExamRequestParam;
-import com.example.examprepbackend.dto.response.ExamResponse;
-import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
+import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

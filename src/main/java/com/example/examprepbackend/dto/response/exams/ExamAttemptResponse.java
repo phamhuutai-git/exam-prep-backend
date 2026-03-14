@@ -1,4 +1,4 @@
-package com.example.examprepbackend.dto.response;
+package com.example.examprepbackend.dto.response.exams;
 
 import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.entity.Exam;

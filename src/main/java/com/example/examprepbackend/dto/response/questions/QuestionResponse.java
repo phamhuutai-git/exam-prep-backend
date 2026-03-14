@@ -1,13 +1,9 @@
-package com.example.examprepbackend.dto.response;
+package com.example.examprepbackend.dto.response.questions;
 
 import com.example.examprepbackend.constant.DifficultyLevel;
-import com.example.examprepbackend.entity.CategoryQuestion;
-import com.example.examprepbackend.entity.Users;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
