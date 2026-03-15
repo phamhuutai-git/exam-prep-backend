@@ -1,6 +1,6 @@
 package com.example.examprepbackend.dto.response.exams;
 
-import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +9,7 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
+@JsonPropertyOrder({"id","code","title","duration","category","createDate","questions","attempts"})
 public class ExamResponse {
 
     private Integer id;

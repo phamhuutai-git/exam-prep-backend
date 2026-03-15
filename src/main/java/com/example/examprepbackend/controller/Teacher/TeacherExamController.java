@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/exams")
+@RequestMapping("/api/teacher/exams")
 @RequiredArgsConstructor
-public class ExamController {
+public class TeacherExamController {
     private final ExamService examService;
 
     @GetMapping
@@ -30,7 +30,7 @@ public class ExamController {
 
     @GetMapping("/teacher-name")
     public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByTeacherName(Authentication authentication,
-                                                                                  @PageableDefault(sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                                  @PageableDefault(size = 5, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, pageable), "Get Exams by Teacher"));
     }
 }

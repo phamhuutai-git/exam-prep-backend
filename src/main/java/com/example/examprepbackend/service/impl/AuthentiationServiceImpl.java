@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.time.ZoneId;
@@ -140,7 +139,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
         Otp newOtp = new Otp();
         newOtp.setEmail(forgetpw.getEmail());
         newOtp.setOtp(otp);
-        newOtp.setExpireAt(LocalDateTime.now().plusMinutes(5));
+        newOtp.setExpireAt(LocalDateTime.now().plusSeconds(30));//30s bị xóa
         newOtp.setCreatedAt(LocalDateTime.now());
         otpRepository.save(newOtp);
         log.info("Send OTP for user {} : {}", forgetpw.getEmail(), otp);
