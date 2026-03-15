@@ -1,9 +1,7 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.request.ExamRequestParam;
-import com.example.examprepbackend.dto.response.ExamResponse;
-import com.example.examprepbackend.dto.response.UserSummaryResponse;
-import com.example.examprepbackend.entity.CategoryQuestion;
+import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
+import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
 import com.example.examprepbackend.repository.ExamQuestionRepository;
@@ -19,7 +17,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service

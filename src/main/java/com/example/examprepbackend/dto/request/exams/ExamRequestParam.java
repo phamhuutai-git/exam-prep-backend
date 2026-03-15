@@ -1,11 +1,9 @@
-package com.example.examprepbackend.dto.request;
+package com.example.examprepbackend.dto.request.exams;
 
-import com.example.examprepbackend.entity.CategoryQuestion;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

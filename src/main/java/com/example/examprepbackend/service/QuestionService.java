@@ -1,7 +1,6 @@
 package com.example.examprepbackend.service;
 
-import com.example.examprepbackend.dto.response.QuestionResponse;
-import com.example.examprepbackend.entity.Question;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
