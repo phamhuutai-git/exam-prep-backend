@@ -1,5 +1,6 @@
 package com.example.examprepbackend.dto.response.exams;
 
+import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +26,8 @@ public class ExamResponse {
     private Long questions;
 
     private Long attempts;
+
+    private String creatorName;
 
 
 }
