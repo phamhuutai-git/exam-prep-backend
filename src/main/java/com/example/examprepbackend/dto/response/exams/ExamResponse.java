@@ -1,6 +1,5 @@
-package com.example.examprepbackend.dto.response;
+package com.example.examprepbackend.dto.response.exams;
 
-import com.example.examprepbackend.entity.CategoryQuestion;
 import lombok.Getter;
 import lombok.Setter;
 

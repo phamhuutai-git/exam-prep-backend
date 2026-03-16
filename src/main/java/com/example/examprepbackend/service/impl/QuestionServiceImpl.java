@@ -1,7 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.response.QuestionResponse;
-import com.example.examprepbackend.dto.response.UserSummaryResponse;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.entity.Question;
 import com.example.examprepbackend.repository.QuestionRepository;
 import com.example.examprepbackend.service.QuestionService;

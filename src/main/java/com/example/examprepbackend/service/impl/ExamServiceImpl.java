@@ -1,9 +1,7 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.request.ExamRequestParam;
-import com.example.examprepbackend.dto.response.ExamResponse;
-import com.example.examprepbackend.dto.response.UserSummaryResponse;
-import com.example.examprepbackend.entity.CategoryQuestion;
+import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
+import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
 import com.example.examprepbackend.repository.ExamQuestionRepository;
@@ -19,7 +17,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -58,6 +55,35 @@ public class ExamServiceImpl implements ExamService {
 
         Specification<Exam> spec = Specification.unrestricted();  //ver 4.0.3
 
+        if (code != null && !code.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCodeLike(code));
+        }
+
+        if (title != null && !title.isBlank()) {
+            spec = spec.and(ExamSpecification.hasTitleLike(title));
+        }
+
+        if (categoryName != null && !categoryName.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
+        }
+
+        if (minDate != null && maxDate != null) {
+            spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
+        }
+
+        return examRepository.findAll(spec, pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public Page<ExamResponse> getExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable) {
+        String code = examRequestParam.getCode();
+        String title = examRequestParam.getTitle();
+        String categoryName = examRequestParam.getCategoryName();
+        LocalDate minDate = examRequestParam.getMinDate();
+        LocalDate maxDate = examRequestParam.getMaxDate();
+
+        // Spec theo classId
+        Specification<Exam> spec = Specification.where(ExamSpecification.hasClassId(classId));
         if (code != null && !code.isBlank()) {
             spec = spec.and(ExamSpecification.hasCodeLike(code));
         }

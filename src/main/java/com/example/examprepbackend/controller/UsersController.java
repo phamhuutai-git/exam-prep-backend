@@ -2,7 +2,7 @@ package com.example.examprepbackend.controller;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.CreateUserRequest;
-import com.example.examprepbackend.dto.response.UserSummaryResponse;
+import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

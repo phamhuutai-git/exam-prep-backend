@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,4 +33,7 @@ public class Exam {
 
     @Column(name = "create_date")
     private LocalDateTime createDate;
+
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExamClass> examClasses;
 }
