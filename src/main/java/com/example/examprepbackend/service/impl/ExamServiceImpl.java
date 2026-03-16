@@ -1,7 +1,7 @@
 package com.example.examprepbackend.service.impl;
 
 
-import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
+import com.example.examprepbackend.dto.request.teacher.Exam.ExamRequestParam;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.exception.ApplicationException;

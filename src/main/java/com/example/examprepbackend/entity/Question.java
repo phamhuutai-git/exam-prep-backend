@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,4 +33,9 @@ public class Question {
 
     @Column(name = "create_date")
     private LocalDateTime createDate;
+
+    private String explanation;
+// thêm để xuất exccel
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    private List<Answer> answers;
 }

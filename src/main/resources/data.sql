@@ -1,167 +1,169 @@
-drop
-database if exists exam_management_system;
-create
-database exam_management_system;
-use
+DROP
+DATABASE IF EXISTS exam_management_system;
+CREATE
+DATABASE exam_management_system;
+USE
 exam_management_system;
 
 -- ================= CLASSES =================
-create table classes
+CREATE TABLE classes
 (
-    id          int primary key auto_increment,
-    name        varchar(255) not null unique,
-    create_date datetime
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL UNIQUE,
+    create_date DATETIME
 );
 
 -- ================= DEPARTMENT =================
-create table department
+CREATE TABLE department
 (
-    id          int primary key auto_increment,
-    name        varchar(255) not null unique,
-    create_date datetime
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL UNIQUE,
+    create_date DATETIME
 );
 
 -- ================= USERS =================
-create table users
+CREATE TABLE users
 (
-    id            int primary key auto_increment,
-    email         varchar(255) not null unique,
-    username      varchar(255) not null unique,
-    password      varchar(255) not null,
-    first_name    varchar(255) not null,
-    last_name     varchar(255) not null,
-    role          enum('ADMIN','TEACHER','STUDENT') not null,
-    is_active     boolean      not null default true,
-    status        enum('ACTIVED','LOCKED') not null,
-    class_id      int,
-    department_id int,
-    create_date   datetime,
-    -- đếm số lần bị khóa
-    fail_count INT DEFAULT 0,
-    -- thời gian bị khóa
-    lock_time  datetime,
+    id            INT PRIMARY KEY AUTO_INCREMENT,
+    email         VARCHAR(255) NOT NULL UNIQUE,
+    username      VARCHAR(255) NOT NULL UNIQUE,
+    password      VARCHAR(255) NOT NULL,
+    first_name    VARCHAR(255) NOT NULL,
+    last_name     VARCHAR(255) NOT NULL,
+    role          ENUM('ADMIN','TEACHER','STUDENT') NOT NULL,
+    is_active     BOOLEAN      NOT NULL DEFAULT TRUE,
+    status        ENUM('ACTIVED','LOCKED') NOT NULL,
+    class_id      INT,
+    department_id INT,
+    create_date   DATETIME,
 
-    foreign key (class_id) references classes (id),
-    foreign key (department_id) references department (id)
+    fail_count    INT                   DEFAULT 0,
+    lock_time     DATETIME,
+
+    FOREIGN KEY (class_id) REFERENCES classes (id),
+    FOREIGN KEY (department_id) REFERENCES department (id)
 );
+
 -- ================= CLASS TEACHER =================
-create table class_teacher
+CREATE TABLE class_teacher
 (
-    class_id   int not null,
-    teacher_id int not null,
+    class_id   INT NOT NULL,
+    teacher_id INT NOT NULL,
 
-    primary key (class_id, teacher_id),
+    PRIMARY KEY (class_id, teacher_id),
 
-    foreign key (class_id) references classes (id),
-    foreign key (teacher_id) references users (id)
+    FOREIGN KEY (class_id) REFERENCES classes (id),
+    FOREIGN KEY (teacher_id) REFERENCES users (id)
 );
 
 -- ================= CATEGORY QUESTION =================
-create table category_question
+CREATE TABLE category_question
 (
-    id   int primary key auto_increment,
-    name varchar(255) not null unique
+    id   INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- ================= QUESTION =================
-create table question
+CREATE TABLE question
 (
-    id               int primary key auto_increment,
-    content          text not null,
-    difficulty_level enum('EASY','MEDIUM','HARD') not null,
-    category_id      int  not null,
-    creator_id       int  not null,
-    create_date      datetime,
+    id               INT PRIMARY KEY AUTO_INCREMENT,
+    content          TEXT NOT NULL,
+    difficulty_level ENUM('EASY','MEDIUM','HARD') NOT NULL,
+    category_id      INT  NOT NULL,
+    creator_id       INT  NOT NULL,
+    create_date      DATETIME,
+    explanation      TEXT,
 
-    foreign key (category_id) references category_question (id),
-    foreign key (creator_id) references users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id),
+    FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 -- ================= ANSWER =================
-create table answer
+CREATE TABLE answer
 (
-    id          int primary key auto_increment,
-    content     text    not null,
-    question_id int     not null,
-    is_correct  boolean not null,
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    content     TEXT    NOT NULL,
+    question_id INT     NOT NULL,
+    is_correct  BOOLEAN NOT NULL,
 
-    foreign key (question_id) references question (id) on delete cascade
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
 );
 
 -- ================= EXAM =================
-create table exam
+CREATE TABLE exam
 (
-    id          int primary key auto_increment,
-    code        varchar(255) not null unique,
-    title       varchar(255) not null,
-    duration    time         not null,
-    category_id int          not null,
-    creator_id  int          not null,
-    create_date datetime,
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    code        VARCHAR(255) NOT NULL UNIQUE,
+    title       VARCHAR(255) NOT NULL,
+    duration    TIME         NOT NULL,
+    category_id INT          NOT NULL,
+    creator_id  INT          NOT NULL,
+    create_date DATETIME,
 
-    foreign key (category_id) references category_question (id),
-    foreign key (creator_id) references users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id),
+    FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 -- ================= EXAM QUESTION =================
-create table exam_question
+CREATE TABLE exam_question
 (
-    exam_id     int not null,
-    question_id int not null,
+    exam_id     INT NOT NULL,
+    question_id INT NOT NULL,
 
-    primary key (exam_id, question_id),
+    PRIMARY KEY (exam_id, question_id),
 
-    foreign key (exam_id) references exam (id) on delete cascade,
-    foreign key (question_id) references question (id) on delete cascade
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
 );
 
 -- ================= FAVORITE EXAM =================
-create table favorite_exam
+CREATE TABLE favorite_exam
 (
-    exam_id    int not null,
-    student_id int not null,
+    exam_id    INT NOT NULL,
+    student_id INT NOT NULL,
 
-    primary key (exam_id, student_id),
+    PRIMARY KEY (exam_id, student_id),
 
-
-    foreign key (exam_id) references exam (id) on delete cascade,
-    foreign key (student_id) references users (id) on delete cascade
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= EXAM ATTEMPT =================
-create table exam_attempt
+CREATE TABLE exam_attempt
 (
-    id         int primary key auto_increment,
-    exam_id    int not null,
-    student_id int not null,
-    start_time datetime,
-    end_time   datetime,
-    score      decimal(4, 2),
-    status     enum('IN_PROGRESS','SUBMITTED') not null,
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    exam_id    INT NOT NULL,
+    student_id INT NOT NULL,
+    start_time DATETIME,
+    end_time   DATETIME,
+    score      DECIMAL(4, 2),
+    status     ENUM('IN_PROGRESS','SUBMITTED') NOT NULL,
 
-
-    foreign key (exam_id) references exam (id) on delete cascade,
-    foreign key (student_id) references users (id) on delete cascade
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= STUDENT ANSWER =================
-create table student_answer
+CREATE TABLE student_answer
 (
-    id         int primary key auto_increment,
-    attempt_id int not null,
-    answer_id  int not null,
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    attempt_id INT NOT NULL,
+    answer_id  INT NOT NULL,
 
-    foreign key (attempt_id) references exam_attempt (id) on delete cascade,
-    foreign key (answer_id) references answer (id) on delete cascade
+    FOREIGN KEY (attempt_id) REFERENCES exam_attempt (id) ON DELETE CASCADE,
+    FOREIGN KEY (answer_id) REFERENCES answer (id) ON DELETE CASCADE
 );
+
+-- ================= OTP TABLE =================
 CREATE TABLE otps
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
-    email      VARCHAR(50) NOT NULL,
-    otp        INT         NOT NULL,
+    email      VARCHAR(255) NOT NULL,
+    otp        INT          NOT NULL,
     type       VARCHAR(50),
-    expire_at  datetime,
-    created_at datetime,
+    expire_at  DATETIME,
+    created_at DATETIME,
+
     FOREIGN KEY (email) REFERENCES users (email)
 );
 INSERT INTO classes (name, create_date)
@@ -180,7 +182,9 @@ VALUES ('Backend', '2024-01-01 09:00:00'),
 
 INSERT INTO users
 (email, username, password, first_name, last_name, role, is_active, status, class_id, department_id, create_date)
-VALUES ('admin@mail.com', 'admin', 'admin123', 'An', 'Nguyen', 'ADMIN', true, 'ACTIVED', NULL, NULL,
+VALUES ('admin1@mail.com', 'admin1', 'admin123', 'Hai', 'Dong', 'ADMIN', true, 'ACTIVED', NULL, NULL,
+        '2024-01-01 10:00:00'),
+       ('admin2@mail.com', 'admin2', 'admin123', 'Tai', 'Pham', 'ADMIN', true, 'ACTIVED', NULL, NULL,
         '2024-01-01 10:00:00'),
        ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, 1,
         '2024-01-02 10:00:00'),
@@ -206,13 +210,21 @@ VALUES ('Java'),
        ('JavaScript');
 
 INSERT INTO question
-    (content, difficulty_level, category_id, creator_id, create_date)
-VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01'),
-       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02'),
-       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03'),
-       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04'),
-       ('What is HTML?', 'EASY', 4, 3, '2024-02-05');
+(content, difficulty_level, category_id, creator_id, create_date, explanation)
+VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01',
+        'Java is a high-level programming language used to build applications'),
 
+       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02',
+        'OOP has four main principles: Encapsulation, Inheritance, Polymorphism, and Abstraction'),
+
+       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03',
+        'Spring Boot is a framework that simplifies the development of Spring applications'),
+
+       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04',
+        'A primary key uniquely identifies each record in a database table'),
+
+       ('What is HTML?', 'EASY', 4, 3, '2024-02-05',
+        'HTML is a markup language used to structure web pages');
 
 INSERT INTO answer (content, question_id, is_correct)
 VALUES
@@ -288,18 +300,25 @@ update users
 set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
 where id = 1; -- ADMIN:admin123
 update users
+set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
+where id = 2; -- ADMIN:admin123
+update users
 set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
-where id = 2; -- TEACHER:12345
+where id = 3; -- TEACHER:12345
+update users
+set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
+where id = 4; -- TEACHER:12345
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 4; -- STUDENT:1234
+where id = 5; -- STUDENT:1234
+update users
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 6; -- STUDENT:1234
 update users
 set email ='ngoquangtruongjk05@gmail.com'
 where id = 1;
 
 select*
 from users;
-select id, username, email, password
-from users;
 SELECT *
-FROM category_question;
+FROM question;

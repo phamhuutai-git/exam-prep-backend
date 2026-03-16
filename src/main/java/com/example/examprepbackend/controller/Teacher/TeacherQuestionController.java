@@ -27,7 +27,7 @@ public class TeacherQuestionController {
     private final QuestionService questionService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestions(QuestionRequestParam param, @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestions(QuestionRequestParam param, @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestions(param, pageable), "Get all question"));
     }
 

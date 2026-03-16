@@ -78,9 +78,9 @@ public class QuestionServiceImpl implements QuestionService {
             dto.setIsCorrect(a.getIsCorrect());
             return dto;
         }).toList();
-
         questionResponse.setAnswers(answerResponses);
 
+        questionResponse.setExplanation(question.getExplanation());
         return questionResponse;
     }
 
@@ -138,6 +138,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = new Question();
 
         question.setContent(request.getContent());
+
         question.setDifficultyLevel(request.getDifficulty());
 
         Optional<CategoryQuestion> categoryQuestion  = categoryRepository.findById(request.getCategoryId());
@@ -147,7 +148,6 @@ public class QuestionServiceImpl implements QuestionService {
         question.setCategory(categoryQuestion.get());
 
         String username = SecurityUtils.getCurrentUsername();
-
 
         Optional<Users> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
@@ -171,6 +171,7 @@ public class QuestionServiceImpl implements QuestionService {
             answers.add(answer);
         }
 
+        question.setExplanation(request.getExplanation());
         answerRepository.saveAll(answers);
 
         return convertToDto(savedQuestion);
@@ -185,7 +186,7 @@ public class QuestionServiceImpl implements QuestionService {
             throw new ApplicationException("Question with id " + id + " not found");
         }
         Question questions = question.get();
-        // update question
+
         questions.setContent(request.getContent());
         questions.setDifficultyLevel(request.getDifficulty());
 
@@ -213,7 +214,7 @@ public class QuestionServiceImpl implements QuestionService {
 
             answers.add(answer);
         }
-
+        questions.setExplanation(request.getExplanation());
         answerRepository.saveAll(answers);
 
         return convertToDto(savedQuestion);
@@ -234,113 +235,136 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public void exportQuestionToExcel(HttpServletResponse response) throws IOException {
 
-        List<Question> questions = questionRepository.findAll();
+        List<Question> questions = questionRepository.findAllWithAnswers();
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Questions");
 
-        // ===== HEADER STYLE =====
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerStyle.setFont(headerFont);
-
-        // ===== HEADER =====
-        Row headerRow = sheet.createRow(0);
+        Row header = sheet.createRow(0);
 
         String[] columns = {
-                "ID",
-                "Content",
-                "Difficulty",
-                "Category",
-                "Created Date"
+                "ID","Question","A","B","C","D",
+                "Correct","Explanation","Category","Difficulty"
         };
 
-        for (int i = 0; i < columns.length; i++) {
-
-            Cell cell = headerRow.createCell(i);
-
-            cell.setCellValue(columns[i]);
-
-            cell.setCellStyle(headerStyle);
+        for(int i=0;i<columns.length;i++){
+            header.createCell(i).setCellValue(columns[i]);
         }
-
-        // ===== DATA =====
 
         int rowIndex = 1;
 
-        for (Question question : questions) {
+        for(Question q : questions){
 
             Row row = sheet.createRow(rowIndex++);
 
-            row.createCell(0).setCellValue(question.getId());
+            row.createCell(0).setCellValue(q.getId());
+            row.createCell(1).setCellValue(q.getContent());
 
-            row.createCell(1).setCellValue(question.getContent());
+            List<Answer> answers = q.getAnswers();
 
-            row.createCell(2).setCellValue(
-                    question.getDifficultyLevel() != null ?
-                            question.getDifficultyLevel().toString() : ""
+            String correct = "";
+            String[] options = new String[4];
+
+            int index = 0;
+
+            for(Answer a : answers){
+
+                if(index < 4){
+                    options[index] = a.getContent();
+                    index++;
+                }
+
+                if(a.getIsCorrect()){
+                    correct = a.getContent();
+                }
+            }
+
+            row.createCell(2).setCellValue(options[0]);
+            row.createCell(3).setCellValue(options[1]);
+            row.createCell(4).setCellValue(options[2]);
+            row.createCell(5).setCellValue(options[3]);
+
+            row.createCell(6).setCellValue(correct);
+
+            row.createCell(7).setCellValue(
+                    q.getExplanation() != null ? q.getExplanation() : ""
             );
 
-            row.createCell(3).setCellValue(
-                    question.getCategory() != null ?
-                            question.getCategory().getName() : ""
+            row.createCell(8).setCellValue(
+                    q.getCategory()!=null ? q.getCategory().getName() : ""
             );
 
-            row.createCell(4).setCellValue(
-                    question.getCreateDate() != null ?
-                            question.getCreateDate().toString() : ""
+            row.createCell(9).setCellValue(
+                    q.getDifficultyLevel()!=null ?
+                            q.getDifficultyLevel().toString() : ""
             );
         }
 
-        // ===== AUTO SIZE =====
-
-        for (int i = 0; i < columns.length; i++) {
+        for(int i=0;i<columns.length;i++){
             sheet.autoSizeColumn(i);
         }
 
-        // ===== WRITE FILE =====
+        response.setContentType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        response.setHeader(
+                "Content-Disposition",
+                "attachment; filename=questions.xlsx"
+        );
 
         ServletOutputStream outputStream = response.getOutputStream();
 
         workbook.write(outputStream);
-        workbook.close();
 
+        workbook.close();
         outputStream.close();
     }
 
     @Override
     @Transactional
     public void importQuestionFromExcel(MultipartFile file) throws IOException {
-        if(!file.getOriginalFilename().endsWith(".xlsx")){
+
+        if (!file.getOriginalFilename().endsWith(".xlsx")) {
             throw new ApplicationException("Only Excel file allowed");
         }
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
 
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 
             Row row = sheet.getRow(i);
-
             if (row == null) continue;
 
+            // ===== QUESTION =====
             Question question = new Question();
 
-            question.setContent(row.getCell(0).getStringCellValue());
+            String content = row.getCell(0).getStringCellValue();
+            question.setContent(content);
 
-            question.setDifficultyLevel(
-                    DifficultyLevel.valueOf(row.getCell(1).getStringCellValue())
-            );
-
-            Integer categoryId = (int) row.getCell(2).getNumericCellValue();
+            // ===== CATEGORY =====
+            String categoryName = row.getCell(7).getStringCellValue();
 
             CategoryQuestion category = categoryRepository
-                    .findById(categoryId)
-                    .orElseThrow(() -> new ApplicationException("Category not found"));
+                    .findByName(categoryName);
+            if(category == null){
+                throw  new ApplicationException("Category not found");
+            }
+
 
             question.setCategory(category);
 
+            // ===== DIFFICULTY =====
+            String difficulty = row.getCell(8).getStringCellValue();
+            question.setDifficultyLevel(DifficultyLevel.valueOf(difficulty));
+
+            // ===== EXPLANATION =====
+            question.setExplanation(
+                    row.getCell(6) != null ? row.getCell(6).getStringCellValue() : null
+            );
+
+            // ===== CREATOR =====
             String username = SecurityUtils.getCurrentUsername();
 
             Users user = userRepository.findByUsername(username)
@@ -352,15 +376,20 @@ public class QuestionServiceImpl implements QuestionService {
 
             Question savedQuestion = questionRepository.save(question);
 
+            // ===== ANSWERS =====
+            String correctAnswer = row.getCell(5).getStringCellValue();
+
             List<Answer> answers = new ArrayList<>();
 
             for (int j = 0; j < 4; j++) {
 
+                String option = row.getCell(1 + j).getStringCellValue();
+
                 Answer answer = new Answer();
 
-                answer.setContent(row.getCell(3 + j * 2).getStringCellValue());
+                answer.setContent(option);
 
-                answer.setIsCorrect(row.getCell(4 + j * 2).getBooleanCellValue());
+                answer.setIsCorrect(option.equals(correctAnswer));
 
                 answer.setQuestion(savedQuestion);
 
@@ -372,7 +401,6 @@ public class QuestionServiceImpl implements QuestionService {
 
         workbook.close();
     }
-
 
     @Override
     public QuestionCountResponse getAllQuestionsCount() {
