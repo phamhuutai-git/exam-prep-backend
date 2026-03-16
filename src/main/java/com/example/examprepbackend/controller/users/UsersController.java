@@ -22,17 +22,22 @@ public class UsersController {
     public BaseResponse<?> getAllUsers() {
         return BaseResponse.success(usersService.getAllUsers());
     }
-
     @PutMapping("/change-password")
     public ResponseEntity<BaseResponse<Boolean>> changePassword(Authentication authentication,
                                                                 @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.changePassword(authentication, changePasswordRequest), "Password changed successfully"));
     }
-
     @PutMapping("/profile")
-    public ResponseEntity<BaseResponse<UserSummaryResponse>> updateProfile(Authentication authentication,
-                                                                           @Valid @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
+    public ResponseEntity<BaseResponse<UserSummaryResponse>> updateProfile(Authentication authentication, @Valid @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.updateProfile(authentication, profileUpdateRequest), "Profile updated successfully"));
+    }
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new BaseResponse<>(null, "Please login to access this resource"));
+        }
+        UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
+        return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
     }
 
 }
