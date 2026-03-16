@@ -6,6 +6,7 @@ import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequ
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
+import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import com.example.examprepbackend.entity.Answer;
 import com.example.examprepbackend.entity.CategoryQuestion;
@@ -370,5 +371,17 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
         workbook.close();
+    }
+
+
+    @Override
+    public QuestionCountResponse getAllQuestionsCount() {
+        QuestionCountResponse response = new QuestionCountResponse();
+        response.setCountTotal(questionRepository.count());
+        response.setCountEasy(questionRepository.countByDifficultyLevel(DifficultyLevel.EASY));
+        response.setCountMedium(questionRepository.countByDifficultyLevel(DifficultyLevel.MEDIUM));
+        response.setCountHard(questionRepository.countByDifficultyLevel(DifficultyLevel.HARD));
+        return response;
+
     }
 }
