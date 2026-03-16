@@ -1,7 +1,10 @@
 package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23753f20cbe2db9a786a361a12d750a5db08d566
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
