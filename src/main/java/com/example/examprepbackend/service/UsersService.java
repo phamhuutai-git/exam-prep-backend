@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 
 public interface UsersService {
 
+    List<Users> getAllUsers();
 
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/exams")
+@RequestMapping("/api/teacher/exams")
 @RequiredArgsConstructor
 public class ExamController {
     private final ExamService examService;

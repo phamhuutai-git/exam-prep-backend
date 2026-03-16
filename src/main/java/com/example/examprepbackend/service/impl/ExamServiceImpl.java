@@ -1,7 +1,8 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.request.teacher.Exam.ExamRequestParam;
-import com.example.examprepbackend.dto.response.teacher.ExamResponse;
+
+import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
+import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
@@ -19,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Slf4j
 @Service
