@@ -1,7 +1,6 @@
 
-package com.example.examprepbackend.dto.request.teacher.Exam;
 
-
+package com.example.examprepbackend.dto.request.exams;
 
 import lombok.Getter;
 import lombok.Setter;

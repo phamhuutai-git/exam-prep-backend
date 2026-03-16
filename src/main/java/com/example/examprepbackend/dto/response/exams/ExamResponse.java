@@ -1,7 +1,11 @@
-package com.example.examprepbackend.dto.response.teacher;
+
+package com.example.examprepbackend.dto.response.exams;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 

@@ -1,4 +1,4 @@
-package com.example.examprepbackend.controller;
+package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
