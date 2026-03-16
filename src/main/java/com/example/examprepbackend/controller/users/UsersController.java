@@ -1,5 +1,6 @@
 package com.example.examprepbackend.controller.users;
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.dto.request.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
@@ -16,19 +17,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UsersController {
     private final UsersService usersService;
+
     @GetMapping
     public BaseResponse<?> getAllUsers() {
         return BaseResponse.success(usersService.getAllUsers());
     }
+
     @PutMapping("/change-password")
     public ResponseEntity<BaseResponse<Boolean>> changePassword(Authentication authentication,
                                                                 @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.changePassword(authentication, changePasswordRequest), "Password changed successfully"));
     }
+
     @PutMapping("/profile")
     public ResponseEntity<BaseResponse<UserSummaryResponse>> updateProfile(Authentication authentication, @Valid @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.updateProfile(authentication, profileUpdateRequest), "Profile updated successfully"));
     }
+
     @GetMapping("/me")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -36,5 +41,12 @@ public class UsersController {
         }
         UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
         return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
+    }
+
+
+    @PostMapping
+    public ResponseEntity<BaseResponse<UserSummaryResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
+        UserSummaryResponse dto = usersService.createUser(request);
+        return ResponseEntity.ok(new BaseResponse<>(dto, "User created successfully"));
     }
 }

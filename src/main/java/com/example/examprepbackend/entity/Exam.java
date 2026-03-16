@@ -1,5 +1,6 @@
 package com.example.examprepbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,8 @@ public class Exam {
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
+    // Avoid serialization cycle by not serializing back-reference collection
+    @JsonIgnore
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExamClass> examClasses;
 }

@@ -8,7 +8,7 @@ import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.dto.request.CreateUserRequest;
-import com.example.examprepbackend.dto.response.UserSummaryResponse;
+import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import org.springframework.security.core.Authentication;
 
 
