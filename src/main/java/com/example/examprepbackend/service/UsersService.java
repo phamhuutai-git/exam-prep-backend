@@ -4,14 +4,17 @@ import java.util.List;
 
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
+import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
 
 public interface UsersService {
 
-    List<Users> getAllUsers();
+    Page<UserResponse> getAllUsers(Pageable pageable);
 
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 

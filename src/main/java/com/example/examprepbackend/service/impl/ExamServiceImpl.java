@@ -3,10 +3,12 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
 import com.example.examprepbackend.repository.ExamQuestionRepository;
 import com.example.examprepbackend.repository.ExamRepository;
+import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.ExamService;
 import com.example.examprepbackend.specification.ExamSpecification;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,6 +31,7 @@ public class ExamServiceImpl implements ExamService {
     private final ExamRepository examRepository;
     private final ExamQuestionRepository examQuestionRepository;
     private final ExamAttemptRepository examAttemptRepository;
+    private final UsersRepository usersRepository;
 
     private ExamResponse convertToDto(Exam exam) {
 
@@ -85,6 +89,8 @@ public class ExamServiceImpl implements ExamService {
         }
 
         String username = authentication.getName();
+
+
 
         return examRepository.findExamsByCreator_Username(username, pageable).map(this::convertToDto);
     }

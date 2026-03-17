@@ -1,0 +1,43 @@
+package com.example.examprepbackend.dto.response.users;
+
+import com.example.examprepbackend.constant.Role;
+import com.example.examprepbackend.constant.Status;
+import com.example.examprepbackend.entity.Classes;
+import com.example.examprepbackend.entity.Department;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+public class UserResponse {
+
+    private Integer id;
+
+    private String email;
+
+    private String username;
+
+    private String firstName;
+
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    private Boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    private Classes classes;
+
+    private Department department;
+
+    private LocalDateTime createdDate;
+
+
+}
