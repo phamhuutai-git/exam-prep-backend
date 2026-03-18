@@ -150,7 +150,8 @@ CREATE TABLE class_exam
     start_time DATETIME,
     end_time   DATETIME,
     status     ENUM('HAS_EXAM','NO_EXAM') DEFAULT 'HAS_EXAM',
-
+    -- tranh trung class voi xam
+    CONSTRAINT unique_class_exam UNIQUE (class_id, exam_id),
     FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE CASCADE,
     FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE
 );
