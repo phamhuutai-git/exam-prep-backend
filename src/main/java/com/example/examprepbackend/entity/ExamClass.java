@@ -21,5 +21,5 @@ public class ExamClass {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("classId")
     @JoinColumn(name = "class_id")
-    private Classes classes;
+    private Classes clazz;
 }

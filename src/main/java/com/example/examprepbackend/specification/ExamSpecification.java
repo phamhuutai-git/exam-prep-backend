@@ -13,19 +13,26 @@ public class ExamSpecification {
 
     public static Specification<Exam> hasCodeLike(String code) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + code + "%");
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + code.toLowerCase() + "%");
         };
     }
 
     public static Specification<Exam> hasTitleLike(String title) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title + "%");
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%");
         };
     }
 
     public static Specification<Exam> hasCategoryName(String categoryName) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.equal(root.get("category").get("name"), categoryName);
+            return criteriaBuilder.equal(root.get("category").get("name"),"%" + categoryName.toLowerCase() + "%");
+        };
+    }
+
+
+    public static Specification<Exam> hasCategoryId(Integer categoryId) {
+        return (root , query , criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("category").get("id"), categoryId);
         };
     }
 
@@ -35,10 +42,11 @@ public class ExamSpecification {
         };
     }
 
+
     public static Specification<Exam> hasClassId(Integer classId) {
         return (root, query, criteriaBuilder) -> {
             if (classId == null) return null;
-            return criteriaBuilder.equal(root.join("examClasses").join("classes").get("id"), classId);
+            return criteriaBuilder.equal(root.join("examClasses").join("clazz").get("id"), classId);
         };
 
     }

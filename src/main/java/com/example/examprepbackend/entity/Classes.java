@@ -11,7 +11,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name = "classes")
+@Table(name = "class")
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Classes {
     @Id
@@ -23,7 +23,7 @@ public class Classes {
     @Column(name="create_date")
     private LocalDateTime createDate;
 
-    @OneToMany(mappedBy = "classes", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExamClass> examClasses;
 
 }

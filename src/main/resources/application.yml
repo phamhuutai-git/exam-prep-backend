@@ -5,7 +5,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/exam_management_system
     username: root
-    password: Quang204
+#    password: Quang204
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
