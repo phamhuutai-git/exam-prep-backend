@@ -1,8 +1,6 @@
-package com.example.examprepbackend.dto.request.exams;
-
+package com.example.examprepbackend.dto.request.teacher.Exam;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 
 @Getter

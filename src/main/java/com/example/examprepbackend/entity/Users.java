@@ -47,9 +47,6 @@ public class Users {
 
     private Classes classes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
-    private Department department;
 
     @Column(name = "create_date")
     private LocalDateTime createdDate;

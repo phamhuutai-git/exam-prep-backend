@@ -7,6 +7,7 @@ import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,15 @@ public class UsersController {
     public ResponseEntity<BaseResponse<UserSummaryResponse>> updateProfile(Authentication authentication, @Valid @RequestBody UserProfileUpdateRequest profileUpdateRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.updateProfile(authentication, profileUpdateRequest), "Profile updated successfully"));
     }
+//    @GetMapping("/me")
+//    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new BaseResponse<>(null, "Please login to access this resource"));
+//        }
+//        UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
+//        return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
+//    }
+
     @GetMapping("/me")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {

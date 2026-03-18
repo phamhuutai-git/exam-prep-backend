@@ -3,6 +3,7 @@ package com.example.examprepbackend.dto.response.users;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 public class UserSummaryResponse {
