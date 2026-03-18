@@ -18,4 +18,6 @@ public class CreateQuestionRequest {
     private Integer categoryId;
 
     private List<CreateAnswerRequest> answers;
+
+    private String explanation;
 }

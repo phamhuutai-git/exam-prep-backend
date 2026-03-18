@@ -3,7 +3,6 @@ package com.example.examprepbackend.dto.response.users;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.entity.Classes;
-import com.example.examprepbackend.entity.Department;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,8 +33,6 @@ public class UserResponse {
     private Status status;
 
     private Classes classes;
-
-    private Department department;
 
     private LocalDateTime createdDate;
 

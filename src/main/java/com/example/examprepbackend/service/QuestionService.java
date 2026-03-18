@@ -2,6 +2,7 @@ package com.example.examprepbackend.service;
 
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
@@ -28,4 +29,6 @@ public interface QuestionService {
     void exportQuestionToExcel(HttpServletResponse response) throws IOException;
 
     void importQuestionFromExcel(MultipartFile file) throws IOException;
+
+    QuestionCountResponse getAllQuestionsCount();
 }

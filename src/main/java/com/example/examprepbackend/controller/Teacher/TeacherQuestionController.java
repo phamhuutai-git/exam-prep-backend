@@ -3,6 +3,7 @@ package com.example.examprepbackend.controller.Teacher;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import com.example.examprepbackend.service.QuestionService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ public class TeacherQuestionController {
     private final QuestionService questionService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestions(QuestionRequestParam param, @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestions(QuestionRequestParam param, @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestions(param, pageable), "Get all question"));
     }
 
@@ -99,5 +100,10 @@ public class TeacherQuestionController {
         return ResponseEntity.ok(
                 new BaseResponse<>("IMPORT", "Import questions successfully")
         );
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<BaseResponse<QuestionCountResponse>> getAllQuestionsCount() {
+        return ResponseEntity.ok(new BaseResponse<>(questionService.getAllQuestionsCount(),"Count Question sucessfull"));
     }
 }

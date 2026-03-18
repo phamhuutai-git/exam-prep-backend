@@ -33,8 +33,8 @@ public class AdminClassController {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.createClass(classRequest), "Created class"));
     }
 
-    @PutMapping
-    public ResponseEntity<BaseResponse<ClassResponse>> updateClass(@RequestBody @Valid ClassRequest classRequest) {
-        return ResponseEntity.ok().body(new BaseResponse<>(classService.updateClass(classRequest), "Updated class"));
+    @PutMapping("/{id}")
+    public ResponseEntity<BaseResponse<ClassResponse>> updateClass(@PathVariable Integer id, @RequestBody @Valid ClassRequest classRequest) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.updateClass(id, classRequest), "Updated class"));
     }
 }

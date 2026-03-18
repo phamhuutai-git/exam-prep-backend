@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Optional;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -82,6 +83,35 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
+    public Page<ExamResponse> getExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable) {
+        String code = examRequestParam.getCode();
+        String title = examRequestParam.getTitle();
+        String categoryName = examRequestParam.getCategoryName();
+        LocalDate minDate = examRequestParam.getMinDate();
+        LocalDate maxDate = examRequestParam.getMaxDate();
+
+        // Spec theo classId
+        Specification<Exam> spec = Specification.where(ExamSpecification.hasClassId(classId));
+        if (code != null && !code.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCodeLike(code));
+        }
+
+        if (title != null && !title.isBlank()) {
+            spec = spec.and(ExamSpecification.hasTitleLike(title));
+        }
+
+        if (categoryName != null && !categoryName.isBlank()) {
+            spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
+        }
+
+        if (minDate != null && maxDate != null) {
+            spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
+        }
+
+        return examRepository.findAll(spec, pageable).map(this::convertToDto);
+    }
+
+    @Override
     public Page<ExamResponse> getExamsByTeacherName(Authentication authentication, Pageable pageable) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -89,8 +119,6 @@ public class ExamServiceImpl implements ExamService {
         }
 
         String username = authentication.getName();
-
-
 
         return examRepository.findExamsByCreator_Username(username, pageable).map(this::convertToDto);
     }

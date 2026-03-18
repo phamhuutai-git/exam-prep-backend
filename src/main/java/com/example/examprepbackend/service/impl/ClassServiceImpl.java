@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -86,19 +87,30 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ClassResponse updateClass(ClassRequest classRequest) {
+    public ClassResponse updateClass(Integer id, ClassRequest classRequest) {
 
-        String newName = classRequest.getName();
+        Optional<Classes> classesOptional = classRepository.findById(id);
 
-        Classes existsByName = classRepository.findByName(newName);
-
-        if (existsByName != null) {
-            throw new ApplicationException("Class name existed");
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
         }
 
-        Classes classes = new Classes();
-        classes.setName(newName);
+        Classes clazz = classesOptional.get();
 
-        return modelMapper.map(classes, ClassResponse.class);
+        String currentName = clazz.getName();
+        String newName = classRequest.getName();
+
+        if (!newName.equals(currentName)) {
+            Classes existsByName = classRepository.findByName(newName);
+
+            if (existsByName != null) {
+                throw new ApplicationException("Class name existed");
+            }
+        }
+
+        clazz.setName(newName);
+        classRepository.save(clazz);
+
+        return modelMapper.map(clazz, ClassResponse.class);
     }
 }

@@ -1,16 +1,20 @@
 package com.example.examprepbackend.repository;
 
-import com.example.examprepbackend.entity.Exam;
+import com.example.examprepbackend.constant.DifficultyLevel;
 import com.example.examprepbackend.entity.Question;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Integer>, JpaSpecificationExecutor<Question> {
+    long countByDifficultyLevel(DifficultyLevel difficultyLevel);
+
+    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.answers")
+    List<Question> findAllWithAnswers();
 
     List<Question> findByIdIn(List<Integer> ids);
 

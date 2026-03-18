@@ -25,4 +25,6 @@ public class QuestionResponse {
     private String createdDate;
 
     private List<AnswerResponse> answers;
+
+    private String explanation;
 }

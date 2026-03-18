@@ -3,6 +3,7 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
+import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
@@ -38,6 +39,7 @@ public class UsersServiceImpl implements UsersService {
 
     }
 
+    @Transactional
     @Override
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return usersRepository.findAll(pageable).map(this::convertToDto);
@@ -74,7 +76,23 @@ public class UsersServiceImpl implements UsersService {
 
         return true;
     }
-
+    @Override
+    public UserInfoResponse getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+        String username = authentication.getName();
+        Users user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return new UserInfoResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole().name()
+        );
+    }
     @Transactional
     @Override
     public UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest) {
@@ -110,4 +128,6 @@ public class UsersServiceImpl implements UsersService {
 
         return modelMapper.map(user, UserSummaryResponse.class);
     }
+
+
 }
