@@ -44,12 +44,11 @@ public class Users {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
-    @JsonIgnore
+
     private Classes classes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
-    @JsonIgnore
     private Department department;
 
     @Column(name = "create_date")
