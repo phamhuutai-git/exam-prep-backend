@@ -1,6 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.dto.request.CreateUserRequest;
+import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;

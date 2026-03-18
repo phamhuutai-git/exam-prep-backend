@@ -56,4 +56,7 @@ public class Users {
 // hiển thị thời gian bị khóa
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
+    public void setFullName(String normalizedFullName) {
+    }
 }

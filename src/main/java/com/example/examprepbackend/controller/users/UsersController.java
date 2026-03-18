@@ -1,6 +1,6 @@
 package com.example.examprepbackend.controller.users;
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.dto.request.CreateUserRequest;
+import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
