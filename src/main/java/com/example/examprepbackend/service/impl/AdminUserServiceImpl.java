@@ -30,7 +30,6 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         String normalizedUsername = normalizeUsername(request.getUsername());
         String normalizedEmail = normalizeEmail(request.getEmail());
-        String normalizedFullName = normalizeFullName(request.getFullName());
 
         validateUniqueFields(userId, normalizedUsername, normalizedEmail);
 
@@ -63,9 +62,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         return email == null ? null : email.trim().toLowerCase();
     }
 
-    private String normalizeFullName(String fullName) {
-        return fullName == null ? null : fullName.trim();
-    }
 
     private UserResponse mapToResponse(Users user) {
         return UserResponse.builder()
