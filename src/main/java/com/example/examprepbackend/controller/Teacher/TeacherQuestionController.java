@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,6 +35,11 @@ public class TeacherQuestionController {
     @GetMapping("/{id}")
     public ResponseEntity<BaseResponse<QuestionResponse>> getQuestionById(@PathVariable Integer id) {
         return ResponseEntity.ok((new BaseResponse<>(questionService.getQuestionById(id), "Get all question")));
+    }
+
+    @GetMapping("/exam-id/{id}")
+    public ResponseEntity<BaseResponse<List<QuestionResponse>>> getQuestionsByExamId(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(questionService.getQuestionsByExamId(id), "Get Questions by exam id"));
     }
 
 

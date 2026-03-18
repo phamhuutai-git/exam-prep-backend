@@ -4,6 +4,8 @@ import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
+import com.example.examprepbackend.dto.response.users.UserResponse;
+import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
@@ -16,6 +18,9 @@ import com.example.examprepbackend.constant.Status;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,9 +40,19 @@ public class UsersServiceImpl implements UsersService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
+    private UserResponse convertToDto(Users users) {
+        UserResponse userResponse = new UserResponse();
+
+        BeanUtils.copyProperties(users, userResponse);
+
+        return userResponse;
+
+    }
+
+    @Transactional
     @Override
-    public List<Users> getAllUsers() {
-        return usersRepository.findAll();
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return usersRepository.findAll(pageable).map(this::convertToDto);
     }
 
     @Override

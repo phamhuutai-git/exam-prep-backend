@@ -8,9 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
+import java.util.List;
+
 public interface QuestionRepository extends JpaRepository<Question, Integer>, JpaSpecificationExecutor<Question> {
     long countByDifficultyLevel(DifficultyLevel difficultyLevel);
 
     @Query("SELECT q FROM Question q LEFT JOIN FETCH q.answers")
     List<Question> findAllWithAnswers();
+
+    List<Question> findByIdIn(List<Integer> ids);
+
 }

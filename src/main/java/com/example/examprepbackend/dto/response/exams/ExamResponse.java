@@ -1,4 +1,3 @@
-
 package com.example.examprepbackend.dto.response.exams;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

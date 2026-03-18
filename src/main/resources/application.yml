@@ -8,15 +8,15 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    open-in-view: false
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        dialect: org.hibernate.dialect.MySQLDialect
 
   mail:
     host: smtp.gmail.com
@@ -36,10 +36,11 @@ spring:
 jwt:
   secret: my-super-secret-key-my-super-secret-key
   expiration: 18000000 # 5 tiếng (5 * 60 * 60 * 1000) bị out token
-#debug
-logging:
-  level:
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+
+##debug
+#logging:
+#  level:
+#    org.springframework.web: DEBUG
+#    org.springframework.security: DEBUG
+#    org.hibernate.SQL: DEBUG
 

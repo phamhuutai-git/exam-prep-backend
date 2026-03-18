@@ -44,7 +44,6 @@ public class Users {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
-
     private Classes classes;
 
 

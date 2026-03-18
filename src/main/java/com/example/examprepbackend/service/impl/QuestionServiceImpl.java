@@ -6,13 +6,14 @@ import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequ
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
-import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import com.example.examprepbackend.entity.Answer;
 import com.example.examprepbackend.entity.CategoryQuestion;
+import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.entity.Question;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
+import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.repository.AnswerRepository;
 import com.example.examprepbackend.repository.CategoryQuestionRepository;
 import com.example.examprepbackend.repository.QuestionRepository;
@@ -22,8 +23,10 @@ import com.example.examprepbackend.specification.QuestionSpecification;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
@@ -50,7 +55,9 @@ public class QuestionServiceImpl implements QuestionService {
     private final AnswerRepository answerRepository;
     private final UsersRepository userRepository;
     private final CategoryQuestionRepository categoryRepository;
+    private final ExamQuestionRepository examQuestionRepository;
     private final ModelMapper modelMapper;
+
 
     //Map question -> questionResponse
     private QuestionResponse convertToDto(Question question) {
@@ -78,9 +85,12 @@ public class QuestionServiceImpl implements QuestionService {
             dto.setIsCorrect(a.getIsCorrect());
             return dto;
         }).toList();
+
         questionResponse.setAnswers(answerResponses);
 
-        questionResponse.setExplanation(question.getExplanation());
+
+        questionResponse.setCreator(question.getCreator().getUsername());
+
         return questionResponse;
     }
 
@@ -131,6 +141,14 @@ public class QuestionServiceImpl implements QuestionService {
         return convertToDto(question.get());
     }
 
+    @Override
+    public List<QuestionResponse> getQuestionsByExamId(Integer examId) {
+
+        List<Integer> questionIds = examQuestionRepository.findQuestionsByExamId(examId);
+
+        return questionRepository.findByIdIn(questionIds).stream().map(this::convertToDto).toList();
+    }
+
     @Transactional
     @Override
     public QuestionResponse createQuestion(CreateQuestionRequest request) {
@@ -138,16 +156,16 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = new Question();
 
         question.setContent(request.getContent());
-
         question.setDifficultyLevel(request.getDifficulty());
 
-        Optional<CategoryQuestion> categoryQuestion  = categoryRepository.findById(request.getCategoryId());
+        Optional<CategoryQuestion> categoryQuestion = categoryRepository.findById(request.getCategoryId());
         if (categoryQuestion.isEmpty()) {
             throw new ApplicationException("Category with id " + request.getCategoryId() + " not found");
         }
         question.setCategory(categoryQuestion.get());
 
         String username = SecurityUtils.getCurrentUsername();
+
 
         Optional<Users> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
@@ -171,7 +189,6 @@ public class QuestionServiceImpl implements QuestionService {
             answers.add(answer);
         }
 
-        question.setExplanation(request.getExplanation());
         answerRepository.saveAll(answers);
 
         return convertToDto(savedQuestion);
@@ -186,11 +203,11 @@ public class QuestionServiceImpl implements QuestionService {
             throw new ApplicationException("Question with id " + id + " not found");
         }
         Question questions = question.get();
-
+        // update question
         questions.setContent(request.getContent());
         questions.setDifficultyLevel(request.getDifficulty());
 
-        Optional<CategoryQuestion> categoryQuestion  = categoryRepository.findById(request.getCategoryId());
+        Optional<CategoryQuestion> categoryQuestion = categoryRepository.findById(request.getCategoryId());
         if (categoryQuestion.isEmpty()) {
             throw new ApplicationException("Category with id " + request.getCategoryId() + " not found");
         }
@@ -214,7 +231,7 @@ public class QuestionServiceImpl implements QuestionService {
 
             answers.add(answer);
         }
-        questions.setExplanation(request.getExplanation());
+
         answerRepository.saveAll(answers);
 
         return convertToDto(savedQuestion);
@@ -235,136 +252,113 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public void exportQuestionToExcel(HttpServletResponse response) throws IOException {
 
-        List<Question> questions = questionRepository.findAllWithAnswers();
+        List<Question> questions = questionRepository.findAll();
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Questions");
 
-        Row header = sheet.createRow(0);
+        // ===== HEADER STYLE =====
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+
+        // ===== HEADER =====
+        Row headerRow = sheet.createRow(0);
 
         String[] columns = {
-                "ID","Question","A","B","C","D",
-                "Correct","Explanation","Category","Difficulty"
+                "ID",
+                "Content",
+                "Difficulty",
+                "Category",
+                "Created Date"
         };
 
-        for(int i=0;i<columns.length;i++){
-            header.createCell(i).setCellValue(columns[i]);
+        for (int i = 0; i < columns.length; i++) {
+
+            Cell cell = headerRow.createCell(i);
+
+            cell.setCellValue(columns[i]);
+
+            cell.setCellStyle(headerStyle);
         }
+
+        // ===== DATA =====
 
         int rowIndex = 1;
 
-        for(Question q : questions){
+        for (Question question : questions) {
 
             Row row = sheet.createRow(rowIndex++);
 
-            row.createCell(0).setCellValue(q.getId());
-            row.createCell(1).setCellValue(q.getContent());
+            row.createCell(0).setCellValue(question.getId());
 
-            List<Answer> answers = q.getAnswers();
+            row.createCell(1).setCellValue(question.getContent());
 
-            String correct = "";
-            String[] options = new String[4];
-
-            int index = 0;
-
-            for(Answer a : answers){
-
-                if(index < 4){
-                    options[index] = a.getContent();
-                    index++;
-                }
-
-                if(a.getIsCorrect()){
-                    correct = a.getContent();
-                }
-            }
-
-            row.createCell(2).setCellValue(options[0]);
-            row.createCell(3).setCellValue(options[1]);
-            row.createCell(4).setCellValue(options[2]);
-            row.createCell(5).setCellValue(options[3]);
-
-            row.createCell(6).setCellValue(correct);
-
-            row.createCell(7).setCellValue(
-                    q.getExplanation() != null ? q.getExplanation() : ""
+            row.createCell(2).setCellValue(
+                    question.getDifficultyLevel() != null ?
+                            question.getDifficultyLevel().toString() : ""
             );
 
-            row.createCell(8).setCellValue(
-                    q.getCategory()!=null ? q.getCategory().getName() : ""
+            row.createCell(3).setCellValue(
+                    question.getCategory() != null ?
+                            question.getCategory().getName() : ""
             );
 
-            row.createCell(9).setCellValue(
-                    q.getDifficultyLevel()!=null ?
-                            q.getDifficultyLevel().toString() : ""
+            row.createCell(4).setCellValue(
+                    question.getCreateDate() != null ?
+                            question.getCreateDate().toString() : ""
             );
         }
 
-        for(int i=0;i<columns.length;i++){
+        // ===== AUTO SIZE =====
+
+        for (int i = 0; i < columns.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
-        response.setContentType(
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-
-        response.setHeader(
-                "Content-Disposition",
-                "attachment; filename=questions.xlsx"
-        );
+        // ===== WRITE FILE =====
 
         ServletOutputStream outputStream = response.getOutputStream();
 
         workbook.write(outputStream);
-
         workbook.close();
+
         outputStream.close();
     }
 
     @Override
     @Transactional
     public void importQuestionFromExcel(MultipartFile file) throws IOException {
-
         if (!file.getOriginalFilename().endsWith(".xlsx")) {
             throw new ApplicationException("Only Excel file allowed");
         }
-
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
         Sheet sheet = workbook.getSheetAt(0);
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 
             Row row = sheet.getRow(i);
+
             if (row == null) continue;
 
-            // ===== QUESTION =====
             Question question = new Question();
 
-            String content = row.getCell(0).getStringCellValue();
-            question.setContent(content);
+            question.setContent(row.getCell(0).getStringCellValue());
 
-            // ===== CATEGORY =====
-            String categoryName = row.getCell(7).getStringCellValue();
+            question.setDifficultyLevel(
+                    DifficultyLevel.valueOf(row.getCell(1).getStringCellValue())
+            );
+
+            Integer categoryId = (int) row.getCell(2).getNumericCellValue();
 
             CategoryQuestion category = categoryRepository
-                    .findByName(categoryName);
-            if(category == null){
-                throw  new ApplicationException("Category not found");
-            }
-
+                    .findById(categoryId)
+                    .orElseThrow(() -> new ApplicationException("Category not found"));
 
             question.setCategory(category);
 
-            // ===== DIFFICULTY =====
-            String difficulty = row.getCell(8).getStringCellValue();
-            question.setDifficultyLevel(DifficultyLevel.valueOf(difficulty));
-
-            // ===== EXPLANATION =====
-            question.setExplanation(
-                    row.getCell(6) != null ? row.getCell(6).getStringCellValue() : null
-            );
-
-            // ===== CREATOR =====
             String username = SecurityUtils.getCurrentUsername();
 
             Users user = userRepository.findByUsername(username)
@@ -376,20 +370,15 @@ public class QuestionServiceImpl implements QuestionService {
 
             Question savedQuestion = questionRepository.save(question);
 
-            // ===== ANSWERS =====
-            String correctAnswer = row.getCell(5).getStringCellValue();
-
             List<Answer> answers = new ArrayList<>();
 
             for (int j = 0; j < 4; j++) {
 
-                String option = row.getCell(1 + j).getStringCellValue();
-
                 Answer answer = new Answer();
 
-                answer.setContent(option);
+                answer.setContent(row.getCell(3 + j * 2).getStringCellValue());
 
-                answer.setIsCorrect(option.equals(correctAnswer));
+                answer.setIsCorrect(row.getCell(4 + j * 2).getBooleanCellValue());
 
                 answer.setQuestion(savedQuestion);
 

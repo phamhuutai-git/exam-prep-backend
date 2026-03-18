@@ -12,7 +12,6 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "classes")
-@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Classes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +21,5 @@ public class Classes {
 
     @Column(name="create_date")
     private LocalDateTime createDate;
-
-    @OneToMany(mappedBy = "classes", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ExamClass> examClasses;
 
 }

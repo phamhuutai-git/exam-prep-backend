@@ -34,6 +34,4 @@ public class Exam {
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ExamClass> examClasses;
 }

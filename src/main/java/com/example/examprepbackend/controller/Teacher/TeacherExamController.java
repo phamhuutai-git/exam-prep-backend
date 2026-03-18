@@ -1,7 +1,7 @@
 package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.dto.request.teacher.Exam.ExamRequestParam;
+import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.service.ExamService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/teacher/exams")
@@ -28,15 +29,9 @@ public class TeacherExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(examRequestParam, pageable), "get all"));
     }
 
-    // hiển thị đề thi theo lớp học
-    @GetMapping("/class/{classId}")
-    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByClassId(@PathVariable Integer classId, ExamRequestParam examRequestParam, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByClassId(classId, examRequestParam, pageable), "get exams by class id"));
-    }
-
     @GetMapping("/teacher-name")
     public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByTeacherName(Authentication authentication,
-                                                                                  @PageableDefault(size = 4, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                                  @PageableDefault(size = 5, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, pageable), "Get Exams by Teacher"));
     }
 }
