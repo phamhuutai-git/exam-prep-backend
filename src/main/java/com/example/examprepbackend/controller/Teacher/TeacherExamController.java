@@ -29,12 +29,6 @@ public class TeacherExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getAllExams(examRequestParam, pageable), "get all"));
     }
 
-    // hiển thị đề thi theo lớp học
-    @GetMapping("/class/{classId}")
-    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByClassId(@PathVariable Integer classId, ExamRequestParam examRequestParam, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByClassId(classId, examRequestParam, pageable), "get exams by class id"));
-    }
-
     @GetMapping("/teacher-name")
     public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByTeacherName(Authentication authentication,
                                                                                   @PageableDefault(size = 5, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {

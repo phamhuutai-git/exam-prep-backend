@@ -11,5 +11,4 @@ public interface ExamService {
 
     Page<ExamResponse> getExamsByTeacherName(Authentication authentication, Pageable pageable);
 
-    Page<ExamResponse> getExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable);
 }

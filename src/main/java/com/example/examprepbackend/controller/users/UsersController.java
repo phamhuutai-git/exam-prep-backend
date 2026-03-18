@@ -38,16 +38,6 @@ public class UsersController {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.updateProfile(authentication, profileUpdateRequest), "Profile updated successfully"));
     }
 
-//    @GetMapping("/me")
-//    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new BaseResponse<>(null, "Please login to access this resource"));
-//        }
-//        UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
-//        return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
-//    }
-
-
     @GetMapping("/me")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
