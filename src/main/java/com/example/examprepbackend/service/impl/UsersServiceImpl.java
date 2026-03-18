@@ -156,12 +156,18 @@ public class UsersServiceImpl implements UsersService {
         }
 
         //Check mail and update
-        Users existsByEmail  = usersRepository.findUsersByEmail(profileUpdateRequest.getEmail());
-        if (existsByEmail  != null) {
-            throw new ApplicationException("This email is already in use");
+        Users user = userOptional.get();
+
+        String currentEmail = user.getEmail();
+        String newEmail = profileUpdateRequest.getEmail();
+
+        if (!newEmail.equals(currentEmail)) {
+            Users existsByEmail = usersRepository.findUsersByEmail(newEmail);
+            if (existsByEmail != null) {
+                throw new ApplicationException("This email is already in use");
+            }
         }
 
-        Users user = userOptional.get();
         modelMapper.map(profileUpdateRequest, user);
         usersRepository.save(user);
 

@@ -1,228 +1,220 @@
-drop
-database if exists exam_management_system;
-create
-database exam_management_system;
-use
+DROP
+DATABASE IF EXISTS exam_management_system;
+CREATE
+DATABASE exam_management_system;
+USE
 exam_management_system;
 
 -- ================= CLASSES =================
-create table classes
+CREATE TABLE classes
 (
-    id          int primary key auto_increment,
-    name        varchar(255) not null unique,
-    create_date datetime
-);
-
--- ================= DEPARTMENT =================
-create table department
-(
-    id          int primary key auto_increment,
-    name        varchar(255) not null unique,
-    create_date datetime
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL UNIQUE,
+    create_date DATETIME
 );
 
 -- ================= USERS =================
-create table users
+CREATE TABLE users
 (
-    id            int primary key auto_increment,
-    email         varchar(255) not null unique,
-    username      varchar(255) not null unique,
-    password      varchar(255) not null,
-    first_name    varchar(255) not null,
-    last_name     varchar(255) not null,
-    role          enum('ADMIN','TEACHER','STUDENT') not null,
-    is_active     boolean      not null default true,
-    status        enum('ACTIVED','LOCKED') not null,
-    class_id      int,
-    department_id int,
-    create_date   datetime,
-    -- đếm số lần bị khóa
-    fail_count    INT                   DEFAULT 0,
-    -- thời gian bị khóa
-    lock_time     datetime,
-
-    foreign key (class_id) references classes (id),
-    foreign key (department_id) references department (id)
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    email       VARCHAR(255) NOT NULL UNIQUE,
+    username    VARCHAR(255) NOT NULL UNIQUE,
+    password    VARCHAR(255) NOT NULL,
+    first_name  VARCHAR(255) NOT NULL,
+    last_name   VARCHAR(255) NOT NULL,
+    role        ENUM('ADMIN','TEACHER','STUDENT') NOT NULL,
+    is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
+    status      ENUM('ACTIVED','LOCKED') NOT NULL DEFAULT 'ACTIVED',
+    class_id    INT,
+    create_date DATETIME,
+    fail_count  INT                   DEFAULT 0,
+    lock_time   DATETIME,
+    FOREIGN KEY (class_id) REFERENCES classes (id)
 );
+
 -- ================= CLASS TEACHER =================
-create table class_teacher
+CREATE TABLE class_teacher
 (
-    class_id   int not null,
-    teacher_id int not null,
+    class_id   INT NOT NULL,
+    teacher_id INT NOT NULL,
 
-    primary key (class_id, teacher_id),
+    PRIMARY KEY (class_id, teacher_id),
 
-    foreign key (class_id) references classes (id),
-    foreign key (teacher_id) references users (id)
+    FOREIGN KEY (class_id) REFERENCES classes (id),
+    FOREIGN KEY (teacher_id) REFERENCES users (id)
 );
 
 -- ================= CATEGORY QUESTION =================
-create table category_question
+CREATE TABLE category_question
 (
-    id   int primary key auto_increment,
-    name varchar(255) not null unique
+    id   INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- ================= QUESTION =================
-create table question
+CREATE TABLE question
 (
-    id               int primary key auto_increment,
-    content          text not null,
-    difficulty_level enum('EASY','MEDIUM','HARD') not null,
-    category_id      int  not null,
-    creator_id       int  not null,
-    create_date      datetime,
+    id               INT PRIMARY KEY AUTO_INCREMENT,
+    content          TEXT NOT NULL,
+    difficulty_level ENUM('EASY','MEDIUM','HARD') NOT NULL,
+    category_id      INT  NOT NULL,
+    creator_id       INT  NOT NULL,
+    create_date      DATETIME,
+    explanation      TEXT,
 
-    foreign key (category_id) references category_question (id),
-    foreign key (creator_id) references users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id),
+    FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 -- ================= ANSWER =================
-create table answer
+CREATE TABLE answer
 (
-    id          int primary key auto_increment,
-    content     text    not null,
-    question_id int     not null,
-    is_correct  boolean not null,
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    content     TEXT    NOT NULL,
+    question_id INT     NOT NULL,
+    is_correct  BOOLEAN NOT NULL,
 
-    foreign key (question_id) references question (id)
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
 );
 
 -- ================= EXAM =================
-create table exam
+CREATE TABLE exam
 (
-    id          int primary key auto_increment,
-    code        varchar(255) not null unique,
-    title       varchar(255) not null,
-    duration    time         not null,
-    category_id int          not null,
-    creator_id  int          not null,
-    create_date datetime,
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    code        VARCHAR(255) NOT NULL UNIQUE,
+    title       VARCHAR(255) NOT NULL,
+    duration    TIME         NOT NULL,
+    category_id INT          NOT NULL,
+    creator_id  INT          NOT NULL,
+    create_date DATETIME,
 
-    foreign key (category_id) references category_question (id),
-    foreign key (creator_id) references users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id),
+    FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 -- ================= EXAM QUESTION =================
-create table exam_question
+CREATE TABLE exam_question
 (
-    exam_id     int not null,
-    question_id int not null,
+    exam_id     INT NOT NULL,
+    question_id INT NOT NULL,
 
-    primary key (exam_id, question_id),
+    PRIMARY KEY (exam_id, question_id),
 
-    foreign key (exam_id) references exam (id),
-    foreign key (question_id) references question (id)
-);
-
--- ================= EXAM CLASS  =================
-create table exam_class
-(
-    exam_id  int not null,
-    class_id int not null,
-
-    primary key (exam_id, class_id),
-
-    foreign key (exam_id) references exam (id),
-    foreign key (class_id) references classes (id)
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
 );
 
 -- ================= FAVORITE EXAM =================
-create table favorite_exam
+CREATE TABLE favorite_exam
 (
-    exam_id    int not null,
-    student_id int not null,
+    exam_id    INT NOT NULL,
+    student_id INT NOT NULL,
 
-    primary key (exam_id, student_id),
+    PRIMARY KEY (exam_id, student_id),
 
-    foreign key (exam_id) references exam (id),
-    foreign key (student_id) references users (id)
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= EXAM ATTEMPT =================
-create table exam_attempt
+CREATE TABLE exam_attempt
 (
-    id         int primary key auto_increment,
-    exam_id    int not null,
-    student_id int not null,
-    start_time datetime,
-    end_time   datetime,
-    score      decimal(4, 2),
-    status     enum('IN_PROGRESS','SUBMITTED') not null,
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    exam_id    INT NOT NULL,
+    student_id INT NOT NULL,
+    start_time DATETIME,
+    end_time   DATETIME,
+    score      DECIMAL(4, 2),
+    status     ENUM('IN_PROGRESS','SUBMITTED') NOT NULL,
 
-    foreign key (exam_id) references exam (id),
-    foreign key (student_id) references users (id)
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= STUDENT ANSWER =================
-create table student_answer
+CREATE TABLE student_answer
 (
-    id         int primary key auto_increment,
-    attempt_id int not null,
-    answer_id  int not null,
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    attempt_id INT NOT NULL,
+    answer_id  INT NOT NULL,
 
-    foreign key (attempt_id) references exam_attempt (id),
-    foreign key (answer_id) references answer (id)
+    FOREIGN KEY (attempt_id) REFERENCES exam_attempt (id) ON DELETE CASCADE,
+    FOREIGN KEY (answer_id) REFERENCES answer (id) ON DELETE CASCADE
 );
+CREATE TABLE class_exam
+(
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    class_id   INT NOT NULL,
+    exam_id    INT NOT NULL,
+    duration   INT NOT NULL, -- phút
+    start_time DATETIME,
+    end_time   DATETIME,
+    status     ENUM('HAS_EXAM','NO_EXAM') DEFAULT 'HAS_EXAM',
+
+    FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE CASCADE,
+    FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE
+);
+-- ================= OTP TABLE =================
 CREATE TABLE otps
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
-    email      VARCHAR(50) NOT NULL,
-    otp        INT         NOT NULL,
+    email      VARCHAR(255) NOT NULL,
+    otp        INT          NOT NULL,
     type       VARCHAR(50),
-    expire_at  datetime,
-    created_at datetime,
+    expire_at  DATETIME,
+    created_at DATETIME,
+
     FOREIGN KEY (email) REFERENCES users (email)
 );
 INSERT INTO classes (name, create_date)
-VALUES ('Railway01', '2024-01-01 08:00:00'),
-       ('Railway02', '2024-01-02 08:00:00'),
-       ('Railway03', '2024-01-03 08:00:00'),
-       ('Rocket01', '2024-01-04 08:00:00'),
-       ('Rocket02', '2024-01-05 08:00:00');
-
-INSERT INTO department (name, create_date)
-VALUES ('Backend', '2024-01-01 09:00:00'),
-       ('Frontend', '2024-01-02 09:00:00'),
-       ('Fullstack', '2024-01-03 09:00:00'),
-       ('DevOps', '2024-01-04 09:00:00'),
-       ('Testing', '2024-01-05 09:00:00');
+VALUES ('Railway01', now()),
+       ('Railway02', now()),
+       ('Railway03', now()),
+       ('Rocket01', now()),
+       ('Rocket02', now());
 
 INSERT INTO users
-(email, username, password, first_name, last_name, role, is_active, status, class_id, department_id, create_date)
-VALUES ('admin@mail.com', 'admin', 'admin123', 'An', 'Nguyen', 'ADMIN', true, 'ACTIVED', NULL, NULL,
-        '2024-01-01 10:00:00'),
-       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, 1,
-        '2024-01-02 10:00:00'),
-       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, 2,
-        '2024-01-03 10:00:00'),
-       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, NULL,
-        '2024-01-04 10:00:00'),
-       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, NULL,
-        '2024-01-05 10:00:00');
+(email, username, password, first_name, last_name, role, is_active, status, class_id, create_date)
+VALUES ('admin1@mail.com', 'admin1', 'admin123', 'Hai', 'Dong', 'ADMIN', true, 'ACTIVED', NULL, now()),
+       ('admin2@mail.com', 'admin2', 'admin123', 'Tai', 'Pham', 'ADMIN', true, 'ACTIVED', NULL, now()),
+       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, now()),
+       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, now()),
+       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, now()),
+       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, now());
 
 INSERT INTO class_teacher (class_id, teacher_id)
-VALUES (1, 2),
-       (1, 3),
-       (2, 2),
-       (3, 3),
-       (4, 2);
-
+VALUES (1, 3),
+       (1, 4),
+       (2, 3),
+       (3, 4),
+       (4, 3),
+       (5, 4);
 INSERT INTO category_question (name)
 VALUES ('Java'),
        ('Spring'),
        ('SQL'),
        ('HTML'),
-       ('JavaScript');
-
+       ('JavaScript'),
+       ('CSS');
 INSERT INTO question
-    (content, difficulty_level, category_id, creator_id, create_date)
-VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01'),
-       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02'),
-       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03'),
-       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04'),
-       ('What is HTML?', 'EASY', 4, 3, '2024-02-05');
+(content, difficulty_level, category_id, creator_id, create_date, explanation)
+VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01',
+        'Java is a high-level programming language used to build applications'),
 
+       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02',
+        'OOP has four main principles: Encapsulation, Inheritance, Polymorphism, and Abstraction'),
+
+       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03',
+        'Spring Boot is a framework that simplifies the development of Spring applications'),
+
+       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04',
+        'A primary key uniquely identifies each record in a database table'),
+
+       ('What is HTML?', 'EASY', 4, 3, '2024-02-05',
+        'HTML is a markup language used to structure web pages'),
+
+       ('What is CSS ?', 'EASY', 6, 1, '2024-02-05',
+        'CSS is a stylesheet language used for designing web pages');
 
 INSERT INTO answer (content, question_id, is_correct)
 VALUES
@@ -257,65 +249,78 @@ VALUES
 ('Operating System', 5, false);
 
 INSERT INTO exam
-    (code, title, duration, category_id, creator_id, create_date)
-VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 2, '2024-03-01'),
-       ('EX002', 'Spring Test', '00:40:00', 2, 3, '2024-03-02'),
-       ('EX003', 'SQL Test', '00:30:00', 3, 2, '2024-03-03'),
-       ('EX004', 'HTML Test', '00:20:00', 4, 3, '2024-03-04'),
-       ('EX005', 'JS Test', '00:25:00', 5, 2, '2024-03-05');
-
+(code, title, duration, category_id, creator_id, create_date)
+VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 2, NOW()),
+       ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
+       ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
+       ('EX004', 'HTML Test', '00:20:00', 4, 3, NOW()),
+       ('EX005', 'JS Test', '00:25:00', 5, 2, NOW()),
+       ('EX006', 'JS 1', '00:25:00', 5, 2, NOW());
 INSERT INTO exam_question (exam_id, question_id)
 VALUES (1, 1),
        (1, 2),
        (2, 3),
        (3, 4),
-       (4, 5);
-
-INSERT INTO exam_class (exam_id, class_id)
-VALUES
-    (1, 1), -- Lớp Railway01 (id=1) được giao đề Java Basic (id=1)
-    (2, 1), -- Lớp Railway01 (id=1) được giao đề Spring Test (id=2)
-    (3, 2), -- Lớp Railway02 (id=2) được giao đề SQL Test (id=3)
-    (4, 4), -- Lớp Rocket01 (id=4) được giao đề HTML Test (id=4)
-    (5, 5); -- Lớp Rocket02 (id=5) được giao đề JS Test (id=5)
+       (4, 5),
+       (5, 1),
+       (6, 2);
 
 INSERT INTO favorite_exam (exam_id, student_id)
-VALUES (1, 4),
+VALUES (1, 6),
        (2, 5),
-       (3, 4),
+       (3, 6),
        (4, 5),
-       (5, 4);
+       (5, 6),
+       (6, 5);
 
 INSERT INTO exam_attempt
-    (exam_id, student_id, start_time, end_time, score, status)
-VALUES (1, 4, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
-       (2, 5, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
-       (3, 4, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
-       (4, 5, '2024-04-02 10:00:00', '2024-04-02 10:20:00', 9, 'SUBMITTED'),
-       (5, 4, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 10, 'SUBMITTED');
+(exam_id, student_id, start_time, end_time, score, status)
+VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
+       (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
+       (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
+       (4, 6, '2024-04-02 10:00:00', '2024-04-02 10:20:00', 9, 'SUBMITTED'),
+       (5, 5, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 10, 'SUBMITTED'),
+       (6, 6, '2024-04-03 10:00:00', '2024-04-03 10:25:00', 8, 'SUBMITTED');
+
 
 INSERT INTO student_answer (attempt_id, answer_id)
 VALUES (1, 1),
-       (2, 10),
-       (3, 13),
-       (4, 18),
-       (5, 5);
-
+       (2, 6),
+       (3, 10),
+       (4, 14),
+       (5, 18),
+       (6, 2);
+INSERT INTO class_exam (class_id, exam_id, duration, start_time, end_time, status)
+VALUES (1, 1, 30, NOW(), NOW(), 'HAS_EXAM'),
+       (2, 2, 40, NOW(), NOW(), 'HAS_EXAM'),
+       (3, 3, 30, NOW(), NOW(), 'HAS_EXAM'),
+       (4, 4, 20, NOW(), NOW(), 'HAS_EXAM'),
+       (5, 5, 25, NOW(), NOW(), 'HAS_EXAM'),
+       (5, 6, 25, NOW(), NOW(), 'HAS_EXAM');
 
 update users
 set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
 where id = 1; -- ADMIN:admin123
 update users
+set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
+where id = 2; -- ADMIN:admin123
+update users
 set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
-where id = 2; -- TEACHER:12345
+where id = 3; -- TEACHER:12345
+update users
+set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
+where id = 4; -- TEACHER:12345
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 4; -- STUDENT:1234
+where id = 5; -- STUDENT:1234
+update users
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 6; -- STUDENT:1234
 update users
 set email ='ngoquangtruongjk05@gmail.com'
 where id = 1;
 
 select*
 from users;
-select id, username, email, password
-from users;
+select *
+from exam
