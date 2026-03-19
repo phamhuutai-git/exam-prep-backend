@@ -56,6 +56,8 @@ public class Users {
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
 
-    public void setFullName(String normalizedFullName) {
-    }
+//    private LocalDateTime deletedAt;
+//    private Integer deletedBy;
+
+
 }

@@ -1,9 +1,14 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.config.SecurityUtils;
+import com.example.examprepbackend.constant.Role;
+import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.dto.request.admin.UpdateUserRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.entity.Users;
+
 import com.example.examprepbackend.exception.ResourceNotFoundException;
+import com.example.examprepbackend.repository.ClassTeacherRepository;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +16,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
-import static org.apache.tomcat.util.http.RequestUtil.normalize;
 
 
 @Service
@@ -22,6 +24,7 @@ import static org.apache.tomcat.util.http.RequestUtil.normalize;
 public class AdminUserServiceImpl implements AdminUserService {
 
     private final UsersRepository usersRepository;
+    private final ClassTeacherRepository classTeacherRepository;
 
     @Override
     public UserResponse updateUser(Integer userId, UpdateUserRequest request) throws BadRequestException {
@@ -113,4 +116,23 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         return lastName + " " + firstName;
     }
+    @Override
+    @Transactional
+    public void deleteUserByAdmin(Integer userId) {
+        Users targetUser = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (Boolean.FALSE.equals(targetUser.getIsActive())) {
+            throw new RuntimeException("User already deleted");
+        }
+
+        boolean isAssignedToClass = classTeacherRepository.existsByTeacherId(userId);
+        if (isAssignedToClass) {
+            throw new RuntimeException("Cannot delete user because this teacher is assigned to class");
+        }
+
+        targetUser.setIsActive(false);
+        usersRepository.save(targetUser);
+    }
+
 }

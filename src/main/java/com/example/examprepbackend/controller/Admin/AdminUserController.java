@@ -1,13 +1,15 @@
 package com.example.examprepbackend.controller.Admin;
 
+import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.dto.request.admin.UpdateUserRequest;
+
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.service.AdminUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,5 +24,12 @@ public class AdminUserController {
             @Valid @RequestBody UpdateUserRequest request
     ) throws BadRequestException {
         return ResponseEntity.ok(adminUserService.updateUser(userId, request));
+    }
+
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+        adminUserService.deleteUserByAdmin(userId);
+        return ResponseEntity.noContent().build();
     }
 }

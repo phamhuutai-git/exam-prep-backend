@@ -1,5 +1,6 @@
 package com.example.examprepbackend.repository;
 
+import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -24,4 +25,12 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
 
     boolean existsByUsernameIgnoreCaseAndIdNot(String username, Integer id);
 
+
+    // ===== DELETE  =====
+    Optional<Users> findByIdAndStatusNot(Integer id, Status status);
+
+    boolean existsByIdAndStatusNot(Integer id, Status status);
+
+
+    Optional<Users> findByUsernameOrEmail(String username, String email);
 }

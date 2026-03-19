@@ -1,15 +1,15 @@
 package com.example.examprepbackend.service.impl;
 
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
-import com.example.examprepbackend.dto.response.users.UserInfoResponse;
+import com.example.examprepbackend.dto.response.users.*;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
-import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
-import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
+import com.example.examprepbackend.exception.BusinessException;
 import com.example.examprepbackend.exception.DuplicateResourceException;
+import com.example.examprepbackend.exception.ResourceNotFoundException;
 import com.example.examprepbackend.mapper.UserMapper;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.UsersService;

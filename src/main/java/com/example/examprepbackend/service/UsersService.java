@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
+
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
@@ -26,5 +27,6 @@ public interface UsersService {
     UserInfoResponse getCurrentUser(Authentication authentication);
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
+
 
 }
