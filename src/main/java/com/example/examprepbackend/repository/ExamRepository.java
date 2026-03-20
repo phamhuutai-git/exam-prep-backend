@@ -13,4 +13,7 @@ public interface ExamRepository extends JpaRepository<Exam, Integer>, JpaSpecifi
 
     Page<Exam> findExamsByCreator_Username(String creatorUsername, Pageable pageable);
 
+    Exam findByCode(String code);
+
+
 }
