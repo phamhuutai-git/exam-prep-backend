@@ -42,6 +42,16 @@ public class UsersController {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.getStudentsByClassId(id), "Get Students by class id"));
     }
 
+    @GetMapping("/teachers")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getAllTeachers() {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllTeachers(), "Get all teachers"));
+    }
+
+    @GetMapping("/teachers/class-id/{id}")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getTeachersByClassId(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getTeachersByClassId(id), "Get teachers by class id"));
+    }
+
     @PutMapping("/change-password")
     public ResponseEntity<BaseResponse<Boolean>> changePassword(Authentication authentication,
                                                                 @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {

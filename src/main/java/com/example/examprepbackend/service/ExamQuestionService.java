@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ExamQuestionService {
 
-    Void createExamQuestions(Exam exam, List<Question> questionList);
+    void createExamQuestions(Exam exam, List<Question> questionList);
 
 }

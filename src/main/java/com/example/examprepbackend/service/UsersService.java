@@ -22,6 +22,10 @@ public interface UsersService {
 
     List<UserResponse> getStudentsByClassId(Integer id);
 
+    List<UserResponse> getAllTeachers();
+
+    List<UserResponse> getTeachersByClassId(Integer classId);
+
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 
     UserInfoResponse getCurrentUser(Authentication authentication);

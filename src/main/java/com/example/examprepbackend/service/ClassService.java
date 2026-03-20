@@ -6,6 +6,8 @@ import com.example.examprepbackend.dto.response.clazz.ClassResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ClassService {
 
     Page<ClassResponse> getAllClasses(ClassRequestParam classRequestParam, Pageable pageable);
@@ -13,6 +15,10 @@ public interface ClassService {
     ClassResponse createClass(ClassRequest classRequest);
 
     ClassResponse updateClass(Integer id, ClassRequest classRequest);
+
+    Boolean addStudentsToClass(Integer id, List<Integer> studentIdList);
+
+    Boolean addTeachersToClass(Integer id, List<Integer> teacherIdList);
 
     Boolean deleteById(Integer id);
 }
