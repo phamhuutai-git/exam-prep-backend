@@ -20,7 +20,7 @@ public class ExamQuestionServiceImpl implements ExamQuestionService {
     private final ExamQuestionRepository examQuestionRepository;
 
     @Override
-    public Void createExamQuestions(Exam exam, List<Question> questionList) {
+    public void createExamQuestions(Exam exam, List<Question> questionList) {
 
         for (Question question : questionList) {
             ExamQuestion examQuestion = new ExamQuestion();
@@ -35,6 +35,6 @@ public class ExamQuestionServiceImpl implements ExamQuestionService {
 
             examQuestionRepository.save(examQuestion);
         }
-        return null;
+
     }
 }

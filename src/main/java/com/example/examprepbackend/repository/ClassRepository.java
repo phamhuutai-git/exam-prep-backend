@@ -9,4 +9,5 @@ public interface ClassRepository extends JpaRepository<Classes, Integer>, JpaSpe
 
     Classes findByName(String name);
 
+
 }

@@ -1,5 +1,7 @@
 package com.example.examprepbackend.controller.users;
+
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
@@ -16,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -25,6 +30,26 @@ public class UsersController {
     @GetMapping
     public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllUsers(pageable), "Get all users"));
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getAllStudents() {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllStudents(), "Get All Students"));
+    }
+
+    @GetMapping("/students/class-id/{id}")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getStudentsByClassId(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getStudentsByClassId(id), "Get Students by class id"));
+    }
+
+    @GetMapping("/teachers")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getAllTeachers() {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllTeachers(), "Get all teachers"));
+    }
+
+    @GetMapping("/teachers/class-id/{id}")
+    public ResponseEntity<BaseResponse<List<UserResponse>>> getTeachersByClassId(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getTeachersByClassId(id), "Get teachers by class id"));
     }
 
     @PutMapping("/change-password")

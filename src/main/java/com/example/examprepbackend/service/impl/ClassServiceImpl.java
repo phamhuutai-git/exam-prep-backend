@@ -1,12 +1,17 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.clazz.ClassRequest;
 import com.example.examprepbackend.dto.request.clazz.ClassRequestParam;
 import com.example.examprepbackend.dto.response.clazz.ClassResponse;
 import com.example.examprepbackend.entity.Classes;
+import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.ClassRepository;
+import com.example.examprepbackend.repository.ClassTeacherRepository;
+import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.ClassService;
+import com.example.examprepbackend.service.ClassTeacherService;
 import com.example.examprepbackend.specification.ClassSpecification;
 import com.example.examprepbackend.specification.ExamSpecification;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +22,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -29,11 +36,15 @@ public class ClassServiceImpl implements ClassService {
 
     private final ClassRepository classRepository;
     private final ModelMapper modelMapper;
+    private final UsersRepository usersRepository;
+    private final ClassTeacherRepository classTeacherRepository;
+    private final ClassTeacherService classTeacherService;
 
     private ClassResponse convertToDto(Classes classes) {
         ClassResponse classResponse = new ClassResponse();
 
         BeanUtils.copyProperties(classes, classResponse);
+        classResponse.setStudentCount(usersRepository.countByRoleAndClasses_Id(Role.valueOf("STUDENT"), classes.getId()));
 
         return classResponse;
     }
@@ -66,6 +77,7 @@ public class ClassServiceImpl implements ClassService {
         return classRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
+    @Transactional
     @Override
     public ClassResponse createClass(ClassRequest classRequest) {
 
@@ -74,8 +86,6 @@ public class ClassServiceImpl implements ClassService {
         if (existsByName != null) {
             throw new ApplicationException("Class name existed");
         }
-
-        log.info("aaaa" + classRequest.getName());
 
         Classes classes = new Classes();
         classes.setName(classRequest.getName());
@@ -86,6 +96,7 @@ public class ClassServiceImpl implements ClassService {
         return modelMapper.map(classes, ClassResponse.class);
     }
 
+    @Transactional
     @Override
     public ClassResponse updateClass(Integer id, ClassRequest classRequest) {
 
@@ -112,5 +123,71 @@ public class ClassServiceImpl implements ClassService {
         classRepository.save(clazz);
 
         return modelMapper.map(clazz, ClassResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public Boolean addStudentsToClass(Integer id, List<Integer> studentIdList) {
+        Optional<Classes> classesOptional = classRepository.findById(id);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        List<Users> usersList = usersRepository.findByIdIn(studentIdList);
+        for (Users student : usersList) {
+            if (!"STUDENT".equals(student.getRole().toString())) {
+                throw new ApplicationException("User: " + student.getUsername() + " not student");
+            }
+        }
+
+        //Set ClassId = null
+        usersRepository.updateClassIdToNull(id);
+
+        //Set lại classId cho các học sinh trong danh sách
+        if (studentIdList != null) {
+            usersRepository.updateClassIdByIdIn(id, studentIdList);
+        }
+
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public Boolean addTeachersToClass(Integer id, List<Integer> teacherIdList) {
+        Optional<Classes> classesOptional = classRepository.findById(id);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+        Classes classes = classesOptional.get();
+
+        //Step1: Xóa toàn bộ giáo viên theo classId trong bảng trung gian class_teacher
+        //Step2: Lưu lại dữ liệu theo class-teachers đã nhận vào bảng trung gian class_teacher
+        classTeacherRepository.deleteByClasses_Id(id);
+
+        if (teacherIdList != null) {
+            List<Users> teacherList = usersRepository.findByIdIn(teacherIdList);
+            for (Users teacher : teacherList) {
+                if (!"TEACHER".equals(teacher.getRole().toString())) {
+                    throw new ApplicationException("User: " + teacher.getUsername() + " not teacher");
+                }
+            }
+            classTeacherService.createClassTeachers(classes, teacherList);
+        }
+
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public Boolean deleteById(Integer id) {
+        Optional<Classes> classesOptional = classRepository.findById(id);
+
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        classRepository.delete(classesOptional.get());
+
+        return true;
     }
 }

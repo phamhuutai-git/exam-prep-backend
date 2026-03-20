@@ -15,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/classes")
@@ -36,5 +38,20 @@ public class AdminClassController {
     @PutMapping("/{id}")
     public ResponseEntity<BaseResponse<ClassResponse>> updateClass(@PathVariable Integer id, @RequestBody @Valid ClassRequest classRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.updateClass(id, classRequest), "Updated class"));
+    }
+
+    @PutMapping("/{id}/students")
+    public ResponseEntity<BaseResponse<Boolean>> addStudentsToClass(@PathVariable Integer id, @RequestBody List<Integer> studentIdList) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.addStudentsToClass(id, studentIdList), "Add students to class"));
+    }
+
+    @PutMapping("/{id}/teachers")
+    public ResponseEntity<BaseResponse<Boolean>> addTeachersToClass(@PathVariable Integer id, @RequestBody List<Integer> teacherIdList) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.addTeachersToClass(id, teacherIdList), "Add teachers to class"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<BaseResponse<Boolean>> deleteById(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.deleteById(id), "Class deleted"));
     }
 }
