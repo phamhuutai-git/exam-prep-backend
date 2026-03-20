@@ -13,4 +13,6 @@ public interface ClassService {
     ClassResponse createClass(ClassRequest classRequest);
 
     ClassResponse updateClass(Integer id, ClassRequest classRequest);
+
+    Boolean deleteById(Integer id);
 }

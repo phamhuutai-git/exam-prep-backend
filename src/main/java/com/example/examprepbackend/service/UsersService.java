@@ -2,6 +2,7 @@ package com.example.examprepbackend.service;
 
 import java.util.List;
 
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
@@ -16,6 +17,10 @@ import org.springframework.security.core.Authentication;
 public interface UsersService {
 
     Page<UserResponse> getAllUsers(Pageable pageable);
+
+    List<UserResponse> getAllStudents();
+
+    List<UserResponse> getStudentsByClassId(Integer id);
 
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 

@@ -37,4 +37,9 @@ public class AdminClassController {
     public ResponseEntity<BaseResponse<ClassResponse>> updateClass(@PathVariable Integer id, @RequestBody @Valid ClassRequest classRequest) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.updateClass(id, classRequest), "Updated class"));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<BaseResponse<Boolean>> deleteById(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.deleteById(id), "Class deleted"));
+    }
 }

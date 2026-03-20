@@ -1,5 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
@@ -39,10 +40,19 @@ public class UsersServiceImpl implements UsersService {
 
     }
 
-    @Transactional
     @Override
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return usersRepository.findAll(pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public List<UserResponse> getAllStudents() {
+        return usersRepository.findByRole(Role.STUDENT).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<UserResponse> getStudentsByClassId(Integer id) {
+        return usersRepository.findByRoleAndClasses_Id(Role.STUDENT, id).stream().map(this::convertToDto).toList();
     }
 
     @Transactional

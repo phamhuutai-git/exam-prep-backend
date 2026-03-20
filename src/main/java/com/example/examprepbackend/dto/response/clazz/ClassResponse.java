@@ -14,4 +14,6 @@ public class ClassResponse {
     private String name;
 
     private LocalDateTime createDate;
+
+    private Long studentCount;
 }
