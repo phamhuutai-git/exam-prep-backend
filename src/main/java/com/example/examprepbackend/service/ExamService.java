@@ -9,10 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
+
 public interface ExamService {
     Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable);
 
     Page<ExamResponse> getExamsByTeacherName(Authentication authentication, Pageable pageable);
+
+    List<ExamSummaryResponse> getExamsByClassId(Integer classId);
 
     ExamSummaryResponse createExam(Authentication authentication, ExamCreateRequest examCreateRequest);
 

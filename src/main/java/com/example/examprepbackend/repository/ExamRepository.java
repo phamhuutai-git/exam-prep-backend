@@ -15,5 +15,7 @@ public interface ExamRepository extends JpaRepository<Exam, Integer>, JpaSpecifi
 
     Exam findByCode(String code);
 
+    List<Exam> findByIdIn(List<Integer> idList);
+
 
 }
