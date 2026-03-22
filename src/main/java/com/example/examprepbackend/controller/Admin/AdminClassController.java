@@ -4,6 +4,7 @@ package com.example.examprepbackend.controller.Admin;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.clazz.ClassRequest;
 import com.example.examprepbackend.dto.request.clazz.ClassRequestParam;
+import com.example.examprepbackend.dto.response.clazz.ClassDetailResponse;
 import com.example.examprepbackend.dto.response.clazz.ClassResponse;
 import com.example.examprepbackend.service.ClassService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +30,12 @@ public class AdminClassController {
     @GetMapping
     public ResponseEntity<BaseResponse<Page<ClassResponse>>> getAllClasses(ClassRequestParam classRequestParam, @PageableDefault(size = 5) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.getAllClasses(classRequestParam, pageable), "Get All Classes"));
+    }
+
+    @GetMapping("/teacher")
+    public ResponseEntity<BaseResponse<Page<ClassDetailResponse>>> getClassesByTeacher(Authentication authentication,
+                                                                                       @PageableDefault(size = 5) Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.getClassesByTeacher(authentication, pageable), "Get Classes by teacher"));
     }
 
     @PostMapping
@@ -48,6 +56,11 @@ public class AdminClassController {
     @PutMapping("/{id}/teachers")
     public ResponseEntity<BaseResponse<Boolean>> addTeachersToClass(@PathVariable Integer id, @RequestBody List<Integer> teacherIdList) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.addTeachersToClass(id, teacherIdList), "Add teachers to class"));
+    }
+
+    @PutMapping("/{id}/exams")
+    public ResponseEntity<BaseResponse<Boolean>> addExamsToClass(@PathVariable Integer id, @RequestBody List<Integer> examIds) {
+        return ResponseEntity.ok().body(new BaseResponse<>(classService.addExamsToClass(id, examIds), "Add exams to class"));
     }
 
     @DeleteMapping("/{id}")

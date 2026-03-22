@@ -50,4 +50,6 @@ public class TeacherExamController {
     public ResponseEntity<BaseResponse<Boolean>> deleteExamById(@PathVariable Integer id) {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.deleteExamById(id), "Exam deleted"));
     }
+
+
 }

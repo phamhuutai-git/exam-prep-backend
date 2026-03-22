@@ -40,6 +40,8 @@ public class ExamServiceImpl implements ExamService {
     private final UsersRepository usersRepository;
     private final CategoryQuestionRepository categoryQuestionRepository;
     private final QuestionRepository questionRepository;
+    private final ClassRepository classRepository;
+    private final ClassExamRepository classExamRepository;
 
     private final ExamQuestionService examQuestionService;
     private final ModelMapper modelMapper;
@@ -98,6 +100,18 @@ public class ExamServiceImpl implements ExamService {
         String username = authentication.getName();
 
         return examRepository.findExamsByCreator_Username(username, pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public List<ExamSummaryResponse> getExamsByClassId(Integer classId) {
+        Optional<Classes> classesOptional = classRepository.findById(classId);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        List<Integer> examIdList = classExamRepository.findByClassId(classId);
+
+        return examRepository.findByIdIn(examIdList).stream().map(e -> modelMapper.map(e, ExamSummaryResponse.class)).toList();
     }
 
     @Transactional
