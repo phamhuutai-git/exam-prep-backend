@@ -5,10 +5,12 @@ import java.util.List;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
+
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Users;
+import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,9 @@ import org.springframework.security.core.Authentication;
 public interface UsersService {
 
     Page<UserResponse> getAllUsers(Pageable pageable);
+
+    UserSummaryResponse createUser(CreateUserRequest request);
+
 
     List<UserResponse> getAllStudents();
 
@@ -31,5 +36,6 @@ public interface UsersService {
     UserInfoResponse getCurrentUser(Authentication authentication);
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
+
 
 }
