@@ -32,8 +32,9 @@ public class TeacherExamController {
 
     @GetMapping("/teacher-name")
     public ResponseEntity<BaseResponse<Page<ExamResponse>>> getExamsByTeacherName(Authentication authentication,
+                                                                                  ExamRequestParam examRequestParam,
                                                                                   @PageableDefault(size = 5, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, pageable), "Get Exams by Teacher"));
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, examRequestParam, pageable), "Get Exams by Teacher"));
     }
 
     @PostMapping

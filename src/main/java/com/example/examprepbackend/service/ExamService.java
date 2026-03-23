@@ -14,7 +14,7 @@ import java.util.List;
 public interface ExamService {
     Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable);
 
-    Page<ExamResponse> getExamsByTeacherName(Authentication authentication, Pageable pageable);
+    Page<ExamResponse> getExamsByTeacherName(Authentication authentication, ExamRequestParam examRequestParam, Pageable pageable);
 
     List<ExamSummaryResponse> getExamsByClassId(Integer classId);
 
