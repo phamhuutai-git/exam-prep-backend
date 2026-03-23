@@ -1,7 +1,5 @@
 package com.example.examprepbackend.controller.users;
-
 import com.example.examprepbackend.common.BaseResponse;
-import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
@@ -19,7 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
+
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -70,5 +71,12 @@ public class UsersController {
         }
         UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
         return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
+    }
+
+
+    @PostMapping
+    public ResponseEntity<BaseResponse<UserSummaryResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
+        UserSummaryResponse dto = usersService.createUser(request);
+        return ResponseEntity.ok(new BaseResponse<>(dto, "User created successfully"));
     }
 }

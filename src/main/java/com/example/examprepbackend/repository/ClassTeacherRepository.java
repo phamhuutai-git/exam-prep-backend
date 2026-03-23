@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface ClassTeacherRepository extends JpaRepository<ClassTeacher, Integer> {
 
+    boolean existsByTeacherId(Integer teacherId);
     @Query("select cl.teacher.id from ClassTeacher cl where cl.classes.id = :classId")
     List<Integer> findByClasses_Id(@Param("classId") Integer classId);
 
