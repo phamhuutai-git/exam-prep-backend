@@ -2,15 +2,20 @@ package com.example.examprepbackend.service.impl;
 
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.response.users.*;
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
+import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
+import com.example.examprepbackend.entity.Classes;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.exception.BusinessException;
 import com.example.examprepbackend.exception.DuplicateResourceException;
 import com.example.examprepbackend.exception.ResourceNotFoundException;
 import com.example.examprepbackend.mapper.UserMapper;
+import com.example.examprepbackend.repository.ClassRepository;
+import com.example.examprepbackend.repository.ClassTeacherRepository;
 import com.example.examprepbackend.repository.UsersRepository;
 import com.example.examprepbackend.service.UsersService;
 import com.example.examprepbackend.constant.Role;
@@ -37,6 +42,8 @@ public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
     private final UserMapper userMapper;
+    private final ClassRepository classRepository;
+    private final ClassTeacherRepository classTeacherRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -105,6 +112,39 @@ public class UsersServiceImpl implements UsersService {
     }
 
 
+    @Override
+    public List<UserResponse> getAllStudents() {
+        return usersRepository.findByRole(Role.STUDENT).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<UserResponse> getStudentsByClassId(Integer id) {
+        Optional<Classes> classesOptional = classRepository.findById(id);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        return usersRepository.findByRoleAndClasses_Id(Role.STUDENT, id).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<UserResponse> getAllTeachers() {
+        return usersRepository.findByRole(Role.TEACHER).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<UserResponse> getTeachersByClassId(Integer classId) {
+
+        Optional<Classes> classesOptional = classRepository.findById(classId);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        List<Integer> teacherIdList = classTeacherRepository.findByClasses_Id(classId);
+
+        return usersRepository.findByRoleAndIdIn(Role.TEACHER, teacherIdList).stream().map(this::convertToDto).toList();
+    }
+
     @Transactional
     @Override
     public Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest) {
@@ -136,6 +176,7 @@ public class UsersServiceImpl implements UsersService {
 
         return true;
     }
+
     @Override
     public UserInfoResponse getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -153,6 +194,7 @@ public class UsersServiceImpl implements UsersService {
                 user.getRole().name()
         );
     }
+
     @Transactional
     @Override
     public UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest) {
@@ -188,4 +230,6 @@ public class UsersServiceImpl implements UsersService {
 
         return modelMapper.map(user, UserSummaryResponse.class);
     }
+
+
 }

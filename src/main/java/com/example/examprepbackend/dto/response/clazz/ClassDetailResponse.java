@@ -1,14 +1,16 @@
 package com.example.examprepbackend.dto.response.clazz;
 
-import jakarta.persistence.Column;
+import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
+import com.example.examprepbackend.entity.Exam;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
-public class ClassResponse {
+public class ClassDetailResponse {
     private Integer id;
 
     private String name;
@@ -17,6 +19,5 @@ public class ClassResponse {
 
     private Long studentCount;
 
-    private Long teacherCount;
-
+    private List<ExamSummaryResponse> exams;
 }

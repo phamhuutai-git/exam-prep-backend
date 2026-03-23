@@ -2,6 +2,7 @@ package com.example.examprepbackend.service;
 
 import java.util.List;
 
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 
@@ -21,6 +22,14 @@ public interface UsersService {
 
     UserSummaryResponse createUser(CreateUserRequest request);
 
+
+    List<UserResponse> getAllStudents();
+
+    List<UserResponse> getStudentsByClassId(Integer id);
+
+    List<UserResponse> getAllTeachers();
+
+    List<UserResponse> getTeachersByClassId(Integer classId);
 
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 
