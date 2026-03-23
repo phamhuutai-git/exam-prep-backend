@@ -5,6 +5,7 @@ import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestP
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,8 @@ import java.util.List;
 public interface QuestionService {
 
     Page<QuestionResponse> getAllQuestions(QuestionRequestParam Param, Pageable pageable);
+
+    Page<QuestionResponse> getMyQuestions(QuestionRequestParam param, Pageable pageable);
 
     QuestionResponse getQuestionById(Integer id);
 

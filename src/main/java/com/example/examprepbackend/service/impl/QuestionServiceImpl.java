@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.modelmapper.ModelMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.BeanUtils;
@@ -70,25 +71,21 @@ public class QuestionServiceImpl implements QuestionService {
 
         questionResponse.setDifficulty(question.getDifficultyLevel());
 
-        questionResponse.setCreator(question.getCreator().getUsername());
-
         questionResponse.setCreatedDate(
                 question.getCreateDate().toLocalDate().toString()
         );
 
         // lấy answers
-        List<Answer> answers = answerRepository.findByQuestion_Id(question.getId());
+        if (question.getAnswers() != null) {
+            List<AnswerResponse> answerResponses = question.getAnswers().stream().map(a -> {
+                AnswerResponse dto = new AnswerResponse();
+                dto.setContent(a.getContent());
+                dto.setIsCorrect(a.getIsCorrect());
+                return dto;
+            }).toList();
 
-        List<AnswerResponse> answerResponses = answers.stream().map(a -> {
-            AnswerResponse dto = new AnswerResponse();
-            dto.setContent(a.getContent());
-            dto.setIsCorrect(a.getIsCorrect());
-            return dto;
-        }).toList();
-
-        questionResponse.setAnswers(answerResponses);
-
-
+            questionResponse.setAnswers(answerResponses);
+        }
         questionResponse.setCreator(question.getCreator().getUsername());
 
         return questionResponse;
@@ -131,6 +128,45 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(this::convertToDto);
     }
 
+    @Override
+    public Page<QuestionResponse> getMyQuestions(
+            QuestionRequestParam param,
+            Pageable pageable
+    ) {
+
+        String username = SecurityUtils.getCurrentUsername();
+
+        if (username == null) {
+            throw new ApplicationException("User not logged in");
+        }
+
+        String content = param.getContent();
+        DifficultyLevel difficulty = param.getDifficulty();
+        Integer categoryId = param.getCategoryId();
+        LocalDate minDate = param.getMinDate();
+        LocalDate maxDate = param.getMaxDate();
+
+        Specification<Question> spec = QuestionSpecification.hasCreatorUsername(username);
+
+        if (content != null && !content.isBlank()) {
+            spec = spec.and(QuestionSpecification.hasContentLike(content));
+        }
+
+        if (difficulty != null) {
+            spec = spec.and(QuestionSpecification.hasDifficulty(difficulty));
+        }
+
+        if (categoryId != null) {
+            spec = spec.and(QuestionSpecification.hasCategoryId(categoryId));
+        }
+
+        if (minDate != null && maxDate != null) {
+            spec = spec.and(QuestionSpecification.hasCreateDate(minDate, maxDate));
+        }
+
+        return questionRepository.findAll(spec, pageable)
+                .map(this::convertToDto);
+    }
 
     @Override
     public QuestionResponse getQuestionById(Integer id) {
@@ -271,6 +307,15 @@ public class QuestionServiceImpl implements QuestionService {
                 "Content",
                 "Difficulty",
                 "Category",
+                "Answer1",
+                "Correct1",
+                "Answer2",
+                "Correct2",
+                "Answer3",
+                "Correct3",
+                "Answer4",
+                "Correct4",
+                "Explain",
                 "Created Date"
         };
 
@@ -292,7 +337,6 @@ public class QuestionServiceImpl implements QuestionService {
             Row row = sheet.createRow(rowIndex++);
 
             row.createCell(0).setCellValue(question.getId());
-
             row.createCell(1).setCellValue(question.getContent());
 
             row.createCell(2).setCellValue(
@@ -305,7 +349,27 @@ public class QuestionServiceImpl implements QuestionService {
                             question.getCategory().getName() : ""
             );
 
-            row.createCell(4).setCellValue(
+            List<Answer> answers = question.getAnswers();
+
+            for (int j = 0; j < 4; j++) {
+
+                if (answers != null && j < answers.size()) {
+
+                    row.createCell(4 + j * 2)
+                            .setCellValue(answers.get(j).getContent());
+
+                    row.createCell(5 + j * 2)
+                            .setCellValue(answers.get(j).getIsCorrect());
+                }
+            }
+
+            // Explain
+            row.createCell(12).setCellValue(
+                    question.getExplanation() != null ? question.getExplanation() : ""
+            );
+
+            // Created date
+            row.createCell(13).setCellValue(
                     question.getCreateDate() != null ?
                             question.getCreateDate().toString() : ""
             );
@@ -358,7 +422,7 @@ public class QuestionServiceImpl implements QuestionService {
                     .orElseThrow(() -> new ApplicationException("Category not found"));
 
             question.setCategory(category);
-
+            question.setExplanation(row.getCell(11).getStringCellValue());
             String username = SecurityUtils.getCurrentUsername();
 
             Users user = userRepository.findByUsername(username)
@@ -393,11 +457,36 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public QuestionCountResponse getAllQuestionsCount() {
+        String username = SecurityUtils.getCurrentUsername();
+
+        if (username == null) {
+            throw new ApplicationException("User not logged in");
+        }
+
         QuestionCountResponse response = new QuestionCountResponse();
-        response.setCountTotal(questionRepository.count());
-        response.setCountEasy(questionRepository.countByDifficultyLevel(DifficultyLevel.EASY));
-        response.setCountMedium(questionRepository.countByDifficultyLevel(DifficultyLevel.MEDIUM));
-        response.setCountHard(questionRepository.countByDifficultyLevel(DifficultyLevel.HARD));
+
+        response.setCountTotal(
+                questionRepository.countByCreator_Username(username)
+        );
+
+        response.setCountEasy(
+                questionRepository.countByCreator_UsernameAndDifficultyLevel(
+                        username, DifficultyLevel.EASY
+                )
+        );
+
+        response.setCountMedium(
+                questionRepository.countByCreator_UsernameAndDifficultyLevel(
+                        username, DifficultyLevel.MEDIUM
+                )
+        );
+
+        response.setCountHard(
+                questionRepository.countByCreator_UsernameAndDifficultyLevel(
+                        username, DifficultyLevel.HARD
+                )
+        );
+
         return response;
 
     }
