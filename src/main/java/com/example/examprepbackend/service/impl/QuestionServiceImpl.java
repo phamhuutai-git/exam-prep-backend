@@ -2,16 +2,14 @@ package com.example.examprepbackend.service.impl;
 
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.DifficultyLevel;
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
-import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
-import com.example.examprepbackend.entity.Answer;
-import com.example.examprepbackend.entity.CategoryQuestion;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
+import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
-import com.example.examprepbackend.entity.Question;
-import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.repository.AnswerRepository;
@@ -24,10 +22,9 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.modelmapper.ModelMapper;
-import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,7 +54,8 @@ public class QuestionServiceImpl implements QuestionService {
     private final UsersRepository userRepository;
     private final CategoryQuestionRepository categoryRepository;
     private final ExamQuestionRepository examQuestionRepository;
-    private final ModelMapper modelMapper;
+    private final ClassRepository  classRepository;
+    private final ClassExamRepository  classExamRepository;
 
 
     //Map question -> questionResponse
@@ -489,5 +487,25 @@ public class QuestionServiceImpl implements QuestionService {
 
         return response;
 
+    }
+
+    //student
+    @Override
+    public Page<QuestionResponse> getAllQuestionsByStudent(Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        if (username == null) return Page.empty(pageable);
+
+        Users student = userRepository.findByUsername(username)
+                .orElse(null);
+        if (student == null || student.getClasses() == null) return Page.empty(pageable);
+
+        Integer classId = student.getClasses().getId();
+        List<Integer> examIds = classExamRepository.findByClassId(classId);
+        if (examIds.isEmpty()) return Page.empty(pageable);
+
+        Page<Question> questionsPage = questionRepository
+                .findByExamIdInAndCreatorRole(examIds, Role.TEACHER, pageable);
+
+        return questionsPage.map(this::convertToDto);
     }
 }

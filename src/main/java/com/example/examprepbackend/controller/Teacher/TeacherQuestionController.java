@@ -3,9 +3,8 @@ package com.example.examprepbackend.controller.Teacher;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
-import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
-import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.service.QuestionService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
