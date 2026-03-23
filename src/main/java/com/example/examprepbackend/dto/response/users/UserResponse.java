@@ -1,22 +1,26 @@
 package com.example.examprepbackend.dto.response.users;
 
 import com.example.examprepbackend.constant.Role;
+import lombok.*;
 import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.entity.Classes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Builder
 @Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserResponse {
 
     private Integer id;
 
     private String email;
+    private String fullName;
 
     private String username;
 

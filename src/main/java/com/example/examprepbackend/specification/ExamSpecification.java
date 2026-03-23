@@ -11,6 +11,12 @@ public class ExamSpecification {
 //    private CategoryQuestion category;
 //    private LocalDateTime createDate;
 
+    public static Specification<Exam> hasCreatorUsername(String username) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("creator").get("username"), username);
+        };
+    }
+
     public static Specification<Exam> hasCodeLike(String code) {
         return (root, query, criteriaBuilder) -> {
             return criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + code + "%");

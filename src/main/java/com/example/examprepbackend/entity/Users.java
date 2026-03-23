@@ -55,4 +55,9 @@ public class Users {
 // hiển thị thời gian bị khóa
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
+//    private LocalDateTime deletedAt;
+//    private Integer deletedBy;
+
+
 }
