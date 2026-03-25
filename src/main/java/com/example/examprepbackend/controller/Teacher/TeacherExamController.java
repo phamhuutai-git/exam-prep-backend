@@ -4,6 +4,7 @@ import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
+import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
 import com.example.examprepbackend.service.ExamService;
@@ -35,6 +36,12 @@ public class TeacherExamController {
                                                                                   ExamRequestParam examRequestParam,
                                                                                   @PageableDefault(size = 5, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, examRequestParam, pageable), "Get Exams by Teacher"));
+    }
+
+    @GetMapping("/teacher-name/attempts")
+    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getExamAttemptsByTeacher(Authentication authentication,
+                                                                                            @PageableDefault(size = 5) Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamAttemptsByTeacher(authentication, pageable), "Get exam attempt by teacher"));
     }
 
     @PostMapping
