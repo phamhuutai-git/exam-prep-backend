@@ -46,7 +46,6 @@ public class Users {
     @JoinColumn(name = "class_id")
     private Classes classes;
 
-
     @Column(name = "create_date")
     private LocalDateTime createdDate;
 // thêm cột này để đếm số lần bị khóa
@@ -55,9 +54,5 @@ public class Users {
 // hiển thị thời gian bị khóa
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
-
-//    private LocalDateTime deletedAt;
-//    private Integer deletedBy;
-
 
 }

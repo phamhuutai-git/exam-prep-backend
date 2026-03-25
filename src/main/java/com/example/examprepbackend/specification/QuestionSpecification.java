@@ -50,4 +50,9 @@ public class QuestionSpecification {
             return criteriaBuilder.between(root.get("createDate"), minDate, maxDate);
         };
     }
+    //lọc theo name
+    public static Specification<Question> hasCreatorUsername(String username) {
+        return (root, query, cb) ->
+                cb.equal(root.get("creator").get("username"), username);
+    }
 }
