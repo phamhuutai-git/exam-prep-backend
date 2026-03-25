@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface ClassExamRepository extends JpaRepository<ClassExam, Integer> {
 
+    // Lấy danh sách examId theo classId
     @Query("select ce.examId from ClassExam ce where ce.classId = :classId ")
     List<Integer> findByClassId(@Param("classId") Integer classId);
 
