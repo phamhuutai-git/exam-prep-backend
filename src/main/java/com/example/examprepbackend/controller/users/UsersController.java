@@ -1,11 +1,13 @@
 package com.example.examprepbackend.controller.users;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
+import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
-import com.example.examprepbackend.entity.Users;
+import com.example.examprepbackend.service.QuestionService;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.*;
 
 import java.util.List;
 
@@ -27,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsersController {
     private final UsersService usersService;
+    private final QuestionService questionService;
 
     @GetMapping
     public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(Pageable pageable) {
@@ -78,5 +78,10 @@ public class UsersController {
     public ResponseEntity<BaseResponse<UserSummaryResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
         UserSummaryResponse dto = usersService.createUser(request);
         return ResponseEntity.ok(new BaseResponse<>(dto, "User created successfully"));
+    }
+
+    @GetMapping("/questions")
+    public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestionsByStudent(Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable),"Get All Question Succcesfull!"));
     }
 }

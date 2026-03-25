@@ -3,7 +3,7 @@ package com.example.examprepbackend.service;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
-import com.example.examprepbackend.dto.response.teacher.QuestionResponse;
+import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,11 @@ import java.util.List;
 
 public interface QuestionService {
 
+    //teacher
+
     Page<QuestionResponse> getAllQuestions(QuestionRequestParam Param, Pageable pageable);
+
+    Page<QuestionResponse> getMyQuestions(QuestionRequestParam param, Pageable pageable);
 
     QuestionResponse getQuestionById(Integer id);
 
@@ -31,4 +35,7 @@ public interface QuestionService {
     void importQuestionFromExcel(MultipartFile file) throws IOException;
 
     QuestionCountResponse getAllQuestionsCount();
+
+    // student
+    Page<QuestionResponse> getAllQuestionsByStudent(Pageable pageable);
 }

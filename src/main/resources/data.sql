@@ -164,7 +164,6 @@ CREATE TABLE otps
     type       VARCHAR(50),
     expire_at  DATETIME,
     created_at DATETIME,
-
     FOREIGN KEY (email) REFERENCES users (email)
 );
 INSERT INTO classes (name, create_date)
@@ -247,10 +246,14 @@ VALUES
 ('Programming Language', 5, false),
 ('Markup Language', 5, true),
 ('Database System', 5, false),
-('Operating System', 5, false);
-
+('Operating System', 5, false),
+-- Question 6
+('Programming Language', 6, false),
+('Markup Language', 6, true),
+('Database System', 6, false),
+('Operating System', 6, false);
 INSERT INTO exam
-(code, title, duration, category_id, creator_id, create_date)
+    (code, title, duration, category_id, creator_id, create_date)
 VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 2, NOW()),
        ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
        ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
@@ -275,7 +278,7 @@ VALUES (1, 6),
        (6, 5);
 
 INSERT INTO exam_attempt
-(exam_id, student_id, start_time, end_time, score, status)
+    (exam_id, student_id, start_time, end_time, score, status)
 VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
        (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
@@ -300,17 +303,17 @@ VALUES (1, 1, 30, NOW(), NOW(), 'HAS_EXAM'),
        (5, 6, 25, NOW(), NOW(), 'HAS_EXAM');
 
 update users
-set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
-where id = 1; -- ADMIN:admin123
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 1; -- ADMIN:1234
 update users
-set password ='$2a$10$PbUJonO1EEdsEinGijTCluiKlKAFTE8dwmdfYn9NPDb9s3t1TFqnW'
-where id = 2; -- ADMIN:admin123
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 2; -- ADMIN:1234
 update users
-set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
-where id = 3; -- TEACHER:12345
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 3; -- TEACHER:1234
 update users
-set password ='$2a$10$GEgiP80cEPmuFx3Mo4A9OOFJ8OKcR7nDGR6P2ZBl7gRForMZg56Ei'
-where id = 4; -- TEACHER:12345
+set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
+where id = 4; -- TEACHER:1234
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
 where id = 5; -- STUDENT:1234
