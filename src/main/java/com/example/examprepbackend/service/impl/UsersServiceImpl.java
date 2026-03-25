@@ -46,6 +46,54 @@ public class UsersServiceImpl implements UsersService {
     private final ClassTeacherRepository classTeacherRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private String normalizeEmail(String email) {
+        if (email == null) return null;
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeUsername(String username) {
+        if (username == null) return null;
+        return username.trim();
+    }
+
+    private void checkDuplicate(String email, String username) {
+        boolean emailExists = usersRepository.existsByEmail(email);
+        boolean usernameExists = usersRepository.existsByUsernameIgnoreCase(username);
+
+        if (emailExists && usernameExists) {
+            throw new DuplicateResourceException("Email and username already exist");
+        }
+        if (emailExists) {
+            throw new DuplicateResourceException("Email already exists");
+        }
+        if (usernameExists) {
+            throw new DuplicateResourceException("Username already exists");
+        }
+    }
+
+
+    private void applyFullName(Users user, String fullName) {
+        if (fullName == null || fullName.trim().isEmpty()) {
+            user.setFirstName(null);
+            user.setLastName(null);
+            return;
+        }
+
+        String[] parts = fullName.trim().split("\\s+");
+
+        if (parts.length == 1) {
+            user.setFirstName(parts[0]);
+            user.setLastName("");
+            return;
+        }
+
+        // Họ (lastName) = từ đầu tiên
+        user.setLastName(parts[0]);
+
+        // Tên (firstName) = phần còn lại
+        String firstName = String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length));
+        user.setFirstName(firstName);
+    }
 
     private UserResponse convertToDto(Users users) {
         UserResponse userResponse = new UserResponse();
@@ -65,16 +113,20 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public UserSummaryResponse createUser(CreateUserRequest request) {
+
         String email = normalizeEmail(request.getEmail());
         String username = normalizeUsername(request.getUsername());
 
         checkDuplicate(email, username);
 
+        String passBasic = "1234";
+
         Users user = userMapper.toEntity(request);
         user.setEmail(email);
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.STUDENT);
+        applyFullName(user, request.getFullName());
+        user.setPassword(passwordEncoder.encode(passBasic));
+        user.setRole(Role.valueOf(request.getRole().trim().toUpperCase(Locale.ROOT)));
         user.setIsActive(true);
         user.setStatus(Status.ACTIVED);
         user.setCreatedDate(LocalDateTime.now());
@@ -87,30 +139,6 @@ public class UsersServiceImpl implements UsersService {
             throw new DuplicateResourceException("Email or username already exists");
         }
     }
-
-    private void checkDuplicate(String email, String username) {
-        boolean emailExists = usersRepository.existsByEmail(email);
-        boolean usernameExists = usersRepository.existsByUsernameIgnoreCase(username);
-
-        if (emailExists && usernameExists) {
-            throw new DuplicateResourceException("Email and username already exist");
-        }
-        if (emailExists) {
-            throw new DuplicateResourceException("Email already exists");
-        }
-        if (usernameExists) {
-            throw new DuplicateResourceException("Username already exists");
-        }
-    }
-
-    private String normalizeEmail(String email) {
-        return email.trim().toLowerCase(Locale.ROOT);
-    }
-
-    private String normalizeUsername(String username) {
-        return username.trim();
-    }
-
 
     @Override
     public List<UserResponse> getAllStudents() {
