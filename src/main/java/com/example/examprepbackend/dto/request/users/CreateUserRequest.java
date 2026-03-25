@@ -1,5 +1,6 @@
 package com.example.examprepbackend.dto.request.users;
 
+import com.example.examprepbackend.constant.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,16 +19,12 @@ public class CreateUserRequest {
     @NotBlank(message = "UserName must not be blank")
     private String username;
 
-    @NotBlank(message = "Password must not be blank")
-    @Size(min = 6)
-    private String password;
+    @NotBlank(message = "ROlE must not be blank")
+    private String role;
 
-    @NotBlank
-    @NotNull(message = "FirstName must not be blank")
-    private String firstName;
+    @NotBlank(message = "fullName must not be blank")
+    private String fullName;
 
-    @NotBlank
-    @NotNull(message = "LastName must not be blank")
-    private String lastName;
+
 
 }
