@@ -1,6 +1,7 @@
 package com.example.examprepbackend.controller.users;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
+import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
