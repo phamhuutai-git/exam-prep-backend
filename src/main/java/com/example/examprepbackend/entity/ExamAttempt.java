@@ -32,6 +32,18 @@ public class ExamAttempt {
 
     private Double score;
 
+    @Column(name = "blank_count")
+    private Integer blankCount = 0;
+
+    @Column(name = "time_spent_seconds")
+    private Integer timeSpentSeconds = 0;
+
+    @Column(name = "correct_count")
+    private Integer correctCount = 0;
+
+    @Column(name = "wrong_count")
+    private Integer wrongCount = 0;
+
     @Enumerated(EnumType.STRING)
     private AttemptStatus status;
 }
