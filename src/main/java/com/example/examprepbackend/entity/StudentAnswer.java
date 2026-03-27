@@ -17,7 +17,12 @@ public class StudentAnswer {
     @JoinColumn(name = "attempt_id")
     private ExamAttempt attempt;
 
-    @ManyToOne
-    @JoinColumn(name = "answer_id")
-    private Answer answer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selected_answer_id")
+    private Answer selectedAnswer;
+
 }
