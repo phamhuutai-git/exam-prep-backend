@@ -33,4 +33,6 @@ and q.creator.role = :role
                                                 @Param("role") Role role,
                                                 Pageable pageable);
 
+
+    List<Question> findByExamIdOrderByOrderNoAsc(Integer examId);
 }
