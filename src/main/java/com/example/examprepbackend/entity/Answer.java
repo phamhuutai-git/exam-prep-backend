@@ -22,5 +22,8 @@ public class Answer {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
+    @Column(length = 10)
+    private String label; // A, B, C, D
+
 
 }
