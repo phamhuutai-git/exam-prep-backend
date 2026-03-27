@@ -24,6 +24,7 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     // ===== CREATE =====
     boolean existsByEmail(String email);
     boolean existsByUsernameIgnoreCase(String username);
+    boolean existsByEmailIgnoreCase(String email);
 
     // ===== UPDATE  =====
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Integer id);

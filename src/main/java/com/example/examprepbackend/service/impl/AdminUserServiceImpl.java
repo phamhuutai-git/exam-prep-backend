@@ -42,18 +42,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.setRole(request.getRole());
         user.setIsActive(request.getActive());
 
-        Users savedUser = usersRepository.save(user);
-
-        return mapToResponse(savedUser);
+        return mapToResponse(usersRepository.save(user));
     }
 
     private void validateUniqueFields(Integer userId, String username, String email) throws BadRequestException {
         if (usersRepository.existsByUsernameIgnoreCaseAndIdNot(username, userId)) {
-            throw new BadRequestException("Username already exists");
+            throw new BadRequestException("Username đã tồn tại");
         }
 
         if (usersRepository.existsByEmailIgnoreCaseAndIdNot(email, userId)) {
-            throw new BadRequestException("Email already exists");
+            throw new BadRequestException("Email đã tồn tại");
         }
     }
 
@@ -65,7 +63,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         return email == null ? null : email.trim().toLowerCase();
     }
 
-
     private UserResponse mapToResponse(Users user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -76,6 +73,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .isActive(user.getIsActive())
                 .build();
     }
+
     private void applyFullName(Users user, String fullName) {
         if (fullName == null || fullName.trim().isEmpty()) {
             user.setFirstName(null);
@@ -91,13 +89,11 @@ public class AdminUserServiceImpl implements AdminUserService {
             return;
         }
 
-        // LAST NAME = từ đầu tiên
         user.setLastName(parts[0]);
-
-        // FIRST NAME = phần còn lại
         String firstName = String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length));
         user.setFirstName(firstName);
     }
+
     private String buildFullName(Users user) {
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
