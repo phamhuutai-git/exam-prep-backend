@@ -3,8 +3,10 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
+import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
+import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.*;
@@ -56,8 +58,24 @@ public class ExamServiceImpl implements ExamService {
         examResponse.setQuestions(examQuestionRepository.countByExam_Id(exam.getId()));
         examResponse.setAttempts(examAttemptRepository.countByExam_Id(exam.getId()));
 
-
         return examResponse;
+    }
+
+    private ExamAttemptResponse convertToExamAttempt(ExamAttempt examAttempt) {
+        ExamAttemptResponse examAttemptResponse = new ExamAttemptResponse();
+
+        BeanUtils.copyProperties(examAttempt, examAttemptResponse);
+
+        StudentResponse studentResponse = new StudentResponse();
+        BeanUtils.copyProperties(examAttempt.getStudent(), studentResponse);
+        examAttemptResponse.setStudent(studentResponse);
+
+        ExamSummaryResponse examSummaryResponse = new ExamSummaryResponse();
+        BeanUtils.copyProperties(examAttempt.getExam(), examSummaryResponse);
+        examAttemptResponse.setExam(examSummaryResponse);
+
+        return examAttemptResponse;
+
     }
 
     @Override
@@ -124,6 +142,18 @@ public class ExamServiceImpl implements ExamService {
         }
 
         return examRepository.findAll(spec, pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public Page<ExamAttemptResponse> getExamAttemptsByTeacher(Authentication authentication, Pageable pageable) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String teacherUsername = authentication.getName();
+        List<Exam> examList = examRepository.findExamsByCreator_Username(teacherUsername);
+
+        return examAttemptRepository.findByExamIn(examList, pageable).map(this::convertToExamAttempt);
     }
 
     @Override

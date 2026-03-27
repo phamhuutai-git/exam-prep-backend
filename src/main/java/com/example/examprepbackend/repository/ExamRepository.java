@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ExamRepository extends JpaRepository<Exam, Integer>, JpaSpecificationExecutor<Exam> {
 
-    Page<Exam> findExamsByCreator_Username(String creatorUsername, Pageable pageable);
+    List<Exam> findExamsByCreator_Username(String creatorUsername);
 
     Exam findByCode(String code);
 
