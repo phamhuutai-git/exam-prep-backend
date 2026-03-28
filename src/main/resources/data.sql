@@ -73,6 +73,7 @@ CREATE TABLE answer
     content     TEXT    NOT NULL,
     question_id INT     NOT NULL,
     is_correct  BOOLEAN NOT NULL,
+    label       VARCHAR(255) NULL,
 
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
 );
@@ -87,6 +88,10 @@ CREATE TABLE exam
     category_id INT          NOT NULL,
     creator_id  INT          NOT NULL,
     create_date DATETIME,
+    is_active   TINYINT(1) NOT NULL DEFAULT 1,
+    exam_type   ENUM('PRACTICE', 'OFFCIAL', 'MOCK') NOT NULL,
+    pass_score  DOUBLE NOT NULL DEFAULT 50.0,
+    review_allowed TINYINT(1) NOT NULL DEFAULT 1,
 
     FOREIGN KEY (category_id) REFERENCES category_question (id),
     FOREIGN KEY (creator_id) REFERENCES users (id)
@@ -125,6 +130,10 @@ CREATE TABLE exam_attempt
     start_time DATETIME,
     end_time   DATETIME,
     score      DECIMAL(4, 2),
+    correct_count      INT NOT NULL DEFAULT 0,
+    wrong_count        INT NOT NULL DEFAULT 0,
+    blank_count        INT NOT NULL DEFAULT 0,
+    time_spent_seconds INT NOT NULL DEFAULT 0,
     status     ENUM('IN_PROGRESS','SUBMITTED') NOT NULL,
 
     FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
@@ -136,20 +145,21 @@ CREATE TABLE student_answer
 (
     id         INT PRIMARY KEY AUTO_INCREMENT,
     attempt_id INT NOT NULL,
-    answer_id  INT NOT NULL,
+    question_id        INT NOT NULL,
+    selected_answer_id INT NULL,
+    is_correct         BOOLEAN NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (attempt_id) REFERENCES exam_attempt (id) ON DELETE CASCADE,
-    FOREIGN KEY (answer_id) REFERENCES answer (id) ON DELETE CASCADE
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
+    FOREIGN KEY (selected_answer_id) REFERENCES answer (id) ON DELETE CASCADE
 );
 CREATE TABLE class_exam
 (
     id         INT PRIMARY KEY AUTO_INCREMENT,
     class_id   INT NOT NULL,
     exam_id    INT NOT NULL,
-    duration   INT NOT NULL, -- phút
-    start_time DATETIME,
-    end_time   DATETIME,
-    status     ENUM('HAS_EXAM','NO_EXAM') DEFAULT 'HAS_EXAM',
+    attempt_count INT,
+
     -- tranh trung class voi xam
     CONSTRAINT unique_class_exam UNIQUE (class_id, exam_id),
     FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE CASCADE,
@@ -253,7 +263,7 @@ VALUES
 ('Database System', 6, false),
 ('Operating System', 6, false);
 INSERT INTO exam
-    (code, title, duration, category_id, creator_id, create_date)
+(code, title, duration, category_id, creator_id, create_date)
 VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 2, NOW()),
        ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
        ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
@@ -278,7 +288,7 @@ VALUES (1, 6),
        (6, 5);
 
 INSERT INTO exam_attempt
-    (exam_id, student_id, start_time, end_time, score, status)
+(exam_id, student_id, start_time, end_time, score, status)
 VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
        (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
@@ -287,20 +297,21 @@ VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (6, 6, '2024-04-03 10:00:00', '2024-04-03 10:25:00', 8, 'SUBMITTED');
 
 
-INSERT INTO student_answer (attempt_id, answer_id)
+INSERT INTO student_answer (attempt_id, question_id, selected_answer_id, is_correct)
+VALUES (1, 1, 1, TRUE),
+       (2, 2, 6, FALSE),
+       (3, 3, 10, TRUE),
+       (4, 4, 14, FALSE),
+       (5, 5, 18, TRUE),
+       (6, 6, 22, FALSE);
+
+INSERT INTO class_exam (class_id, exam_id)
 VALUES (1, 1),
-       (2, 6),
-       (3, 10),
-       (4, 14),
-       (5, 18),
-       (6, 2);
-INSERT INTO class_exam (class_id, exam_id, duration, start_time, end_time, status)
-VALUES (1, 1, 30, NOW(), NOW(), 'HAS_EXAM'),
-       (2, 2, 40, NOW(), NOW(), 'HAS_EXAM'),
-       (3, 3, 30, NOW(), NOW(), 'HAS_EXAM'),
-       (4, 4, 20, NOW(), NOW(), 'HAS_EXAM'),
-       (5, 5, 25, NOW(), NOW(), 'HAS_EXAM'),
-       (5, 6, 25, NOW(), NOW(), 'HAS_EXAM');
+       (2, 2),
+       (3, 3),
+       (4, 4),
+       (5, 5),
+       (5, 6);
 
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'

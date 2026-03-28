@@ -24,8 +24,6 @@ public class ExamAttemptController {
         StartExamAttemptResponse response = examAttemptService.startAttempt(examId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
     @GetMapping("/attempts/{attemptId}/questions")
     public ResponseEntity<AttemptQuestionsFullResponse> getAttemptQuestions(@PathVariable Integer attemptId) {
         AttemptQuestionsFullResponse response = examAttemptService.getAttemptQuestions(attemptId);

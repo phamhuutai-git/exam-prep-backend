@@ -32,8 +32,8 @@ public class    ExamAttempt {
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "submitted_at")
-    private LocalDateTime submittedAt;
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
     private Double score;
 
