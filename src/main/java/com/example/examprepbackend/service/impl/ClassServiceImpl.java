@@ -237,8 +237,6 @@ public class ClassServiceImpl implements ClassService {
 
                 classExam.setClassId(id);
                 classExam.setExamId(exam.getId());
-                classExam.setDuration(exam.getDuration().getMinute());
-                classExam.setStatus(HAS_EXAM);
 
                 classExamRepository.save(classExam);
             }
