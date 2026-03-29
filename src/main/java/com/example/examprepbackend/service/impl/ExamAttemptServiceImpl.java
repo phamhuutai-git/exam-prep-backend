@@ -1,7 +1,7 @@
 package com.example.examprepbackend.service.impl;
 
-import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.AttemptStatus;
+import com.example.examprepbackend.dto.response.exams.ExamStartResponse;
 import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
