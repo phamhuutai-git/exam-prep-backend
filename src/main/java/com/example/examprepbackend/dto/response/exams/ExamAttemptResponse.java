@@ -25,5 +25,6 @@ public class ExamAttemptResponse {
     private Double score;
 
     @Enumerated(EnumType.STRING)
+
     private AttemptStatus status;
 }
