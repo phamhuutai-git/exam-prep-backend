@@ -1,5 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
@@ -12,6 +13,7 @@ import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.service.ExamQuestionService;
 import com.example.examprepbackend.service.ExamService;
+import com.example.examprepbackend.specification.ClassSpecification;
 import com.example.examprepbackend.specification.ExamSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -137,6 +139,14 @@ public class ExamServiceImpl implements ExamService {
             spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
         }
 
+        if (minDate != null) {
+            spec = spec.and(ExamSpecification.hasAfterMinDate(minDate));
+        }
+
+        if (maxDate != null) {
+            spec = spec.and(ExamSpecification.hasBeforeMaxDate(maxDate));
+        }
+
         if (minDate != null && maxDate != null) {
             spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
         }
@@ -199,7 +209,9 @@ public class ExamServiceImpl implements ExamService {
         Exam newExam = modelMapper.map(examCreateRequest, Exam.class);
         newExam.setCreator(creator);
         newExam.setCategory(category);
+        newExam.setExamType(ExamType.valueOf(examCreateRequest.getExamType()));
         newExam.setCreateDate(LocalDateTime.now());
+        newExam.setIsActive(true);
         examRepository.save(newExam);
 
         //Save exam-questions
@@ -235,6 +247,7 @@ public class ExamServiceImpl implements ExamService {
 
         //Save exam
         modelMapper.map(examUpdateRequest, exam);
+        exam.setExamType(ExamType.valueOf(examUpdateRequest.getExamType()));
         examRepository.save(exam);
 
         //Update questions
