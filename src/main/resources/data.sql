@@ -1,9 +1,9 @@
 DROP
-DATABASE IF EXISTS exam_management_system;
+    DATABASE IF EXISTS exam_management_system;
 CREATE
-DATABASE exam_management_system;
+    DATABASE exam_management_system;
 USE
-exam_management_system;
+    exam_management_system;
 
 -- ================= CLASSES =================
 CREATE TABLE classes
@@ -17,17 +17,17 @@ CREATE TABLE classes
 CREATE TABLE users
 (
     id          INT PRIMARY KEY AUTO_INCREMENT,
-    email       VARCHAR(255) NOT NULL UNIQUE,
-    username    VARCHAR(255) NOT NULL UNIQUE,
-    password    VARCHAR(255) NOT NULL,
-    first_name  VARCHAR(255) NOT NULL,
-    last_name   VARCHAR(255) NOT NULL,
-    role        ENUM('ADMIN','TEACHER','STUDENT') NOT NULL,
-    is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
-    status      ENUM('ACTIVED','LOCKED') NOT NULL DEFAULT 'ACTIVED',
+    email       VARCHAR(255)                       NOT NULL UNIQUE,
+    username    VARCHAR(255)                       NOT NULL UNIQUE,
+    password    VARCHAR(255)                       NOT NULL,
+    first_name  VARCHAR(255)                       NOT NULL,
+    last_name   VARCHAR(255)                       NOT NULL,
+    role        ENUM ('ADMIN','TEACHER','STUDENT') NOT NULL,
+    is_active   BOOLEAN                            NOT NULL DEFAULT TRUE,
+    status      ENUM ('ACTIVED','LOCKED')          NOT NULL DEFAULT 'ACTIVED',
     class_id    INT,
     create_date DATETIME,
-    fail_count  INT                   DEFAULT 0,
+    fail_count  INT                                         DEFAULT 0,
     lock_time   DATETIME,
     FOREIGN KEY (class_id) REFERENCES classes (id)
 );
@@ -55,10 +55,10 @@ CREATE TABLE category_question
 CREATE TABLE question
 (
     id               INT PRIMARY KEY AUTO_INCREMENT,
-    content          TEXT NOT NULL,
-    difficulty_level ENUM('EASY','MEDIUM','HARD') NOT NULL,
-    category_id      INT  NOT NULL,
-    creator_id       INT  NOT NULL,
+    content          TEXT                          NOT NULL,
+    difficulty_level ENUM ('EASY','MEDIUM','HARD') NOT NULL,
+    category_id      INT                           NOT NULL,
+    creator_id       INT                           NOT NULL,
     create_date      DATETIME,
     explanation      TEXT,
 
@@ -70,9 +70,9 @@ CREATE TABLE question
 CREATE TABLE answer
 (
     id          INT PRIMARY KEY AUTO_INCREMENT,
-    content     TEXT    NOT NULL,
-    question_id INT     NOT NULL,
-    is_correct  BOOLEAN NOT NULL,
+    content     TEXT         NOT NULL,
+    question_id INT          NOT NULL,
+    is_correct  BOOLEAN      NOT NULL,
     label       VARCHAR(255) NULL,
 
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE
@@ -81,17 +81,17 @@ CREATE TABLE answer
 -- ================= EXAM =================
 CREATE TABLE exam
 (
-    id          INT PRIMARY KEY AUTO_INCREMENT,
-    code        VARCHAR(255) NOT NULL UNIQUE,
-    title       VARCHAR(255) NOT NULL,
-    duration    TIME         NOT NULL,
-    category_id INT          NOT NULL,
-    creator_id  INT          NOT NULL,
-    create_date DATETIME,
-    is_active   TINYINT(1) NOT NULL DEFAULT 1,
-    exam_type   ENUM('PRACTICE', 'OFFCIAL', 'MOCK') NOT NULL,
-    pass_score  DOUBLE NOT NULL DEFAULT 50.0,
-    review_allowed TINYINT(1) NOT NULL DEFAULT 1,
+    id             INT PRIMARY KEY AUTO_INCREMENT,
+    code           VARCHAR(255)                          NOT NULL UNIQUE,
+    title          VARCHAR(255)                          NOT NULL,
+    duration       TIME                                  NOT NULL,
+    category_id    INT                                   NOT NULL,
+    creator_id     INT                                   NOT NULL,
+    create_date    DATETIME,
+    is_active      TINYINT(1)                            NOT NULL DEFAULT 1,
+    exam_type      ENUM ('PRACTICE', 'OFFICIAL', 'MOCK') NOT NULL,
+    pass_score     DOUBLE                                NOT NULL DEFAULT 50.0,
+    review_allowed TINYINT(1)                            NOT NULL DEFAULT 1,
 
     FOREIGN KEY (category_id) REFERENCES category_question (id),
     FOREIGN KEY (creator_id) REFERENCES users (id)
@@ -124,17 +124,17 @@ CREATE TABLE favorite_exam
 -- ================= EXAM ATTEMPT =================
 CREATE TABLE exam_attempt
 (
-    id         INT PRIMARY KEY AUTO_INCREMENT,
-    exam_id    INT NOT NULL,
-    student_id INT NOT NULL,
-    start_time DATETIME,
-    end_time   DATETIME,
-    score      DECIMAL(4, 2),
-    correct_count      INT NOT NULL DEFAULT 0,
-    wrong_count        INT NOT NULL DEFAULT 0,
-    blank_count        INT NOT NULL DEFAULT 0,
-    time_spent_seconds INT NOT NULL DEFAULT 0,
-    status     ENUM('IN_PROGRESS','SUBMITTED') NOT NULL,
+    id                 INT PRIMARY KEY AUTO_INCREMENT,
+    exam_id            INT                              NOT NULL,
+    student_id         INT                              NOT NULL,
+    start_time         DATETIME,
+    end_time           DATETIME,
+    score              DECIMAL(4, 2),
+    correct_count      INT                              NOT NULL DEFAULT 0,
+    wrong_count        INT                              NOT NULL DEFAULT 0,
+    blank_count        INT                              NOT NULL DEFAULT 0,
+    time_spent_seconds INT                              NOT NULL DEFAULT 0,
+    status             ENUM ('IN_PROGRESS','SUBMITTED') NOT NULL,
 
     FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users (id) ON DELETE CASCADE
@@ -143,10 +143,10 @@ CREATE TABLE exam_attempt
 -- ================= STUDENT ANSWER =================
 CREATE TABLE student_answer
 (
-    id         INT PRIMARY KEY AUTO_INCREMENT,
-    attempt_id INT NOT NULL,
-    question_id        INT NOT NULL,
-    selected_answer_id INT NULL,
+    id                 INT PRIMARY KEY AUTO_INCREMENT,
+    attempt_id         INT     NOT NULL,
+    question_id        INT     NOT NULL,
+    selected_answer_id INT     NULL,
     is_correct         BOOLEAN NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (attempt_id) REFERENCES exam_attempt (id) ON DELETE CASCADE,
@@ -155,9 +155,9 @@ CREATE TABLE student_answer
 );
 CREATE TABLE class_exam
 (
-    id         INT PRIMARY KEY AUTO_INCREMENT,
-    class_id   INT NOT NULL,
-    exam_id    INT NOT NULL,
+    id            INT PRIMARY KEY AUTO_INCREMENT,
+    class_id      INT NOT NULL,
+    exam_id       INT NOT NULL,
     attempt_count INT,
 
     -- tranh trung class voi xam
@@ -263,8 +263,8 @@ VALUES
 ('Database System', 6, false),
 ('Operating System', 6, false);
 INSERT INTO exam
-(code, title, duration, category_id, creator_id, create_date)
-VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 2, NOW()),
+    (code, title, duration, category_id, creator_id, create_date)
+VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 3, NOW()),
        ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
        ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
        ('EX004', 'HTML Test', '00:20:00', 4, 3, NOW()),
@@ -288,7 +288,7 @@ VALUES (1, 6),
        (6, 5);
 
 INSERT INTO exam_attempt
-(exam_id, student_id, start_time, end_time, score, status)
+    (exam_id, student_id, start_time, end_time, score, status)
 VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
        (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),

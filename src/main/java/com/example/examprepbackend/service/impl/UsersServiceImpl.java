@@ -267,8 +267,8 @@ public class UsersServiceImpl implements UsersService {
                 .map(attempt -> {
                     ExamAttemptResponse res = new ExamAttemptResponse();
                     res.setId(attempt.getId());
-                    res.setExam(attempt.getExam());
-                    res.setStudent(attempt.getStudent());
+//                    res.setExam(attempt.getExam());
+//                    res.setStudent(attempt.getStudent());
                     res.setStartTime(attempt.getStartTime());
                     res.setEndTime(attempt.getEndTime());
                     res.setScore(attempt.getScore());

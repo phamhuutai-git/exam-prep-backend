@@ -1,15 +1,19 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
+import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
+import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.service.ExamQuestionService;
 import com.example.examprepbackend.service.ExamService;
+import com.example.examprepbackend.specification.ClassSpecification;
 import com.example.examprepbackend.specification.ExamSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,20 +60,38 @@ public class ExamServiceImpl implements ExamService {
         examResponse.setQuestions(examQuestionRepository.countByExam_Id(exam.getId()));
         examResponse.setAttempts(examAttemptRepository.countByExam_Id(exam.getId()));
 
-
         return examResponse;
     }
 
-    @Override
-    public Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable) {
+    private ExamAttemptResponse convertToExamAttempt(ExamAttempt examAttempt) {
+        ExamAttemptResponse examAttemptResponse = new ExamAttemptResponse();
 
-        String code = examRequestParam.getCode();
-        String title = examRequestParam.getTitle();
-        String categoryName = examRequestParam.getCategoryName();
-        LocalDate minDate = examRequestParam.getMinDate();
-        LocalDate maxDate = examRequestParam.getMaxDate();
+        BeanUtils.copyProperties(examAttempt, examAttemptResponse);
 
-        Specification<Exam> spec = Specification.unrestricted();  //ver 4.0.3
+        StudentResponse studentResponse = new StudentResponse();
+        BeanUtils.copyProperties(examAttempt.getStudent(), studentResponse);
+        examAttemptResponse.setStudent(studentResponse);
+
+        ExamSummaryResponse examSummaryResponse = new ExamSummaryResponse();
+        BeanUtils.copyProperties(examAttempt.getExam(), examSummaryResponse);
+        examAttemptResponse.setExam(examSummaryResponse);
+
+        return examAttemptResponse;
+
+    }
+
+    private Specification<Exam> buildExamFilter(ExamRequestParam requestParam) {
+        Specification<Exam> spec = Specification.unrestricted();
+
+        if (requestParam == null) {
+            return spec;
+        }
+
+        String code = requestParam.getCode();
+        String title = requestParam.getTitle();
+        String categoryName = requestParam.getCategoryName();
+        LocalDate minDate = requestParam.getMinDate();
+        LocalDate maxDate = requestParam.getMaxDate();
 
         if (code != null && !code.isBlank()) {
             spec = spec.and(ExamSpecification.hasCodeLike(code));
@@ -85,7 +107,22 @@ public class ExamServiceImpl implements ExamService {
 
         if (minDate != null && maxDate != null) {
             spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
+        } else {
+            if (minDate != null) {
+                spec = spec.and(ExamSpecification.hasAfterMinDate(minDate));
+            }
+            if (maxDate != null) {
+                spec = spec.and(ExamSpecification.hasBeforeMaxDate(maxDate));
+            }
         }
+        return spec;
+    }
+
+
+    @Override
+    public Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable) {
+
+        Specification<Exam> spec = buildExamFilter(examRequestParam);
 
         return examRepository.findAll(spec, pageable).map(this::convertToDto);
     }
@@ -99,31 +136,23 @@ public class ExamServiceImpl implements ExamService {
 
         String username = authentication.getName();
 
-        Specification<Exam> spec = ExamSpecification.hasCreatorUsername(username);
-
-        String code = examRequestParam.getCode();
-        String title = examRequestParam.getTitle();
-        String categoryName = examRequestParam.getCategoryName();
-        LocalDate minDate = examRequestParam.getMinDate();
-        LocalDate maxDate = examRequestParam.getMaxDate();
-
-        if (code != null && !code.isBlank()) {
-            spec = spec.and(ExamSpecification.hasCodeLike(code));
-        }
-
-        if (title != null && !title.isBlank()) {
-            spec = spec.and(ExamSpecification.hasTitleLike(title));
-        }
-
-        if (categoryName != null && !categoryName.isBlank()) {
-            spec = spec.and(ExamSpecification.hasCategoryName(categoryName));
-        }
-
-        if (minDate != null && maxDate != null) {
-            spec = spec.and(ExamSpecification.hasCreateDate(minDate, maxDate));
-        }
+        Specification<Exam> spec = Specification
+                .where(ExamSpecification.hasCreatorUsername(username))
+                .and(buildExamFilter(examRequestParam));
 
         return examRepository.findAll(spec, pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public Page<ExamAttemptResponse> getExamAttemptsByTeacher(Authentication authentication, Pageable pageable) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String teacherUsername = authentication.getName();
+        List<Exam> examList = examRepository.findExamsByCreator_Username(teacherUsername);
+
+        return examAttemptRepository.findByExamIn(examList, pageable).map(this::convertToExamAttempt);
     }
 
     @Override
@@ -136,6 +165,43 @@ public class ExamServiceImpl implements ExamService {
         List<Integer> examIdList = classExamRepository.findByClassId(classId);
 
         return examRepository.findByIdIn(examIdList).stream().map(e -> modelMapper.map(e, ExamSummaryResponse.class)).toList();
+    }
+
+    @Override
+    public Page<ExamResponse> getPracticeExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable) {
+
+        Optional<Classes> classesOptional = classRepository.findById(classId);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        List<Integer> examIdList = classExamRepository.findByClassId(classId);
+
+        Specification<Exam> spec = Specification
+                .where(ExamSpecification.hasIdIn(examIdList))
+                .and(ExamSpecification.hasExamType(ExamType.PRACTICE))
+                .and(buildExamFilter(examRequestParam));
+
+        return examRepository.findAll(spec, pageable).map(this::convertToDto);
+
+    }
+
+    @Override
+    public Page<ExamResponse> getOfficialExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable) {
+        Optional<Classes> classesOptional = classRepository.findById(classId);
+        if (classesOptional.isEmpty()) {
+            throw new ApplicationException("Class not found");
+        }
+
+        List<Integer> examIdList = classExamRepository.findByClassId(classId);
+
+        Specification<Exam> spec = Specification
+                .where(ExamSpecification.hasIdIn(examIdList))
+                .and(ExamSpecification.hasExamType(ExamType.OFFICIAL))
+                .and(buildExamFilter(examRequestParam));
+
+        return examRepository.findAll(spec, pageable).map(this::convertToDto);
+
     }
 
     @Transactional
@@ -169,7 +235,9 @@ public class ExamServiceImpl implements ExamService {
         Exam newExam = modelMapper.map(examCreateRequest, Exam.class);
         newExam.setCreator(creator);
         newExam.setCategory(category);
+        newExam.setExamType(ExamType.valueOf(examCreateRequest.getExamType()));
         newExam.setCreateDate(LocalDateTime.now());
+        newExam.setIsActive(true);
         examRepository.save(newExam);
 
         //Save exam-questions
@@ -205,6 +273,7 @@ public class ExamServiceImpl implements ExamService {
 
         //Save exam
         modelMapper.map(examUpdateRequest, exam);
+        exam.setExamType(ExamType.valueOf(examUpdateRequest.getExamType()));
         examRepository.save(exam);
 
         //Update questions
