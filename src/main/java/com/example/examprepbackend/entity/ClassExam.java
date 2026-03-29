@@ -26,6 +26,4 @@ public class ClassExam {
     @Column(name = "attempt_count")
     private Integer attemptCount;
 
-    @Enumerated(EnumType.STRING)
-    private ClassExamStatus status;
 }

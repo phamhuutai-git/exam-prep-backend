@@ -1,6 +1,7 @@
 package com.example.examprepbackend.service.impl;
 
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
+import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.users.*;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
@@ -14,9 +15,7 @@ import com.example.examprepbackend.exception.BusinessException;
 import com.example.examprepbackend.exception.DuplicateResourceException;
 import com.example.examprepbackend.exception.ResourceNotFoundException;
 import com.example.examprepbackend.mapper.UserMapper;
-import com.example.examprepbackend.repository.ClassRepository;
-import com.example.examprepbackend.repository.ClassTeacherRepository;
-import com.example.examprepbackend.repository.UsersRepository;
+import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.service.UsersService;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
@@ -46,6 +45,7 @@ public class UsersServiceImpl implements UsersService {
     private final ClassTeacherRepository classTeacherRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final ExamAttemptRepository examAttemptRepository;
     private String normalizeEmail(String email) {
         if (email == null) return null;
         return email.trim().toLowerCase(Locale.ROOT);
@@ -258,6 +258,23 @@ public class UsersServiceImpl implements UsersService {
 
         return modelMapper.map(user, UserSummaryResponse.class);
     }
-
+    @Override
+    public Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
+        String username = authentication.getName();
+        Users user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return examAttemptRepository.findByStudent(user, pageable)
+                .map(attempt -> {
+                    ExamAttemptResponse res = new ExamAttemptResponse();
+                    res.setId(attempt.getId());
+//                    res.setExam(attempt.getExam());
+//                    res.setStudent(attempt.getStudent());
+                    res.setStartTime(attempt.getStartTime());
+                    res.setEndTime(attempt.getEndTime());
+                    res.setScore(attempt.getScore());
+                    res.setStatus(attempt.getStatus());
+                    return res;
+                });
+    }
 
 }

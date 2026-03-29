@@ -1,10 +1,12 @@
 package com.example.examprepbackend.specification;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.entity.Classes;
 import com.example.examprepbackend.entity.Exam;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ExamSpecification {
 //    private String code;
@@ -20,19 +22,38 @@ public class ExamSpecification {
 
     public static Specification<Exam> hasCodeLike(String code) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + code + "%");
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + code.toLowerCase() + "%");
         };
     }
 
     public static Specification<Exam> hasTitleLike(String title) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title + "%");
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%");
         };
     }
 
     public static Specification<Exam> hasCategoryName(String categoryName) {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.equal(root.get("category").get("name"), categoryName);
+            return criteriaBuilder.equal(root.get("category").get("name"),categoryName);
+        };
+    }
+
+    public static Specification<Exam> hasIdIn(List<Integer> ids) {
+        return (root, query, criteriaBuilder) -> {
+            return root.get("id").in(ids);
+        };
+    }
+
+    public static Specification<Exam> hasExamType(ExamType examType) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("examType"), examType);
+        };
+    }
+
+
+    public static Specification<Exam> hasCategoryId(Integer categoryId) {
+        return (root , query , criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("category").get("id"), categoryId);
         };
     }
 
@@ -54,10 +75,11 @@ public class ExamSpecification {
         };
     }
 
+
     public static Specification<Exam> hasClassId(Integer classId) {
         return (root, query, criteriaBuilder) -> {
             if (classId == null) return null;
-            return criteriaBuilder.equal(root.join("examClasses").join("classes").get("id"), classId);
+            return criteriaBuilder.equal(root.join("examClasses").join("clazz").get("id"), classId);
         };
 
     }

@@ -21,6 +21,10 @@ public interface ExamService {
 
     List<ExamSummaryResponse> getExamsByClassId(Integer classId);
 
+    Page<ExamResponse> getPracticeExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable);
+
+    Page<ExamResponse> getOfficialExamsByClassId(Integer classId, ExamRequestParam examRequestParam, Pageable pageable);
+
     ExamSummaryResponse createExam(Authentication authentication, ExamCreateRequest examCreateRequest);
 
     ExamSummaryResponse updateExamById(Integer id, ExamUpdateRequest examUpdateRequest);

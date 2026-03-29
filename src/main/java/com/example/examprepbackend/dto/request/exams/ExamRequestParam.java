@@ -14,6 +14,8 @@ public class ExamRequestParam {
 
     private String categoryName;
 
+    private Integer categoryId;
+
     private LocalDate minDate;
 
     private LocalDate maxDate;
