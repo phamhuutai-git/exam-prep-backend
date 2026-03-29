@@ -7,6 +7,7 @@ import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
+import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
@@ -33,7 +34,7 @@ public interface UsersService {
 
     Boolean changePassword(Authentication authentication, ChangePasswordRequest changePasswordRequest);
 
-    UserInfoResponse getCurrentUser(Authentication authentication);
+    UserProfileResponse getCurrentUser(Authentication authentication);
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
 

@@ -6,6 +6,7 @@ import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
+import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
@@ -69,11 +70,11 @@ public class UsersController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
+    public ResponseEntity<BaseResponse<UserProfileResponse>> getUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new BaseResponse<>(null, "Please login to access this resource"));
         }
-        UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
+        UserProfileResponse userSummary = usersService.getCurrentUser(authentication);
         return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
     }
 

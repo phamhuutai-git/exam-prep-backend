@@ -46,6 +46,7 @@ public class UsersServiceImpl implements UsersService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
     private final ExamAttemptRepository examAttemptRepository;
+
     private String normalizeEmail(String email) {
         if (email == null) return null;
         return email.trim().toLowerCase(Locale.ROOT);
@@ -206,21 +207,25 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public UserInfoResponse getCurrentUser(Authentication authentication) {
+    public UserProfileResponse getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Unauthorized");
         }
         String username = authentication.getName();
-        Users user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserInfoResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRole().name()
-        );
+
+        Optional<Users> usersOptional = usersRepository.findByUsername(username);
+        if (usersOptional.isEmpty()) {
+            throw new ApplicationException("User not found");
+        }
+        Users users = usersOptional.get();
+
+        UserProfileResponse userProfileResponse = modelMapper.map(users, UserProfileResponse.class);
+        if ("STUDENT".equals(users.getRole().toString())) {
+            userProfileResponse.setClassId(users.getClasses().getId());
+            userProfileResponse.setClassName(users.getClasses().getName());
+        }
+
+        return userProfileResponse;
     }
 
     @Transactional
@@ -258,6 +263,7 @@ public class UsersServiceImpl implements UsersService {
 
         return modelMapper.map(user, UserSummaryResponse.class);
     }
+
     @Override
     public Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
         String username = authentication.getName();
