@@ -6,6 +6,8 @@ import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.answer.AnswerPublicResponse;
+import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.entity.*;
@@ -54,8 +56,9 @@ public class QuestionServiceImpl implements QuestionService {
     private final UsersRepository userRepository;
     private final CategoryQuestionRepository categoryRepository;
     private final ExamQuestionRepository examQuestionRepository;
-    private final ClassRepository  classRepository;
-    private final ClassExamRepository  classExamRepository;
+    private final ClassRepository classRepository;
+    private final ClassExamRepository classExamRepository;
+    private final ExamRepository examRepository;
 
 
     //Map question -> questionResponse
@@ -87,6 +90,28 @@ public class QuestionServiceImpl implements QuestionService {
         questionResponse.setCreator(question.getCreator().getUsername());
 
         return questionResponse;
+    }
+
+    private QuestionPublicResponse convertToPublicDto(Question question) {
+
+        QuestionPublicResponse questionPublicResponse = new QuestionPublicResponse();
+
+        BeanUtils.copyProperties(question, questionPublicResponse);
+
+        //Lay danh sach answer
+        if (question.getAnswers() != null) {
+            List<AnswerPublicResponse> answerPublicResponses = question.getAnswers().stream().map(answer -> {
+                AnswerPublicResponse answerPublicResponse = new AnswerPublicResponse();
+                answerPublicResponse.setId(answer.getId());
+                answerPublicResponse.setContent(answer.getContent());
+                answerPublicResponse.setLabel(answer.getLabel());
+                return answerPublicResponse;
+            }).toList();
+
+            questionPublicResponse.setAnswers(answerPublicResponses);
+        }
+
+        return questionPublicResponse;
     }
 
 
@@ -181,6 +206,20 @@ public class QuestionServiceImpl implements QuestionService {
         List<Integer> questionIds = examQuestionRepository.findQuestionsByExamId(examId);
 
         return questionRepository.findByIdIn(questionIds).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<QuestionPublicResponse> getQuestionsPublicByExamId(Integer examId) {
+
+        //Kiem tra exam
+        Optional<Exam> examOptional = examRepository.findById(examId);
+        if (examOptional.isEmpty()) {
+            throw new ApplicationException("Exam not found");
+        }
+
+        List<Integer> questionIds = examQuestionRepository.findQuestionsByExamId(examId);
+
+        return questionRepository.findByIdIn(questionIds).stream().map(this::convertToPublicDto).toList();
     }
 
     @Transactional
