@@ -1,5 +1,6 @@
 package com.example.examprepbackend.repository;
 
+import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.entity.ExamAttempt;
 import com.example.examprepbackend.entity.Users;
@@ -22,5 +23,7 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
     Page<ExamAttempt> findByExamIn(List<Exam> examList, Pageable pageable);
 
     Page<ExamAttempt> findByStudent(Users student, Pageable pageable);
+
+    ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
 
 }
