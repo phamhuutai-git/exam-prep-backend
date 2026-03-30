@@ -229,22 +229,24 @@ public class ClassServiceImpl implements ClassService {
         //Step1: Xóa toàn bộ đề thi theo classId trong bảng trung gian class_exam
         //Step2: Lưu lại dữ liệu theo class-exams đã nhận vào bảng trung gian class_exam
         classExamRepository.deleteByClasses_Id(id);
+        try {
+            if (examIds != null) {
+                List<Exam> examList = examRepository.findByIdIn(examIds);
+                for (Exam exam : examList) {
+                    ClassExam classExam = new ClassExam();
 
-        if (examIds != null) {
-            List<Exam> examList = examRepository.findByIdIn(examIds);
-            for (Exam exam : examList) {
-                ClassExam classExam = new ClassExam();
+                    classExam.setClassId(id);
+                    classExam.setExamId(exam.getId());
 
-                classExam.setClassId(id);
-                classExam.setExamId(exam.getId());
-                classExam.setDuration(exam.getDuration().getMinute());
-                classExam.setStatus(HAS_EXAM);
-
-                classExamRepository.save(classExam);
+                    classExamRepository.save(classExam);
+                }
             }
+
+            return true;
+        } catch (ApplicationException applicationException) {
+            throw new ApplicationException("Lỗi lưu dữ liệu xuống bảng class-exam");
         }
 
-        return true;
     }
 
     @Transactional

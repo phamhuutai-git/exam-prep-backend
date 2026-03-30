@@ -17,4 +17,6 @@ public interface ClassExamRepository extends JpaRepository<ClassExam, Integer> {
     @Modifying
     @Query("delete from ClassExam cl where cl.classId = :classId")
     void deleteByClasses_Id(@Param("classId") Integer classId);
+
+    ClassExam findByClassIdAndExamId(Integer classId, Integer examId);
 }

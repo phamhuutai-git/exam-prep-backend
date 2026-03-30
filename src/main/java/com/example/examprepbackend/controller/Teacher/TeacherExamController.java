@@ -38,6 +38,20 @@ public class TeacherExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamsByTeacherName(authentication, examRequestParam, pageable), "Get Exams by Teacher"));
     }
 
+    @GetMapping("/class-id/{id}/practice")
+    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getPracticeExamsByClassId(@PathVariable Integer id,
+                                                                                      ExamRequestParam examRequestParam,
+                                                                                      @PageableDefault(size = 5, sort = "category") Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getPracticeExamsByClassId(id, examRequestParam, pageable), "Get Practice Exams by classId"));
+    }
+
+    @GetMapping("/class-id/{id}/official")
+    public ResponseEntity<BaseResponse<Page<ExamResponse>>> getOfficialExamsByClassId(@PathVariable Integer id,
+                                                                                      ExamRequestParam examRequestParam,
+                                                                                      @PageableDefault(size = 5, sort = "category") Pageable pageable) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getOfficialExamsByClassId(id, examRequestParam, pageable), "Get Official Exams by class id"));
+    }
+
     @GetMapping("/teacher-name/attempts")
     public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getExamAttemptsByTeacher(Authentication authentication,
                                                                                             @PageableDefault(size = 5) Pageable pageable) {

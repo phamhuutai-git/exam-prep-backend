@@ -23,15 +23,7 @@ public class ClassExam {
     @Column(name = "exam_id", nullable = false)
     private Integer examId;
 
-    @Column(nullable = false)
-    private Integer duration;
+    @Column(name = "attempt_count")
+    private Integer attemptCount;
 
-    @Column(name = "start_time")
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time")
-    private LocalDateTime endTime;
-
-    @Enumerated(EnumType.STRING)
-    private ClassExamStatus status;
 }

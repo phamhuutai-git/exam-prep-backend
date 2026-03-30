@@ -26,5 +26,16 @@ public class ExamUpdateRequest {
     @NotBlank(message = "Exam category not blank")
     private String category;
 
+    @NotNull(message = "Exam type not null")
+    @NotBlank(message = "Exam type not blank")
+    private String examType;
+
+    @NotNull(message = "reviewAllowed not null")
+    @NotBlank(message = "reviewAllowed not blank")
+    private String reviewAllowed;
+
+    @NotNull(message = "passScore not null")
+    private Double passScore;
+
     private List<Integer> questionIds;
 }
