@@ -9,7 +9,7 @@ import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
-import com.example.examprepbackend.service.ExamAttemptServiceHieu;
+import com.example.examprepbackend.service.ExamAttemptService;
 import com.example.examprepbackend.service.QuestionService;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
@@ -32,7 +32,7 @@ import java.util.List;
 public class UsersController {
     private final UsersService usersService;
     private final QuestionService questionService;
-    private final ExamAttemptServiceHieu examAttemptService;
+    private final ExamAttemptService examAttemptService;
 
     @GetMapping
     public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {

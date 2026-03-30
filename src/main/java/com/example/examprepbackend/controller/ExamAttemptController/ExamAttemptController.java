@@ -1,33 +1,36 @@
 package com.example.examprepbackend.controller.ExamAttemptController;
 
+import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
-import com.example.examprepbackend.dto.response.exams.AttemptResultResponse;
-import com.example.examprepbackend.dto.response.exams.AttemptReviewDetailResponse;
-import com.example.examprepbackend.dto.response.exams.StartExamAttemptResponse;
-import com.example.examprepbackend.dto.response.exams.SubmitExamAttemptResponse;
-import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
-import com.example.examprepbackend.service.ExamAttemptServiceHieu;
+import com.example.examprepbackend.dto.response.exams.*;
+import com.example.examprepbackend.service.ExamAttemptService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/exams")
+@RequestMapping("/api/exams-attempt")
 @RequiredArgsConstructor
 public class ExamAttemptController {
 
-    private final ExamAttemptServiceHieu examAttemptService;
+    private final ExamAttemptService examAttemptService;
 
-    @PostMapping("/{examId}/attempts")
-    public ResponseEntity<StartExamAttemptResponse> startAttempt(@PathVariable Integer examId) {
-        StartExamAttemptResponse response = examAttemptService.startAttempt(examId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-    @GetMapping("/attempts/{attemptId}/questions")
-    public ResponseEntity<AttemptQuestionsFullResponse> getAttemptQuestions(@PathVariable Integer attemptId) {
-        AttemptQuestionsFullResponse response = examAttemptService.getAttemptQuestions(attemptId);
-        return ResponseEntity.ok(response);
+//    @PostMapping("/{examId}/attempts")
+//    public ResponseEntity<StartExamAttemptResponse> startAttempt(@PathVariable Integer examId) {
+//        StartExamAttemptResponse response = examAttemptService.startAttempt(examId);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//    }
+//    @GetMapping("/attempts/{attemptId}/questions")
+//    public ResponseEntity<AttemptQuestionsFullResponse> getAttemptQuestions(@PathVariable Integer attemptId) {
+//        AttemptQuestionsFullResponse response = examAttemptService.getAttemptQuestions(attemptId);
+//        return ResponseEntity.ok(response);
+//    }
+
+    @PostMapping("/exam-id/{id}/start")
+    public ResponseEntity<BaseResponse<ExamStartResponse>> startExam(@PathVariable Integer id,
+                                                                     Authentication authentication) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.startExam(id, authentication), "Start exam"));
     }
 
     @PostMapping("/attempts/{attemptId}/submit")
@@ -51,5 +54,6 @@ public class ExamAttemptController {
         AttemptReviewDetailResponse response = examAttemptService.getAttemptReviewDetail(attemptId);
         return ResponseEntity.ok(response);
     }
-
 }
+
+
