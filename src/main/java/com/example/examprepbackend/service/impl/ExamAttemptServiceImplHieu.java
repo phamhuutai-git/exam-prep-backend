@@ -15,7 +15,7 @@ import com.example.examprepbackend.exception.ConflictException;
 import com.example.examprepbackend.exception.ForbiddenException;
 import com.example.examprepbackend.exception.ResourceNotFoundException;
 import com.example.examprepbackend.repository.*;
-import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.ExamAttemptServiceHieu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ExamAttemptServiceImpl implements ExamAttemptService {
+public class ExamAttemptServiceImplHieu implements ExamAttemptServiceHieu {
 
     private final ExamRepository examRepository;
     private final ExamAttemptRepository examAttemptRepository;

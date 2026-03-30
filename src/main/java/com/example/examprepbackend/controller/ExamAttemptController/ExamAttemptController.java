@@ -6,7 +6,7 @@ import com.example.examprepbackend.dto.response.exams.AttemptReviewDetailRespons
 import com.example.examprepbackend.dto.response.exams.StartExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.SubmitExamAttemptResponse;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
-import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.ExamAttemptServiceHieu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ExamAttemptController {
 
-    private final ExamAttemptService examAttemptService;
+    private final ExamAttemptServiceHieu examAttemptService;
 
     @PostMapping("/{examId}/attempts")
     public ResponseEntity<StartExamAttemptResponse> startAttempt(@PathVariable Integer examId) {

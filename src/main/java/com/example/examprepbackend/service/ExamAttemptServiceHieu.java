@@ -9,7 +9,7 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullRe
 import org.springframework.transaction.annotation.Transactional;
 
 
-public interface ExamAttemptService {
+public interface ExamAttemptServiceHieu {
 
     StartExamAttemptResponse startAttempt(Integer examId);
 

@@ -4,14 +4,12 @@ import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
-import com.example.examprepbackend.dto.response.exams.StartExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
-import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
-import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.ExamAttemptServiceHieu;
 import com.example.examprepbackend.service.QuestionService;
 import com.example.examprepbackend.service.UsersService;
 import jakarta.validation.Valid;
@@ -34,7 +32,7 @@ import java.util.List;
 public class UsersController {
     private final UsersService usersService;
     private final QuestionService questionService;
-    private final ExamAttemptService examAttemptService;
+    private final ExamAttemptServiceHieu examAttemptService;
 
     @GetMapping
     public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
