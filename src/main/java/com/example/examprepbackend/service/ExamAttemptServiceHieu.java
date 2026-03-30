@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 
-public interface ExamAttemptService {
+public interface ExamAttemptServiceHieu {
 
     StartExamAttemptResponse startAttempt(Integer examId);
 
