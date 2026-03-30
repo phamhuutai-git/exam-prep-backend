@@ -1,7 +1,9 @@
 package com.example.examprepbackend.service;
 
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.exams.CheckAnswerResponse;
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,4 +40,6 @@ public interface QuestionService {
 
     // student
     Page<QuestionResponse> getAllQuestionsByStudent(Pageable pageable);
+
+    CheckAnswerResponse checkAnswer(CheckAnswerRequest request);
 }
