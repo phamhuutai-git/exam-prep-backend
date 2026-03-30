@@ -27,9 +27,9 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     boolean existsByEmailIgnoreCase(String email);
 
     // ===== UPDATE  =====
-    boolean existsByEmailIgnoreCaseAndIdNot(String email, Integer id);
+    boolean existsByEmailAndIdNot(String email, Integer id);
 
-    boolean existsByUsernameIgnoreCaseAndIdNot(String username, Integer id);
+    boolean existsByUsernameAndIdNot(String username, Integer id);
 
 
     // ===== DELETE  =====
