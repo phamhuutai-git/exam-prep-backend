@@ -25,6 +25,6 @@ public class SubmitExamAttemptResponse {
     private Integer blankCount;
     private Integer timeSpentSeconds;
     private Boolean reviewAllowed;
-    private LocalDateTime submittedAt;
+    private LocalDateTime endTime;
     private String message;
 }

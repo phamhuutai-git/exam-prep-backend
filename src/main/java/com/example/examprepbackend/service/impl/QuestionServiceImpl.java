@@ -504,7 +504,7 @@ public class QuestionServiceImpl implements QuestionService {
         if (examIds.isEmpty()) return Page.empty(pageable);
 
         Page<Question> questionsPage = questionRepository
-                .findByExamIdInAndCreatorRole(examIds, Role.TEACHER, pageable);
+                .findQuestionsByExamIdsAndCreatorRole(examIds, Role.TEACHER, pageable);
 
         return questionsPage.map(this::convertToDto);
     }
