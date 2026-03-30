@@ -1,10 +1,13 @@
 package com.example.examprepbackend.controller.users;
+
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.exams.StartExamAttemptResponse;
+import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
+import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
@@ -15,6 +18,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,7 +37,7 @@ public class UsersController {
     private final ExamAttemptService examAttemptService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(Pageable pageable) {
+    public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllUsers(pageable), "Get all users"));
     }
 
@@ -68,11 +73,11 @@ public class UsersController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(Authentication authentication) {
+    public ResponseEntity<BaseResponse<UserProfileResponse>> getUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new BaseResponse<>(null, "Please login to access this resource"));
         }
-        UserInfoResponse userSummary = usersService.getCurrentUser(authentication);
+        UserProfileResponse userSummary = usersService.getCurrentUser(authentication);
         return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
     }
 
@@ -85,6 +90,11 @@ public class UsersController {
 
     @GetMapping("/questions")
     public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestionsByStudent(Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable),"Get All Question Succcesfull!"));
+        return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable), "Get All Question Succcesfull!"));
+    }
+    @GetMapping("/me/exams")
+    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
+        Page<ExamAttemptResponse> data = usersService.getAllExamsByStudent(authentication, pageable);
+        return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
     }
 }
