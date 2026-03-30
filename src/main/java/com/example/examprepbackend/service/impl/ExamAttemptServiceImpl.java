@@ -139,7 +139,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         boolean passed = score >= passScore;
         String resultStatus = passed ? "PASSED" : "FAILED";
 
-        attempt.setSubmittedAt(submittedAt);
+        attempt.setEndTime(submittedAt);
         attempt.setStatus(AttemptStatus.SUBMITTED);
         attempt.setScore(score);
         attempt.setCorrectCount(result.correctCount());
@@ -382,7 +382,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .blankCount(blankCount)
                 .timeSpentSeconds(defaultIfNull(attempt.getTimeSpentSeconds()))
                 .reviewAllowed(isReviewAllowed(exam))
-                .submittedAt(attempt.getSubmittedAt())
+                .submittedAt(attempt.getEndTime())
                 .build();
     }
 
@@ -473,7 +473,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .examTitle(exam.getTitle())
                 .examType(exam.getExamType())
                 .reviewAllowed(true)
-                .submittedAt(attempt.getSubmittedAt())
+                .submittedAt(attempt.getEndTime())
                 .questions(questionResponses)
                 .build();
     }
