@@ -7,6 +7,7 @@ import com.example.examprepbackend.dto.request.admin.UpdateUserRequest;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.entity.Users;
 
+import com.example.examprepbackend.exception.ApplicationException;
 import com.example.examprepbackend.exception.ResourceNotFoundException;
 import com.example.examprepbackend.repository.ClassTeacherRepository;
 import com.example.examprepbackend.repository.UsersRepository;
@@ -46,12 +47,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     private void validateUniqueFields(Integer userId, String username, String email) throws BadRequestException {
-        if (usersRepository.existsByUsernameIgnoreCaseAndIdNot(username, userId)) {
-            throw new BadRequestException("Username đã tồn tại");
+        if (usersRepository.existsByUsernameAndIdNot(username, userId)) {
+            throw new ApplicationException("Username đã tồn tại");
         }
 
-        if (usersRepository.existsByEmailIgnoreCaseAndIdNot(email, userId)) {
-            throw new BadRequestException("Email đã tồn tại");
+        if (usersRepository.existsByEmailAndIdNot(email, userId)) {
+            throw new ApplicationException("Email đã tồn tại");
         }
     }
 
