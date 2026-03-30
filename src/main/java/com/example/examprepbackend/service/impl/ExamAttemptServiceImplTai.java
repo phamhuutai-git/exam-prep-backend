@@ -12,7 +12,7 @@ import com.example.examprepbackend.repository.ClassExamRepository;
 import com.example.examprepbackend.repository.ExamAttemptRepository;
 import com.example.examprepbackend.repository.ExamRepository;
 import com.example.examprepbackend.repository.UsersRepository;
-import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.ExamAttemptServiceTai;
 import com.example.examprepbackend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExamAttemptServiceImpl implements ExamAttemptService {
+public class ExamAttemptServiceImplTai implements ExamAttemptServiceTai {
 
     private final ExamAttemptRepository examAttemptRepository;
     private final QuestionService questionService;

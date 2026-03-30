@@ -2,7 +2,7 @@ package com.example.examprepbackend.controller.exam.attempt;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.response.exams.ExamStartResponse;
-import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.ExamAttemptServiceTai;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/exam-attempt")
 @RequiredArgsConstructor
-public class ExamAttemptController {
+public class ExamAttemptControllerTai {
 
-    private final ExamAttemptService examAttemptService;
+    private final ExamAttemptServiceTai examAttemptService;
 
     @PostMapping("/exam-id/{id}/start")
     public ResponseEntity<BaseResponse<ExamStartResponse>> startExam(@PathVariable Integer id,

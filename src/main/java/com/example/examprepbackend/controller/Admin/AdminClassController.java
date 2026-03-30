@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,13 +29,14 @@ public class AdminClassController {
     private final ClassService classService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<ClassResponse>>> getAllClasses(ClassRequestParam classRequestParam, @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<BaseResponse<Page<ClassResponse>>> getAllClasses(ClassRequestParam classRequestParam,
+                                                                           @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.getAllClasses(classRequestParam, pageable), "Get All Classes"));
     }
 
     @GetMapping("/teacher")
     public ResponseEntity<BaseResponse<Page<ClassDetailResponse>>> getClassesByTeacher(Authentication authentication,
-                                                                                       @PageableDefault(size = 5) Pageable pageable) {
+                                                                                       @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.getClassesByTeacher(authentication, pageable), "Get Classes by teacher"));
     }
 
