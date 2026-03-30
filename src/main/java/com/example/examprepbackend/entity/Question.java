@@ -31,6 +31,13 @@ public class Question {
     @JoinColumn(name = "creator_id")
     private Users creator;
 
+//    @ManyToOne
+//    @JoinColumn(name = "exam_id")
+//    private Exam exam;
+
+//    @Column(name = "order_no")
+//    private Integer orderNo;
+
     @Column(name = "create_date")
     private LocalDateTime createDate;
 

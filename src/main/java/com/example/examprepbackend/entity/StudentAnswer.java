@@ -13,8 +13,8 @@ public class StudentAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "attempt_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attempt_id", nullable = false)
     private ExamAttempt attempt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,4 +25,6 @@ public class StudentAnswer {
     @JoinColumn(name = "selected_answer_id")
     private Answer selectedAnswer;
 
+    @Column(name = "is_correct", nullable = false)
+    private Boolean isCorrect;
 }

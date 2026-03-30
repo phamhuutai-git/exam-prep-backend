@@ -10,10 +10,7 @@ import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Classes;
 import com.example.examprepbackend.entity.Users;
-import com.example.examprepbackend.exception.ApplicationException;
-import com.example.examprepbackend.exception.BusinessException;
-import com.example.examprepbackend.exception.DuplicateResourceException;
-import com.example.examprepbackend.exception.ResourceNotFoundException;
+import com.example.examprepbackend.exception.*;
 import com.example.examprepbackend.mapper.UserMapper;
 import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.service.UsersService;
@@ -112,33 +109,31 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    @Transactional
     public UserSummaryResponse createUser(CreateUserRequest request) {
-
         String email = normalizeEmail(request.getEmail());
         String username = normalizeUsername(request.getUsername());
 
-        checkDuplicate(email, username);
+        if (usersRepository.existsByUsernameIgnoreCase(username)) {
+            throw new BadRequestException("Username đã tồn tại");
+        }
 
-        String passBasic = "1234";
+        if (usersRepository.existsByEmailIgnoreCase(email)) {
+            throw new BadRequestException("Email đã tồn tại");
+        }
 
         Users user = userMapper.toEntity(request);
         user.setEmail(email);
         user.setUsername(username);
         applyFullName(user, request.getFullName());
-        user.setPassword(passwordEncoder.encode(passBasic));
-        user.setRole(Role.valueOf(request.getRole().trim().toUpperCase(Locale.ROOT)));
+        user.setPassword(passwordEncoder.encode("1234"));
+        user.setRole(Role.valueOf(request.getRole().trim().toUpperCase()));
         user.setIsActive(true);
         user.setStatus(Status.ACTIVED);
         user.setCreatedDate(LocalDateTime.now());
         user.setFailCount(0);
 
-        try {
-            Users savedUser = usersRepository.save(user);
-            return userMapper.toDto(savedUser);
-        } catch (DataIntegrityViolationException e) {
-            throw new DuplicateResourceException("Email or username already exists");
-        }
+        Users savedUser = usersRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
     @Override
