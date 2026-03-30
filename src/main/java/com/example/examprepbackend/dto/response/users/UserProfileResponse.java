@@ -1,15 +1,11 @@
 package com.example.examprepbackend.dto.response.users;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-@Data
-@AllArgsConstructor
-public class UserInfoResponse {
+@Setter
+public class UserProfileResponse {
     private Integer id;
 
     private String email;
@@ -21,4 +17,8 @@ public class UserInfoResponse {
     private String lastName;
 
     private String role;
+
+    private Integer classId;
+
+    private String className;
 }
