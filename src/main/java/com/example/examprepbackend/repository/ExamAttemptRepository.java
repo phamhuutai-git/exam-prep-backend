@@ -8,11 +8,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 import java.util.List;
 
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Integer> {
 
     Long countByExam_Id(Integer exam_id);
+
+    Optional<ExamAttempt> findByIdAndStudentUsername(Integer id, String username);
 
     Page<ExamAttempt> findByExam(Exam exam, Pageable pageable);
 

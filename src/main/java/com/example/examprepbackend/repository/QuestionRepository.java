@@ -22,15 +22,30 @@ public interface QuestionRepository extends JpaRepository<Question, Integer>, Jp
 
     long countByCreator_UsernameAndDifficultyLevel(String username, DifficultyLevel level);
 
-    //student
+    // =========================
+    // Student / Exam
+    // Question không còn examId trực tiếp,
+    // nên phải join qua bảng trung gian ExamQuestion
+    // =========================
     @Query("""
-select q from Question q
+select q
+from Question q
 join ExamQuestion eq on eq.question.id = q.id
-where eq.exam.id in :examIds
-and q.creator.role = :role
+where eq.exam.id = :examId
 """)
-    Page<Question> findByExamIdInAndCreatorRole(@Param("examIds") List<Integer> examIds,
-                                                @Param("role") Role role,
-                                                Pageable pageable);
+    List<Question> findQuestionsByExamId(@Param("examId") Integer examId);
 
+    @Query("""
+        select q
+        from Question q
+        join ExamQuestion eq on eq.question.id = q.id
+        where eq.exam.id in :examIds
+          and q.creator.role = :role
+    """)
+    Page<Question> findQuestionsByExamIdsAndCreatorRole(@Param("examIds") List<Integer> examIds,
+                                                        @Param("role") Role role,
+                                                        Pageable pageable);
 }
+
+
+
