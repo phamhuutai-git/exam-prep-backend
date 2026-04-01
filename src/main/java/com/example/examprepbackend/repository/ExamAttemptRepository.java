@@ -24,6 +24,8 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
 
     Page<ExamAttempt> findByStudent(Users student, Pageable pageable);
 
-    ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
+//    ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
+
+    boolean existsByExamAndStudentAndStatus(Integer exam, Integer studentId, AttemptStatus status);
 
 }

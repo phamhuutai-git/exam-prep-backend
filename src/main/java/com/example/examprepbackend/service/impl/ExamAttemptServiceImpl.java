@@ -60,38 +60,34 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     @Override
     public ExamStartResponse startExam(Integer examId, Authentication authentication) {
 
-        //Kiem tra hoc sinh dang lam bai thi
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ApplicationException("Unauthorized");
         }
 
         String username = authentication.getName();
-        Optional<Users> usersOptional = usersRepository.findByUsername(username);
-        if (usersOptional.isEmpty()) {
-            throw new ApplicationException("User not found");
-        }
 
-        Users user = usersOptional.get();
+        Users user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationException("User not found"));
 
-        //Kiem tra de thi
-        Optional<Exam> examOptional = examRepository.findById(examId);
-        if (examOptional.isEmpty()) {
-            throw new ApplicationException("Exam not found");
-        }
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new ApplicationException("Exam not found"));
 
-        Exam exam = examOptional.get();
-
-        //Kiem tra de thi co o trong lop cua hoc sinh khong
         ClassExam classExam = classExamRepository.findByClassIdAndExamId(user.getClasses().getId(), examId);
         if (classExam == null) {
             throw new ApplicationException("The selected exam does not belong to this class.");
         }
 
-        //Kiem tra xem duoi database da co attempt voi examId va dang trong trang thai IN_PROGRESS
-        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStatus(exam, AttemptStatus.IN_PROGRESS);
-        if (examAttemptExits != null) {
-            throw new ApplicationException("You already have an ongoing attempt for this exam. " +
-                    "Please complete or submit it before starting a new one.");
+        boolean hasOngoingAttempt = examAttemptRepository
+                .existsByExamAndStudentAndStatus(
+                        exam.getId(),
+                        user.getId(),
+                        AttemptStatus.IN_PROGRESS
+                );
+
+        if (hasOngoingAttempt) {
+            throw new ApplicationException(
+                    "You already have an ongoing attempt for this exam. Please complete or submit it before starting a new one."
+            );
         }
 
         //Tao exam_attempt va luu xuong database
