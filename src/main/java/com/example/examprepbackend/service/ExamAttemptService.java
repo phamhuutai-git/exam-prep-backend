@@ -3,8 +3,11 @@ package com.example.examprepbackend.service;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
+import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 public interface ExamAttemptService {
@@ -25,4 +28,6 @@ public interface ExamAttemptService {
 
     @Transactional(readOnly = true)
     AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
+
+    List<ScoreDistribution> getScoreDistribution();
 }

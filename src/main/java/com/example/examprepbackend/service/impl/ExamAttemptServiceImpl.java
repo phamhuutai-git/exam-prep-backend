@@ -10,6 +10,7 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionOptionR
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionResponse;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
+import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.*;
 import com.example.examprepbackend.repository.*;
@@ -601,8 +602,26 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     }
 
 
+// hải
+    @Override
+    public List<ScoreDistribution> getScoreDistribution() {
+//        return examAttemptRepository.getScoreDistribution();
+        // fix nếu số điểm k nằm trong cột nào
+        List<ScoreDistribution> data = examAttemptRepository.getScoreDistribution();
 
-
+        Map<String, Long> map = new HashMap<>();
+        for (ScoreDistribution d : data) {
+            map.put(d.getRange(), d.getCount());
+        }
+        List<String> ranges = List.of(
+                "0-4","4-5","5-6","6-7","7-8","8-9","9-10"
+        );
+        List<ScoreDistribution> result = new ArrayList<>();
+        for (String r : ranges) {
+            result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
+        }
+        return result;
+    }
 }
 
 
