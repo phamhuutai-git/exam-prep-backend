@@ -20,6 +20,7 @@ public interface ExamAttemptService {
 
     SubmitExamAttemptResponse submitAttempt(Integer attemptId, SubmitExamAttemptRequest request);
 
+    SubmitExamAttemptResponse submitExam(Integer attemptId, SubmitExamAttemptRequest request);
 
     AttemptResultResponse getAttemptResult(Integer attemptId);
 
@@ -30,6 +31,6 @@ public interface ExamAttemptService {
     @Transactional(readOnly = true)
     AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
 
-    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable , ExamTypeRequest examTypeRequest);
+    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest);
 
 }

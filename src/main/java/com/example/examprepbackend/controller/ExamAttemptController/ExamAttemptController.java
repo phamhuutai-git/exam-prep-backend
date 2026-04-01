@@ -36,11 +36,13 @@ public class ExamAttemptController {
 //    }
 
     @PostMapping("/exam-id/{id}/start")
+    // Bắt đầu một lần làm bài mới cho user trên một đề thi
     public ResponseEntity<BaseResponse<ExamStartResponse>> startExam(@PathVariable Integer id,
                                                                      Authentication authentication) {
         return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.startExam(id, authentication), "Start exam"));
     }
 
+    // Nộp bài, chấm điểm, khóa bài, lưu kết quả chính thức.
     @PostMapping("/attempts/{attemptId}/submit")
     public ResponseEntity<SubmitExamAttemptResponse> submitAttempt(
             @PathVariable Integer attemptId,
@@ -48,6 +50,13 @@ public class ExamAttemptController {
     ) {
         SubmitExamAttemptResponse response = examAttemptService.submitAttempt(attemptId, request);
         return ResponseEntity.ok(response);
+    }
+
+    //Submit bai thi tan dung logic check answer
+    @PostMapping("/attempts/{attemptId}/submit-ver2")
+    public ResponseEntity<BaseResponse<SubmitExamAttemptResponse>> submitExam(@PathVariable Integer attemptId,
+                                                                             @RequestBody SubmitExamAttemptRequest request) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.submitExam(attemptId, request), "Submit exam"));
     }
 
     //Check dap an cho thi thu

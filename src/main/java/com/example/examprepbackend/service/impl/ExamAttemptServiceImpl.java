@@ -3,6 +3,7 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.constant.ExamType;
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
@@ -247,6 +248,99 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .correctCount(result.correctCount())
                 .wrongCount(result.wrongCount())
                 .blankCount(result.blankCount())
+                .timeSpentSeconds(timeSpentSeconds)
+                .reviewAllowed(exam.getReviewAllowed())
+                .endTime(endTime)
+                .message("Submit exam successfully")
+                .build();
+    }
+
+
+    @Override
+    public SubmitExamAttemptResponse submitExam(Integer attemptId, SubmitExamAttemptRequest request) {
+
+        Optional<ExamAttempt> examAttemptOptional = examAttemptRepository.findById(attemptId);
+        if (examAttemptOptional.isEmpty()) {
+            throw new ApplicationException("Exam not found");
+        }
+
+        ExamAttempt attempt = examAttemptOptional.get();
+        Exam exam = attempt.getExam();
+
+        // 2. Lấy question
+        List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
+
+        if (questions.isEmpty()) {
+            throw new ApplicationException("This exam has no questions");
+        }
+
+        int correctCount = 0;
+        int wrongCount = 0;
+        int blankCount = 0;
+
+        // 3. Chấm điểm từng câu
+        for (SubmitAnswerRequest answerRequest : request.getAnswers()) {
+
+            if (answerRequest.getSelectedOptionId() == null) {
+                blankCount++;
+                continue;
+            }
+
+            CheckAnswerRequest checkRequest = new CheckAnswerRequest();
+            checkRequest.setQuestionId(answerRequest.getQuestionId());
+            checkRequest.setSelectedAnswerId(answerRequest.getSelectedOptionId());
+
+            CheckAnswerResponse checkAnswerResponse = questionService.checkAnswer(checkRequest);
+
+            if (checkAnswerResponse.isCorrect()) {
+                correctCount++;
+            } else {
+                wrongCount++;
+            }
+        }
+
+        int totalQuestions = questions.size();
+
+        // 4. Tính điểm
+        double score = totalQuestions == 0 ? 0 : (double) correctCount / totalQuestions * 100;
+
+        Double passScore = exam.getPassScore();
+        boolean passed = score >= passScore;
+        String resultStatus = passed ? "PASSED" : "FAILED";
+
+        // 5. Time
+        LocalDateTime endTime = LocalDateTime.now();
+
+        int timeSpentSeconds = (int) java.time.Duration.between(
+                attempt.getStartTime(),
+                endTime
+        ).getSeconds();
+
+        // 6. Update DB
+        attempt.setEndTime(endTime);
+        attempt.setScore(score);
+        attempt.setCorrectCount(correctCount);
+        attempt.setWrongCount(wrongCount);
+        attempt.setBlankCount(blankCount);
+        attempt.setTimeSpentSeconds(timeSpentSeconds);
+        attempt.setStatus(AttemptStatus.SUBMITTED);
+
+        examAttemptRepository.save(attempt);
+
+        // 7. Response
+        return SubmitExamAttemptResponse.builder()
+                .attemptId(attempt.getId())
+                .examId(exam.getId())
+                .examTitle(exam.getTitle())
+                .examType(exam.getExamType())
+                .score(score)
+                .passScore(passScore)
+                .passed(passed)
+                .resultStatus(resultStatus)
+                .totalQuestions(totalQuestions)
+                .correctCount(correctCount)
+                .wrongCount(wrongCount)
+                .blankCount(blankCount)
                 .timeSpentSeconds(timeSpentSeconds)
                 .reviewAllowed(exam.getReviewAllowed())
                 .endTime(endTime)
@@ -511,6 +605,10 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanViewResult(attempt);
 
         Exam exam = attempt.getExam();
+        if (exam == null) {
+            throw new ResourceNotFoundException("Exam not found for attempt id: " + attemptId);
+        }
+
         validateReviewAllowed(exam);
 
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
