@@ -40,7 +40,5 @@ public interface UsersService {
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
 
-    Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable , ExamType examtype);
-
 
 }

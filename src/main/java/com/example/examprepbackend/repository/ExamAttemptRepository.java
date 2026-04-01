@@ -27,5 +27,7 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
 
     ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
 
+    ExamAttempt findByExamAndStudentAndStatus(Exam exam, Users student, AttemptStatus status);
+
     Page<ExamAttempt> findByStudentAndExamExamType(Users user, ExamType examType, Pageable pageable);
 }

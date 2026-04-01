@@ -261,27 +261,5 @@ public class UsersServiceImpl implements UsersService {
         return modelMapper.map(user, UserSummaryResponse.class);
     }
 
-    @Override
-    public Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable, ExamType examType) {
-        String username = authentication.getName();
-        Users user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Page<ExamAttempt> attempts;
-        if (examType != null) {
-            attempts = examAttemptRepository.findByStudentAndExamExamType(user, examType, pageable);
-        } else {
-            attempts = examAttemptRepository.findByStudent(user, pageable);
-        }
-        return attempts.map(attempt -> {
-            ExamAttemptResponse res = new ExamAttemptResponse();
-            res.setId(attempt.getId());
-//            res.setExam(attempt.getExam());
-//            res.setStudent(attempt.getStudent());
-            res.setStartTime(attempt.getStartTime());
-            res.setEndTime(attempt.getEndTime());
-            res.setScore(attempt.getScore());
-            res.setStatus(attempt.getStatus());
-            return res;
-        });
-    }
+
 }

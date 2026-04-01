@@ -1,8 +1,12 @@
 package com.example.examprepbackend.service;
 
+import com.example.examprepbackend.constant.ExamType;
+import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,4 +29,7 @@ public interface ExamAttemptService {
 
     @Transactional(readOnly = true)
     AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
+
+    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable , ExamTypeRequest examTypeRequest);
+
 }

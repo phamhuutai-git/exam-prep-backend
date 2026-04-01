@@ -29,4 +29,12 @@ public class ExamAttemptResponse {
 
     private AttemptStatus status;
 
+    private Integer blankCount;
+
+    private Integer timeSpentSeconds;
+
+    private Integer correctCount;
+
+    private Integer wrongCount;
+
 }

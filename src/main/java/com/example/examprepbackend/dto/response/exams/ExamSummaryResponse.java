@@ -1,5 +1,6 @@
 package com.example.examprepbackend.dto.response.exams;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.entity.CategoryQuestion;
 import com.example.examprepbackend.entity.Users;
 import jakarta.persistence.Column;
@@ -25,5 +26,7 @@ public class ExamSummaryResponse {
     private CategoryQuestion category;
 
     private LocalDateTime createDate;
+
+    private ExamType examType;
 
 }
