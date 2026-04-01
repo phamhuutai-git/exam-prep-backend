@@ -504,6 +504,10 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanViewResult(attempt);
 
         Exam exam = attempt.getExam();
+        if (exam == null) {
+            throw new ResourceNotFoundException("Exam not found for attempt id: " + attemptId);
+        }
+
         validateReviewAllowed(exam);
 
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());

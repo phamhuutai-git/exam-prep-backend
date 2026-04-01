@@ -28,11 +28,13 @@ public class ExamAttemptController {
 //    }
 
     @PostMapping("/exam-id/{id}/start")
+    // Bắt đầu một lần làm bài mới cho user trên một đề thi
     public ResponseEntity<BaseResponse<ExamStartResponse>> startExam(@PathVariable Integer id,
                                                                      Authentication authentication) {
         return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.startExam(id, authentication), "Start exam"));
     }
 
+    // Nộp bài, chấm điểm, khóa bài, lưu kết quả chính thức.
     @PostMapping("/attempts/{attemptId}/submit")
     public ResponseEntity<SubmitExamAttemptResponse> submitAttempt(
             @PathVariable Integer attemptId,
@@ -43,12 +45,14 @@ public class ExamAttemptController {
     }
 
 
+    // Xem kết quả tổng quan sau khi nộp thi that
     @GetMapping("/attempts/{attemptId}/result")
     public ResponseEntity<AttemptResultResponse> getAttemptResult(@PathVariable Integer attemptId) {
         AttemptResultResponse response = examAttemptService.getAttemptResult(attemptId);
         return ResponseEntity.ok(response);
     }
 
+    // Xem chi tiết từng câu, nhưng chỉ khi thỏa business rule, đặc biệt là mock/practice.
     @GetMapping("/attempts/{attemptId}/review-detail")
     public ResponseEntity<AttemptReviewDetailResponse> getAttemptReviewDetail(@PathVariable Integer attemptId) {
         AttemptReviewDetailResponse response = examAttemptService.getAttemptReviewDetail(attemptId);
