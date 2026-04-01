@@ -77,12 +77,18 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             throw new ApplicationException("The selected exam does not belong to this class.");
         }
 
+        System.out.println("=== START EXAM CALLED ===");
+        System.out.println("examId = " + exam.getId());
+        System.out.println("userId = " + user.getId());
+
         boolean hasOngoingAttempt = examAttemptRepository
                 .existsByExamAndStudentAndStatus(
                         exam.getId(),
                         user.getId(),
                         AttemptStatus.IN_PROGRESS
                 );
+
+        System.out.println("hasOngoingAttempt = " + hasOngoingAttempt);
 
         if (hasOngoingAttempt) {
             throw new ApplicationException(
