@@ -1,6 +1,7 @@
 package com.example.examprepbackend.controller.users;
 
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
@@ -91,8 +92,8 @@ public class UsersController {
         return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable), "Get All Question Succcesfull!"));
     }
     @GetMapping("/me/exams")
-    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
-        Page<ExamAttemptResponse> data = usersService.getAllExamsByStudent(authentication, pageable);
+    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAllExamsByStudent(Authentication authentication, Pageable pageable, @RequestParam(required = false) ExamType examType) {
+        Page<ExamAttemptResponse> data = usersService.getAllExamsByStudent(authentication, pageable, examType);
         return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
     }
 }
