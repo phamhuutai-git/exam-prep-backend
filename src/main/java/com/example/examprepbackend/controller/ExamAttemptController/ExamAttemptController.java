@@ -2,10 +2,12 @@ package com.example.examprepbackend.controller.ExamAttemptController;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.constant.ExamType;
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ExamAttemptController {
 
     private final ExamAttemptService examAttemptService;
+    private final QuestionService questionService;
 
 //    @PostMapping("/{examId}/attempts")
 //    public ResponseEntity<StartExamAttemptResponse> startAttempt(@PathVariable Integer examId) {
@@ -47,6 +50,13 @@ public class ExamAttemptController {
         return ResponseEntity.ok(response);
     }
 
+    //Check dap an cho thi thu
+    @PostMapping("/check-answer")
+    public ResponseEntity<BaseResponse<CheckAnswerResponse>> checkAnswer(@RequestBody CheckAnswerRequest request) {
+        CheckAnswerResponse responseData = questionService.checkAnswer(request);
+        return ResponseEntity.ok(BaseResponse.success(responseData));
+    }
+
     //Thi that
     @GetMapping("/attempts/{attemptId}/result")
     public ResponseEntity<AttemptResultResponse> getAttemptResult(@PathVariable Integer attemptId) {
@@ -64,11 +74,13 @@ public class ExamAttemptController {
     //Lay danh sach ket qua thi
     @GetMapping("/attempts/exam-type")
     public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAttemptsByExamType(Authentication authentication,
-                                                                                        Pageable pageable,
-                                                                                        @RequestBody @Valid ExamTypeRequest examTypeRequest) {
+                                                                                         Pageable pageable,
+                                                                                         @RequestBody @Valid ExamTypeRequest examTypeRequest) {
         Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examTypeRequest);
         return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
     }
+
+
 }
 
 
