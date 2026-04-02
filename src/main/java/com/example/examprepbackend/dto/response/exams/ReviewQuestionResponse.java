@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 public class ReviewQuestionResponse {
     private Integer questionId;
-    private Integer questionOrder;
+//    private Integer questionOrder;
     private String questionContent;
     private Integer selectedOptionId;
     private Integer correctOptionId;
