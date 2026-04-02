@@ -335,7 +335,3 @@ update users
 set email ='ngoquangtruongjk05@gmail.com'
 where id = 1;
 
-select*
-from users;
-select *
-from exam

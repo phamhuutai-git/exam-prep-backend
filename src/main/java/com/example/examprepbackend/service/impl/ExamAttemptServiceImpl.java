@@ -12,6 +12,7 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionOptionR
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionResponse;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
+import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.*;
@@ -121,6 +122,61 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         }
     }
 
+    //Restart exam
+    @Override
+    public ExamStartResponse restartExam(Integer examId, Authentication authentication) {
+        //Kiem tra hoc sinh dang lam bai thi
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+        Optional<Users> usersOptional = usersRepository.findByUsername(username);
+        if (usersOptional.isEmpty()) {
+            throw new ApplicationException("User not found");
+        }
+
+        Users student = usersOptional.get();
+
+        //Kiem tra de thi
+        Optional<Exam> examOptional = examRepository.findById(examId);
+        if (examOptional.isEmpty()) {
+            throw new ApplicationException("Exam not found");
+        }
+
+        Exam exam = examOptional.get();
+
+        //Kiem tra de thi co o trong lop cua hoc sinh khong
+        ClassExam classExam = classExamRepository.findByClassIdAndExamId(student.getClasses().getId(), examId);
+        if (classExam == null) {
+            throw new ApplicationException("The selected exam does not belong to this class.");
+        }
+
+        //Tim de thi hoc sinh dang lam va restart
+        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
+        if (examAttemptExits != null) {
+            examAttemptRepository.delete(examAttemptExits);
+        }
+
+        //Tao exam_attempt va luu xuong database
+        ExamAttempt examAttempt = new ExamAttempt();
+        examAttempt.setExam(exam);
+        examAttempt.setStudent(student);
+        examAttempt.setStartTime(LocalDateTime.now());
+        examAttempt.setScore(0.0);
+        examAttempt.setCorrectCount(0);
+        examAttempt.setWrongCount(0);
+        examAttempt.setBlankCount(0);
+        examAttempt.setTimeSpentSeconds(0);
+        examAttempt.setStatus(AttemptStatus.IN_PROGRESS);
+
+        try {
+            examAttemptRepository.save(examAttempt);
+            return convertToStartDto(examAttempt);
+        } catch (RuntimeException exception) {
+            throw new ApplicationException("Already has attempt");
+        }
+    }
 
     // Hieu
     @Transactional
@@ -254,7 +310,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .message("Submit exam successfully")
                 .build();
     }
-
 
     @Override
     public SubmitExamAttemptResponse submitExam(Integer attemptId, SubmitExamAttemptRequest request) {
@@ -709,7 +764,11 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
     //Lay danh sach ket qua de thi
     @Override
-    public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest) {
+    public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType) {
+        if (examType == null || examType.isBlank()) {
+            throw new ApplicationException("exam type not null or not blank");
+        }
+
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ApplicationException("Unauthorized");
         }
@@ -719,7 +778,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Page<ExamAttempt> attempts;
 
-        String examType = examTypeRequest.getExamType();
         attempts = examAttemptRepository.findByStudentAndExamExamType(user, ExamType.valueOf(examType), pageable);
 
         return attempts.map(attempt -> {
@@ -737,6 +795,27 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             res.setTimeSpentSeconds(attempt.getTimeSpentSeconds());
             return res;
         });
+    }
+
+    // hải
+    @Override
+    public List<ScoreDistribution> getScoreDistribution() {
+//        return examAttemptRepository.getScoreDistribution();
+        // fix nếu số điểm k nằm trong cột nào
+        List<ScoreDistribution> data = examAttemptRepository.getScoreDistribution();
+
+        Map<String, Long> map = new HashMap<>();
+        for (ScoreDistribution d : data) {
+            map.put(d.getRange(), d.getCount());
+        }
+        List<String> ranges = List.of(
+                "0-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10"
+        );
+        List<ScoreDistribution> result = new ArrayList<>();
+        for (String r : ranges) {
+            result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
+        }
+        return result;
     }
 }
 

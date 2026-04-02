@@ -42,6 +42,13 @@ public class ExamAttemptController {
         return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.startExam(id, authentication), "Start exam"));
     }
 
+    //Tai lai bai thi
+    @PostMapping("/exam-id/{id}/restart")
+    public ResponseEntity<BaseResponse<ExamStartResponse>> restartExam(@PathVariable Integer id,
+                                                                       Authentication authentication) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.restartExam(id, authentication), "Restart exam"));
+    }
+
     // Nộp bài, chấm điểm, khóa bài, lưu kết quả chính thức.
     @PostMapping("/attempts/{attemptId}/submit")
     public ResponseEntity<SubmitExamAttemptResponse> submitAttempt(
@@ -55,7 +62,7 @@ public class ExamAttemptController {
     //Submit bai thi tan dung logic check answer
     @PostMapping("/attempts/{attemptId}/submit-ver2")
     public ResponseEntity<BaseResponse<SubmitExamAttemptResponse>> submitExam(@PathVariable Integer attemptId,
-                                                                             @RequestBody SubmitExamAttemptRequest request) {
+                                                                              @RequestBody SubmitExamAttemptRequest request) {
         return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.submitExam(attemptId, request), "Submit exam"));
     }
 
@@ -84,8 +91,8 @@ public class ExamAttemptController {
     @GetMapping("/attempts/exam-type")
     public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAttemptsByExamType(Authentication authentication,
                                                                                          Pageable pageable,
-                                                                                         @RequestBody @Valid ExamTypeRequest examTypeRequest) {
-        Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examTypeRequest);
+                                                                                         @RequestParam String examType) {
+        Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examType);
         return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
     }
 
