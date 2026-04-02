@@ -59,13 +59,6 @@ public class ExamAttemptController {
         return ResponseEntity.ok(response);
     }
 
-    //Submit bai thi tan dung logic check answer
-    @PostMapping("/attempts/{attemptId}/submit-ver2")
-    public ResponseEntity<BaseResponse<SubmitExamAttemptResponse>> submitExam(@PathVariable Integer attemptId,
-                                                                              @RequestBody SubmitExamAttemptRequest request) {
-        return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.submitExam(attemptId, request), "Submit exam"));
-    }
-
     //Check dap an cho thi thu
     @PostMapping("/check-answer")
     public ResponseEntity<BaseResponse<CheckAnswerResponse>> checkAnswer(@RequestBody CheckAnswerRequest request) {
