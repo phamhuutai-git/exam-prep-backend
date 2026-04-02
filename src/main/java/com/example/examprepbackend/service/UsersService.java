@@ -2,6 +2,7 @@ package com.example.examprepbackend.service;
 
 import java.util.List;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
@@ -11,6 +12,7 @@ import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
+import com.example.examprepbackend.entity.ExamAttempt;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import org.springframework.data.domain.Page;
@@ -37,8 +39,6 @@ public interface UsersService {
     UserProfileResponse getCurrentUser(Authentication authentication);
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
-
-    Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable);
 
 
 }

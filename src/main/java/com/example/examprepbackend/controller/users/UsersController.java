@@ -4,7 +4,6 @@ import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
-import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.dto.response.users.UserProfileResponse;
 import com.example.examprepbackend.dto.response.users.UserResponse;
@@ -90,9 +89,5 @@ public class UsersController {
     public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestionsByStudent(Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable), "Get All Question Succcesfull!"));
     }
-    @GetMapping("/me/exams")
-    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
-        Page<ExamAttemptResponse> data = usersService.getAllExamsByStudent(authentication, pageable);
-        return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
-    }
+
 }

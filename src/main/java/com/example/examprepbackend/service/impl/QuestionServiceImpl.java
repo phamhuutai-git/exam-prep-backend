@@ -3,11 +3,13 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.DifficultyLevel;
 import com.example.examprepbackend.constant.Role;
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
 import com.example.examprepbackend.dto.response.answer.AnswerPublicResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
+import com.example.examprepbackend.dto.response.exams.CheckAnswerResponse;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
 import com.example.examprepbackend.entity.*;
@@ -546,5 +548,36 @@ public class QuestionServiceImpl implements QuestionService {
                 .findQuestionsByExamIdsAndCreatorRole(examIds, Role.TEACHER, pageable);
 
         return questionsPage.map(this::convertToDto);
+
+
+    }
+
+    @Override
+    public CheckAnswerResponse checkAnswer(CheckAnswerRequest request) {
+        // kiểm tra xem câu hỏi có tồn tại không
+        Question question = questionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new ApplicationException("Question not found: " + request.getQuestionId()));
+
+        //lấy danh sách đáp án của câu hỏi
+        List<Answer> answers = answerRepository.findByQuestion_Id(request.getQuestionId());
+        if (answers.isEmpty()) {
+            throw new ApplicationException("No answer found for question: " + request.getQuestionId());
+        }
+
+        // tìm đáp án đúng (isCorrect = true)
+        Answer correctAnswer = answers.stream()
+                .filter(Answer::getIsCorrect)
+                .findFirst()
+                .orElseThrow(() -> new ApplicationException("No correct answer found for question: " + request.getQuestionId()));
+
+        // kiểm tra đáp án
+        boolean isCorrect = correctAnswer.getId().equals(request.getSelectedAnswerId());
+
+        // trả về kết quả id đáp án đúng và giải thích
+        return CheckAnswerResponse.builder()
+                .isCorrect(isCorrect)
+                .correctAnswerId(correctAnswer.getId())
+                .explanation(question.getExplanation())
+                .build();
     }
 }

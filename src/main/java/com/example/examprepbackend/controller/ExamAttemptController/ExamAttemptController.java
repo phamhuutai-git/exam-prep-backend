@@ -1,10 +1,17 @@
 package com.example.examprepbackend.controller.ExamAttemptController;
 
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.constant.ExamType;
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
+import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.service.ExamAttemptService;
+import com.example.examprepbackend.service.QuestionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ExamAttemptController {
 
     private final ExamAttemptService examAttemptService;
+    private final QuestionService questionService;
 
 //    @PostMapping("/{examId}/attempts")
 //    public ResponseEntity<StartExamAttemptResponse> startAttempt(@PathVariable Integer examId) {
@@ -44,20 +52,44 @@ public class ExamAttemptController {
         return ResponseEntity.ok(response);
     }
 
+    //Submit bai thi tan dung logic check answer
+    @PostMapping("/attempts/{attemptId}/submit-ver2")
+    public ResponseEntity<BaseResponse<SubmitExamAttemptResponse>> submitExam(@PathVariable Integer attemptId,
+                                                                             @RequestBody SubmitExamAttemptRequest request) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examAttemptService.submitExam(attemptId, request), "Submit exam"));
+    }
 
-    // Xem kết quả tổng quan sau khi nộp thi that
+    //Check dap an cho thi thu
+    @PostMapping("/check-answer")
+    public ResponseEntity<BaseResponse<CheckAnswerResponse>> checkAnswer(@RequestBody CheckAnswerRequest request) {
+        CheckAnswerResponse responseData = questionService.checkAnswer(request);
+        return ResponseEntity.ok(BaseResponse.success(responseData));
+    }
+
+    //Thi that
     @GetMapping("/attempts/{attemptId}/result")
     public ResponseEntity<AttemptResultResponse> getAttemptResult(@PathVariable Integer attemptId) {
         AttemptResultResponse response = examAttemptService.getAttemptResult(attemptId);
         return ResponseEntity.ok(response);
     }
 
-    // Xem chi tiết từng câu, nhưng chỉ khi thỏa business rule, đặc biệt là mock/practice.
+    //Luyen tap
     @GetMapping("/attempts/{attemptId}/review-detail")
     public ResponseEntity<AttemptReviewDetailResponse> getAttemptReviewDetail(@PathVariable Integer attemptId) {
         AttemptReviewDetailResponse response = examAttemptService.getAttemptReviewDetail(attemptId);
         return ResponseEntity.ok(response);
     }
+
+    //Lay danh sach ket qua thi
+    @GetMapping("/attempts/exam-type")
+    public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAttemptsByExamType(Authentication authentication,
+                                                                                         Pageable pageable,
+                                                                                         @RequestBody @Valid ExamTypeRequest examTypeRequest) {
+        Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examTypeRequest);
+        return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
+    }
+
+
 }
 
 
