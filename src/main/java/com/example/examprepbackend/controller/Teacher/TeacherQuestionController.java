@@ -58,7 +58,6 @@ public class TeacherQuestionController {
 
 
     @PostMapping
-
     public ResponseEntity<BaseResponse<QuestionResponse>> createQuestion(
             @RequestBody CreateQuestionRequest request
     ) {
