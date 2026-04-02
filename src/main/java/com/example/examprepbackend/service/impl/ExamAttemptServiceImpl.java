@@ -123,68 +123,68 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
 
     // Hieu
-    @Transactional
-    @Override
-    public StartExamAttemptResponse startAttempt(Integer examId) {
-        Users currentUser = getCurrentUser();
-
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ResourceNotFoundException("Exam not found with id: " + examId));
-
-        validateExamCanBeStarted(exam);
-
-        ExamAttempt attempt = new ExamAttempt();
-        attempt.setStudent(currentUser);
-        attempt.setExam(exam);
-        attempt.setStatus(AttemptStatus.IN_PROGRESS);
-        attempt.setStartTime(LocalDateTime.now());
-
-        ExamAttempt savedAttempt = examAttemptRepository.save(attempt);
-
-        return StartExamAttemptResponse.builder()
-                .attemptId(savedAttempt.getId())
-                .examId(exam.getId())
-                .examTitle(exam.getTitle())
-                .status(savedAttempt.getStatus().name())
-                .startTime(savedAttempt.getStartTime())
-                .build();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId) {
-        Users currentUser = getCurrentUser();
-
-        ExamAttempt attempt = examAttemptRepository.findByIdAndStudentUsername(attemptId, currentUser.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
-
-        validateAttemptCanLoadQuestions(attempt);
-
-        Exam exam = attempt.getExam();
-        List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
-
-        List<Integer> questionIds = questions.stream()
-                .map(Question::getId)
-                .toList();
-
-        Map<Integer, List<Answer>> answersByQuestionId = getAnswersByQuestionId(questionIds);
-
-        List<AttemptQuestionResponse> questionResponses = questions.stream()
-                .map(question -> toAttemptQuestionResponse(
-                        question,
-                        answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList())
-                ))
-                .toList();
-
-        return AttemptQuestionsFullResponse.builder()
-                .attemptId(attempt.getId())
-                .examId(exam.getId())
-                .examTitle(exam.getTitle())
-                .status(attempt.getStatus())
-                .startTime(attempt.getStartTime())
-                .questions(questionResponses)
-                .build();
-    }
+//    @Transactional
+//    @Override
+//    public StartExamAttemptResponse startAttempt(Integer examId) {
+//        Users currentUser = getCurrentUser();
+//
+//        Exam exam = examRepository.findById(examId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Exam not found with id: " + examId));
+//
+//        validateExamCanBeStarted(exam);
+//
+//        ExamAttempt attempt = new ExamAttempt();
+//        attempt.setStudent(currentUser);
+//        attempt.setExam(exam);
+//        attempt.setStatus(AttemptStatus.IN_PROGRESS);
+//        attempt.setStartTime(LocalDateTime.now());
+//
+//        ExamAttempt savedAttempt = examAttemptRepository.save(attempt);
+//
+//        return StartExamAttemptResponse.builder()
+//                .attemptId(savedAttempt.getId())
+//                .examId(exam.getId())
+//                .examTitle(exam.getTitle())
+//                .status(savedAttempt.getStatus().name())
+//                .startTime(savedAttempt.getStartTime())
+//                .build();
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId) {
+//        Users currentUser = getCurrentUser();
+//
+//        ExamAttempt attempt = examAttemptRepository.findByIdAndStudentUsername(attemptId, currentUser.getUsername())
+//                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
+//
+//        validateAttemptCanLoadQuestions(attempt);
+//
+//        Exam exam = attempt.getExam();
+//        List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
+//
+//        List<Integer> questionIds = questions.stream()
+//                .map(Question::getId)
+//                .toList();
+//
+//        Map<Integer, List<Answer>> answersByQuestionId = getAnswersByQuestionId(questionIds);
+//
+//        List<AttemptQuestionResponse> questionResponses = questions.stream()
+//                .map(question -> toAttemptQuestionResponse(
+//                        question,
+//                        answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList())
+//                ))
+//                .toList();
+//
+//        return AttemptQuestionsFullResponse.builder()
+//                .attemptId(attempt.getId())
+//                .examId(exam.getId())
+//                .examTitle(exam.getTitle())
+//                .status(attempt.getStatus())
+//                .startTime(attempt.getStartTime())
+//                .questions(questionResponses)
+//                .build();
+//    }
 
     @Override
     @Transactional

@@ -16,9 +16,9 @@ import java.util.List;
 
 public interface ExamAttemptService {
 
-    StartExamAttemptResponse startAttempt(Integer examId);
-
-    AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId);
+//    StartExamAttemptResponse startAttempt(Integer examId);
+//
+//    AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId);
 
 
     SubmitExamAttemptResponse submitAttempt(Integer attemptId, SubmitExamAttemptRequest request);
@@ -34,7 +34,7 @@ public interface ExamAttemptService {
     @Transactional(readOnly = true)
     AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
 
-    List<ScoreDistribution> getScoreDistribution();
+//    List<ScoreDistribution> getScoreDistribution();
 
     Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest);
 
