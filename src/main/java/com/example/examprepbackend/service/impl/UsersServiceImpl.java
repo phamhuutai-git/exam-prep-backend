@@ -1,5 +1,6 @@
 package com.example.examprepbackend.service.impl;
 
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.users.*;
@@ -9,6 +10,7 @@ import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
 import com.example.examprepbackend.dto.response.users.UserInfoResponse;
 import com.example.examprepbackend.dto.response.users.UserSummaryResponse;
 import com.example.examprepbackend.entity.Classes;
+import com.example.examprepbackend.entity.ExamAttempt;
 import com.example.examprepbackend.entity.Users;
 import com.example.examprepbackend.exception.*;
 import com.example.examprepbackend.mapper.UserMapper;
@@ -259,23 +261,5 @@ public class UsersServiceImpl implements UsersService {
         return modelMapper.map(user, UserSummaryResponse.class);
     }
 
-    @Override
-    public Page<ExamAttemptResponse> getAllExamsByStudent(Authentication authentication, Pageable pageable) {
-        String username = authentication.getName();
-        Users user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return examAttemptRepository.findByStudent(user, pageable)
-                .map(attempt -> {
-                    ExamAttemptResponse res = new ExamAttemptResponse();
-                    res.setId(attempt.getId());
-//                    res.setExam(attempt.getExam());
-//                    res.setStudent(attempt.getStudent());
-                    res.setStartTime(attempt.getStartTime());
-                    res.setEndTime(attempt.getEndTime());
-                    res.setScore(attempt.getScore());
-                    res.setStatus(attempt.getStatus());
-                    return res;
-                });
-    }
 
 }

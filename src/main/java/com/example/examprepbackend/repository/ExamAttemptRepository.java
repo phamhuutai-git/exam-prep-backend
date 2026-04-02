@@ -1,6 +1,7 @@
 package com.example.examprepbackend.repository;
 
 import com.example.examprepbackend.constant.AttemptStatus;
+import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.entity.Exam;
 import com.example.examprepbackend.entity.ExamAttempt;
@@ -25,8 +26,13 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
 
     Page<ExamAttempt> findByStudent(Users student, Pageable pageable);
 
-    ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
+//    ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
 
+    boolean existsByExamAndStudentAndStatus(Integer exam, Integer studentId, AttemptStatus status);
+
+    ExamAttempt findByExamAndStudentAndStatus(Exam exam, Users student, AttemptStatus status);
+
+    Page<ExamAttempt> findByStudentAndExamExamType(Users user, ExamType examType, Pageable pageable);
     @Query("""
                 SELECT new com.example.examprepbackend.dto.response.teacher.ScoreDistribution(
                     CASE 

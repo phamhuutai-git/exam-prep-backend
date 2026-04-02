@@ -3,6 +3,8 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.constant.ExamType;
+import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
+import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
@@ -11,12 +13,16 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionRespons
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
+import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.*;
 import com.example.examprepbackend.repository.*;
 import com.example.examprepbackend.service.ExamAttemptService;
 import com.example.examprepbackend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +45,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     private final UserAnswerRepository userAnswerRepository;
     private final ClassExamRepository classExamRepository;
     private final QuestionService questionService;
+    private final ModelMapper modelMapper;
 
 
     private ExamStartResponse convertToStartDto(ExamAttempt examAttempt) {
@@ -72,7 +79,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             throw new ApplicationException("User not found");
         }
 
-        Users user = usersOptional.get();
+        Users student = usersOptional.get();
 
         //Kiem tra de thi
         Optional<Exam> examOptional = examRepository.findById(examId);
@@ -83,13 +90,13 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         Exam exam = examOptional.get();
 
         //Kiem tra de thi co o trong lop cua hoc sinh khong
-        ClassExam classExam = classExamRepository.findByClassIdAndExamId(user.getClasses().getId(), examId);
+        ClassExam classExam = classExamRepository.findByClassIdAndExamId(student.getClasses().getId(), examId);
         if (classExam == null) {
             throw new ApplicationException("The selected exam does not belong to this class.");
         }
 
         //Kiem tra xem duoi database da co attempt voi examId va dang trong trang thai IN_PROGRESS
-        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStatus(exam, AttemptStatus.IN_PROGRESS);
+        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
         if (examAttemptExits != null) {
             throw new ApplicationException("You already have an ongoing attempt for this exam. " +
                     "Please complete or submit it before starting a new one.");
@@ -98,7 +105,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         //Tao exam_attempt va luu xuong database
         ExamAttempt examAttempt = new ExamAttempt();
         examAttempt.setExam(exam);
-        examAttempt.setStudent(user);
+        examAttempt.setStudent(student);
         examAttempt.setStartTime(LocalDateTime.now());
         examAttempt.setScore(0.0);
         examAttempt.setCorrectCount(0);
@@ -107,11 +114,70 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         examAttempt.setTimeSpentSeconds(0);
         examAttempt.setStatus(AttemptStatus.IN_PROGRESS);
 
-        examAttemptRepository.save(examAttempt);
-
-        return convertToStartDto(examAttempt);
+        try {
+            examAttemptRepository.save(examAttempt);
+            return convertToStartDto(examAttempt);
+        } catch (RuntimeException exception) {
+            throw new ApplicationException("Already has attempt");
+        }
     }
 
+    //Restart exam
+    @Transactional
+    @Override
+    public ExamStartResponse restartExam(Integer examId, Authentication authentication) {
+        //Kiem tra hoc sinh dang lam bai thi
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+        Optional<Users> usersOptional = usersRepository.findByUsername(username);
+        if (usersOptional.isEmpty()) {
+            throw new ApplicationException("User not found");
+        }
+
+        Users student = usersOptional.get();
+
+        //Kiem tra de thi
+        Optional<Exam> examOptional = examRepository.findById(examId);
+        if (examOptional.isEmpty()) {
+            throw new ApplicationException("Exam not found");
+        }
+
+        Exam exam = examOptional.get();
+
+        //Kiem tra de thi co o trong lop cua hoc sinh khong
+        ClassExam classExam = classExamRepository.findByClassIdAndExamId(student.getClasses().getId(), examId);
+        if (classExam == null) {
+            throw new ApplicationException("The selected exam does not belong to this class.");
+        }
+
+        //Tim de thi hoc sinh dang lam va restart
+        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
+        if (examAttemptExits != null) {
+            examAttemptRepository.delete(examAttemptExits);
+        }
+
+        //Tao exam_attempt va luu xuong database
+        ExamAttempt examAttempt = new ExamAttempt();
+        examAttempt.setExam(exam);
+        examAttempt.setStudent(student);
+        examAttempt.setStartTime(LocalDateTime.now());
+        examAttempt.setScore(0.0);
+        examAttempt.setCorrectCount(0);
+        examAttempt.setWrongCount(0);
+        examAttempt.setBlankCount(0);
+        examAttempt.setTimeSpentSeconds(0);
+        examAttempt.setStatus(AttemptStatus.IN_PROGRESS);
+
+        try {
+            examAttemptRepository.save(examAttempt);
+            return convertToStartDto(examAttempt);
+        } catch (RuntimeException exception) {
+            throw new ApplicationException("Already has attempt");
+        }
+    }
 
     // Hieu
     @Transactional
@@ -503,6 +569,10 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanViewResult(attempt);
 
         Exam exam = attempt.getExam();
+        if (exam == null) {
+            throw new ResourceNotFoundException("Exam not found for attempt id: " + attemptId);
+        }
+
         validateReviewAllowed(exam);
 
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
@@ -594,7 +664,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     }
 
 
-
     private void validateReviewAllowed(Exam exam) {
         if (!isReviewAllowed(exam)) {
             throw new BadRequestException("Review detail is not allowed for this exam");
@@ -602,7 +671,42 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     }
 
 
-// hải
+    //Lay danh sach ket qua de thi
+    @Override
+    public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType) {
+        if (examType == null || examType.isBlank()) {
+            throw new ApplicationException("exam type not null or not blank");
+        }
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+        Users user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Page<ExamAttempt> attempts;
+
+        attempts = examAttemptRepository.findByStudentAndExamExamType(user, ExamType.valueOf(examType), pageable);
+
+        return attempts.map(attempt -> {
+            ExamAttemptResponse res = new ExamAttemptResponse();
+            res.setId(attempt.getId());
+            res.setExam(modelMapper.map(attempt.getExam(), ExamSummaryResponse.class));
+            res.setStudent(modelMapper.map(attempt.getStudent(), StudentResponse.class));
+            res.setStartTime(attempt.getStartTime());
+            res.setEndTime(attempt.getEndTime());
+            res.setScore(attempt.getScore());
+            res.setStatus(attempt.getStatus());
+            res.setBlankCount(attempt.getBlankCount());
+            res.setCorrectCount(attempt.getCorrectCount());
+            res.setWrongCount(attempt.getWrongCount());
+            res.setTimeSpentSeconds(attempt.getTimeSpentSeconds());
+            return res;
+        });
+    }
+
+    // hải
     @Override
     public List<ScoreDistribution> getScoreDistribution() {
 //        return examAttemptRepository.getScoreDistribution();
@@ -614,7 +718,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             map.put(d.getRange(), d.getCount());
         }
         List<String> ranges = List.of(
-                "0-4","4-5","5-6","6-7","7-8","8-9","9-10"
+                "0-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10"
         );
         List<ScoreDistribution> result = new ArrayList<>();
         for (String r : ranges) {
