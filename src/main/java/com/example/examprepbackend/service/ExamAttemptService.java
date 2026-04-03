@@ -23,19 +23,21 @@ public interface ExamAttemptService {
 
     SubmitExamAttemptResponse submitAttempt(Integer attemptId, SubmitExamAttemptRequest request);
 
-    SubmitExamAttemptResponse submitExam(Integer attemptId, SubmitExamAttemptRequest request);
-
     AttemptResultResponse getAttemptResult(Integer attemptId);
 
 
     ExamStartResponse startExam(Integer examId, Authentication authentication);
 
+    ExamStartResponse restartExam(Integer examId, Authentication authentication);
 
     @Transactional(readOnly = true)
     AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
 
+    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType);
 //    List<ScoreDistribution> getScoreDistribution();
 
     Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest);
 
+
+    List<ScoreDistribution> getScoreDistribution();
 }
