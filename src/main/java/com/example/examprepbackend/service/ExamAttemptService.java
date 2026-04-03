@@ -16,27 +16,29 @@ import java.util.List;
 
 public interface ExamAttemptService {
 
-//    StartExamAttemptResponse startAttempt(Integer examId);
-//
-//    AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId);
+    StartExamAttemptResponse startAttempt(Integer examId);
+
+    AttemptQuestionsFullResponse getAttemptQuestions(Integer attemptId);
 
 
     SubmitExamAttemptResponse submitAttempt(Integer attemptId, SubmitExamAttemptRequest request);
 
-    AttemptResultResponse getAttemptResult(Integer attemptId);
+//    AttemptResultResponse getAttemptResult(Integer attemptId);
 
+    AttemptResultResponse getAttemptResult(Integer attemptId);
 
     ExamStartResponse startExam(Integer examId, Authentication authentication);
 
     ExamStartResponse restartExam(Integer examId, Authentication authentication);
 
-    @Transactional(readOnly = true)
-    AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
+//    @Transactional(readOnly = true)
+//    AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId);
 
     Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType);
-//    List<ScoreDistribution> getScoreDistribution();
 
-    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest);
+
+
+//    Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, ExamTypeRequest examTypeRequest);
 
 
     List<ScoreDistribution> getScoreDistribution();

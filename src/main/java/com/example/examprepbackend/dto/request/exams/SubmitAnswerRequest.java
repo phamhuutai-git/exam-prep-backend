@@ -1,11 +1,13 @@
 package com.example.examprepbackend.dto.request.exams;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SubmitAnswerRequest {
     private Integer questionId;
-    private Integer selectedOptionId;
+    private List<Integer> selectedAnswerIds;
 }
