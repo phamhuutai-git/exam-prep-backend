@@ -59,33 +59,42 @@ public class ExamAttemptController {
         return ResponseEntity.ok(response);
     }
 
-    //Check dap an cho thi thu
-    @PostMapping("/check-answer")
-    public ResponseEntity<BaseResponse<CheckAnswerResponse>> checkAnswer(@RequestBody CheckAnswerRequest request) {
-        CheckAnswerResponse responseData = questionService.checkAnswer(request);
-        return ResponseEntity.ok(BaseResponse.success(responseData));
-    }
+//    //Check dap an cho thi thu
+//    @PostMapping("/check-answer")
+//    public ResponseEntity<BaseResponse<CheckAnswerResponse>> checkAnswer(@RequestBody CheckAnswerRequest request) {
+//        CheckAnswerResponse responseData = questionService.checkAnswer(request);
+//        return ResponseEntity.ok(BaseResponse.success(responseData));
+//    }
+//
+//    //Thi that
+//    @GetMapping("/attempts/{attemptId}/result")
+//    public ResponseEntity<AttemptResultResponse> getAttemptResult(@PathVariable Integer attemptId) {
+//        AttemptResultResponse response = examAttemptService.getAttemptResult(attemptId);
+//        return ResponseEntity.ok(response);
+//    }
 
-    //Thi that
+
+
+    // gộp 2 API getAttemptResult và getAttemptReviewDetail thành 1 API duy nhất, có thể trả về kết quả thi và chi tiết review nếu có
     @GetMapping("/attempts/{attemptId}/result")
-    public ResponseEntity<AttemptResultResponse> getAttemptResult(@PathVariable Integer attemptId) {
+    public ResponseEntity<AttemptResultResponse> getAttemptResultdemo(@PathVariable Integer attemptId) {
         AttemptResultResponse response = examAttemptService.getAttemptResult(attemptId);
         return ResponseEntity.ok(response);
     }
 
-    //Luyen tap
-    @GetMapping("/attempts/{attemptId}/review-detail")
-    public ResponseEntity<AttemptReviewDetailResponse> getAttemptReviewDetail(@PathVariable Integer attemptId) {
-        AttemptReviewDetailResponse response = examAttemptService.getAttemptReviewDetail(attemptId);
-        return ResponseEntity.ok(response);
-    }
+//    //Luyen tap
+//    @GetMapping("/attempts/{attemptId}/review-detail")
+//    public ResponseEntity<AttemptReviewDetailResponse> getAttemptReviewDetail(@PathVariable Integer attemptId) {
+//        AttemptReviewDetailResponse response = examAttemptService.getAttemptReviewDetail(attemptId);
+//        return ResponseEntity.ok(response);
+//    }
 
     //Lay danh sach ket qua thi
     @GetMapping("/attempts/exam-type")
     public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAttemptsByExamType(Authentication authentication,
                                                                                          Pageable pageable,
                                                                                          @RequestParam String examType) {
-        Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examType);
+        Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable,  examType);
         return ResponseEntity.ok(new BaseResponse<>(data, "Get All Exams Successfully"));
     }
 

@@ -1,6 +1,7 @@
 package com.example.examprepbackend.repository;
 
 import com.example.examprepbackend.constant.AttemptStatus;
+import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.constant.ExamType;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.entity.Exam;

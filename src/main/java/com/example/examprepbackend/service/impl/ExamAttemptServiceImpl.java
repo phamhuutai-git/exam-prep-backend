@@ -3,8 +3,6 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.constant.ExamType;
-import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
-import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
@@ -47,6 +45,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     private final QuestionService questionService;
     private final ModelMapper modelMapper;
 
+    private static final Set<ExamType> REVIEW_ALLOWED_TYPES =
+            Set.of(ExamType.MOCK, ExamType.PRACTICE);
 
     private ExamStartResponse convertToStartDto(ExamAttempt examAttempt) {
         ExamStartResponse startResponse = new ExamStartResponse();
@@ -58,51 +58,39 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         startResponse.setExamType(examAttempt.getExam().getExamType().toString());
         startResponse.setStartTime(examAttempt.getStartTime());
 
-        List<QuestionPublicResponse> questionPublicResponses = questionService.getQuestionsPublicByExamId(examAttempt.getExam().getId());
+        List<QuestionPublicResponse> questionPublicResponses =
+                questionService.getQuestionsPublicByExamId(examAttempt.getExam().getId());
         startResponse.setQuestions(questionPublicResponses);
 
         return startResponse;
-
     }
 
     @Override
+    @Transactional
     public ExamStartResponse startExam(Integer examId, Authentication authentication) {
-
-        //Kiem tra hoc sinh dang lam bai thi
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ApplicationException("Unauthorized");
         }
 
         String username = authentication.getName();
-        Optional<Users> usersOptional = usersRepository.findByUsername(username);
-        if (usersOptional.isEmpty()) {
-            throw new ApplicationException("User not found");
-        }
+        Users student = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationException("User not found"));
 
-        Users student = usersOptional.get();
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new ApplicationException("Exam not found"));
 
-        //Kiem tra de thi
-        Optional<Exam> examOptional = examRepository.findById(examId);
-        if (examOptional.isEmpty()) {
-            throw new ApplicationException("Exam not found");
-        }
-
-        Exam exam = examOptional.get();
-
-        //Kiem tra de thi co o trong lop cua hoc sinh khong
         ClassExam classExam = classExamRepository.findByClassIdAndExamId(student.getClasses().getId(), examId);
         if (classExam == null) {
             throw new ApplicationException("The selected exam does not belong to this class.");
         }
 
-        //Kiem tra xem duoi database da co attempt voi examId va dang trong trang thai IN_PROGRESS
-        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
-        if (examAttemptExits != null) {
-            throw new ApplicationException("You already have an ongoing attempt for this exam. " +
-                    "Please complete or submit it before starting a new one.");
+        ExamAttempt existingAttempt =
+                examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
+
+        if (existingAttempt != null) {
+            throw new ApplicationException("You already have an ongoing attempt for this exam. Please complete or submit it before starting a new one.");
         }
 
-        //Tao exam_attempt va luu xuong database
         ExamAttempt examAttempt = new ExamAttempt();
         examAttempt.setExam(exam);
         examAttempt.setStudent(student);
@@ -122,44 +110,32 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         }
     }
 
-    //Restart exam
-    @Transactional
     @Override
+    @Transactional
     public ExamStartResponse restartExam(Integer examId, Authentication authentication) {
-        //Kiem tra hoc sinh dang lam bai thi
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ApplicationException("Unauthorized");
         }
 
         String username = authentication.getName();
-        Optional<Users> usersOptional = usersRepository.findByUsername(username);
-        if (usersOptional.isEmpty()) {
-            throw new ApplicationException("User not found");
-        }
+        Users student = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationException("User not found"));
 
-        Users student = usersOptional.get();
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new ApplicationException("Exam not found"));
 
-        //Kiem tra de thi
-        Optional<Exam> examOptional = examRepository.findById(examId);
-        if (examOptional.isEmpty()) {
-            throw new ApplicationException("Exam not found");
-        }
-
-        Exam exam = examOptional.get();
-
-        //Kiem tra de thi co o trong lop cua hoc sinh khong
         ClassExam classExam = classExamRepository.findByClassIdAndExamId(student.getClasses().getId(), examId);
         if (classExam == null) {
             throw new ApplicationException("The selected exam does not belong to this class.");
         }
 
-        //Tim de thi hoc sinh dang lam va restart
-        ExamAttempt examAttemptExits = examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
-        if (examAttemptExits != null) {
-            examAttemptRepository.delete(examAttemptExits);
+        ExamAttempt existingAttempt =
+                examAttemptRepository.findByExamAndStudentAndStatus(exam, student, AttemptStatus.IN_PROGRESS);
+
+        if (existingAttempt != null) {
+            examAttemptRepository.delete(existingAttempt);
         }
 
-        //Tao exam_attempt va luu xuong database
         ExamAttempt examAttempt = new ExamAttempt();
         examAttempt.setExam(exam);
         examAttempt.setStudent(student);
@@ -179,9 +155,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         }
     }
 
-    // Hieu
-    @Transactional
     @Override
+    @Transactional
     public StartExamAttemptResponse startAttempt(Integer examId) {
         Users currentUser = getCurrentUser();
 
@@ -195,6 +170,11 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         attempt.setExam(exam);
         attempt.setStatus(AttemptStatus.IN_PROGRESS);
         attempt.setStartTime(LocalDateTime.now());
+        attempt.setScore(0.0);
+        attempt.setCorrectCount(0);
+        attempt.setWrongCount(0);
+        attempt.setBlankCount(0);
+        attempt.setTimeSpentSeconds(0);
 
         ExamAttempt savedAttempt = examAttemptRepository.save(attempt);
 
@@ -218,6 +198,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanLoadQuestions(attempt);
 
         Exam exam = attempt.getExam();
+        validateExamExists(exam, attemptId);
+
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
 
         List<Integer> questionIds = questions.stream()
@@ -246,6 +228,21 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     @Override
     @Transactional
     public SubmitExamAttemptResponse submitAttempt(Integer attemptId, SubmitExamAttemptRequest request) {
+
+        System.out.println("=== ENTER submitAttempt ===");
+        System.out.println("attemptId = " + attemptId);
+
+        if (request == null) {
+            System.out.println("request = null");
+        } else if (request.getAnswers() == null) {
+            System.out.println("request.answers = null");
+        } else {
+            System.out.println("answers size = " + request.getAnswers().size());
+            for (SubmitAnswerRequest a : request.getAnswers()) {
+                System.out.println("questionId = " + a.getQuestionId());
+                System.out.println("selectedAnswerIds = " + a.getSelectedAnswerIds());
+            }
+        }
         Users currentUser = getCurrentUser();
 
         ExamAttempt attempt = examAttemptRepository.findByIdAndStudentUsername(attemptId, currentUser.getUsername())
@@ -254,8 +251,9 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanBeSubmitted(attempt);
 
         Exam exam = attempt.getExam();
-        List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
+        validateExamExists(exam, attemptId);
 
+        List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
         if (questions.isEmpty()) {
             throw new BadRequestException("This exam has no questions");
         }
@@ -264,21 +262,18 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .map(Question::getId)
                 .toList();
 
-        List<Answer> allAnswers = answerRepository.findByQuestionIdIn(questionIds);
 
-        Map<Integer, Answer> answerMap = allAnswers.stream()
-                .collect(Collectors.toMap(Answer::getId, Function.identity()));
-
+        Map<Integer, List<Answer>> answersByQuestionId = getAnswersByQuestionId(questionIds);
         Map<Integer, SubmitAnswerRequest> submittedAnswerMap = normalizeSubmittedAnswers(request);
 
-        ResultSummary result = gradeAndSaveAnswers(attempt, questions, answerMap, submittedAnswerMap);
+        ResultSummary result = gradeAndSaveAnswers(attempt, questions, answersByQuestionId, submittedAnswerMap);
 
         LocalDateTime endTime = LocalDateTime.now();
         int totalQuestions = questions.size();
         int timeSpentSeconds = calculateTimeSpentSeconds(attempt.getStartTime(), endTime);
         double score = calculateScore(result.correctCount(), totalQuestions);
 
-        Double passScore = exam.getPassScore();
+        double passScore = defaultIfNull(exam.getPassScore());
         boolean passed = score >= passScore;
         String resultStatus = passed ? "PASSED" : "FAILED";
 
@@ -306,10 +301,113 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .wrongCount(result.wrongCount())
                 .blankCount(result.blankCount())
                 .timeSpentSeconds(timeSpentSeconds)
-                .reviewAllowed(exam.getReviewAllowed())
+                .reviewAllowed(isReviewAllowed(exam))
                 .endTime(endTime)
                 .message("Submit exam successfully")
                 .build();
+
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttemptResultResponse getAttemptResult(Integer attemptId) {
+        Users currentUser = getCurrentUser();
+
+        ExamAttempt attempt = examAttemptRepository.findByIdAndStudentUsername(attemptId, currentUser.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
+
+        validateAttemptCanViewResult(attempt);
+
+        Exam exam = attempt.getExam();
+        validateExamExists(exam, attemptId);
+
+        int correctCount = defaultIfNull(attempt.getCorrectCount());
+        int wrongCount = defaultIfNull(attempt.getWrongCount());
+        int blankCount = defaultIfNull(attempt.getBlankCount());
+
+        int totalQuestions = calculateTotalQuestions(exam, correctCount, wrongCount, blankCount);
+
+        double score = defaultIfNull(attempt.getScore());
+        double passScore = defaultIfNull(exam.getPassScore());
+        boolean passed = score >= passScore;
+        String resultStatus = passed ? "PASSED" : "FAILED";
+        boolean reviewAllowed = isReviewAllowed(exam);
+
+        AttemptResultResponse.AttemptResultResponseBuilder responseBuilder = AttemptResultResponse.builder()
+                .attemptId(attempt.getId())
+                .examId(exam.getId())
+                .examTitle(exam.getTitle())
+                .examType(exam.getExamType())
+                .score(score)
+                .passScore(passScore)
+                .passed(passed)
+                .resultStatus(resultStatus)
+                .totalQuestions(totalQuestions)
+                .correctCount(correctCount)
+                .wrongCount(wrongCount)
+                .blankCount(blankCount)
+                .timeSpentSeconds(defaultIfNull(attempt.getTimeSpentSeconds()))
+                .reviewAllowed(reviewAllowed)
+                .submittedAt(attempt.getEndTime());
+
+        if (reviewAllowed) {
+            responseBuilder.questions(buildReviewQuestionResponses(attempt, exam));
+        }
+
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+        Users user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Page<ExamAttempt> attempts = examAttemptRepository.findByStudentAndExamExamType(
+                user,
+                ExamType.valueOf(examType),
+                pageable
+        );
+
+        return attempts.map(attempt -> {
+            ExamAttemptResponse res = new ExamAttemptResponse();
+            res.setId(attempt.getId());
+            res.setExam(modelMapper.map(attempt.getExam(), ExamSummaryResponse.class));
+            res.setStudent(modelMapper.map(attempt.getStudent(), StudentResponse.class));
+            res.setStartTime(attempt.getStartTime());
+            res.setEndTime(attempt.getEndTime());
+            res.setScore(attempt.getScore());
+            res.setStatus(attempt.getStatus());
+            res.setBlankCount(attempt.getBlankCount());
+            res.setCorrectCount(attempt.getCorrectCount());
+            res.setWrongCount(attempt.getWrongCount());
+            res.setTimeSpentSeconds(attempt.getTimeSpentSeconds());
+            return res;
+        });
+    }
+
+    @Override
+    public List<ScoreDistribution> getScoreDistribution() {
+        List<ScoreDistribution> data = examAttemptRepository.getScoreDistribution();
+
+        Map<String, Long> map = new HashMap<>();
+        for (ScoreDistribution d : data) {
+            map.put(d.getRange(), d.getCount());
+        }
+
+        List<String> ranges = List.of("0-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10");
+        List<ScoreDistribution> result = new ArrayList<>();
+
+        for (String r : ranges) {
+            result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
+        }
+
+        return result;
     }
 
     private Users getCurrentUser() {
@@ -333,6 +431,12 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         }
     }
 
+    private void validateExamExists(Exam exam, Integer attemptId) {
+        if (exam == null) {
+            throw new ResourceNotFoundException("Exam not found for attempt id: " + attemptId);
+        }
+    }
+
     private void validateAttemptCanLoadQuestions(ExamAttempt attempt) {
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new BadRequestException("Cannot load questions because this attempt is no longer in progress");
@@ -346,6 +450,13 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new BadRequestException("This attempt is not in a submittable state");
+        }
+    }
+
+    private void validateAttemptCanViewResult(ExamAttempt attempt) {
+        if (attempt.getStatus() != AttemptStatus.SUBMITTED
+                && attempt.getStatus() != AttemptStatus.GRADED) {
+            throw new BadRequestException("Cannot view result because this attempt has not been submitted yet");
         }
     }
 
@@ -374,7 +485,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
         return AttemptQuestionResponse.builder()
                 .questionId(question.getId())
-//                .questionOrder(question.getOrderNo())
                 .questionContent(question.getContent())
                 .options(optionResponses)
                 .build();
@@ -405,40 +515,69 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     private ResultSummary gradeAndSaveAnswers(
             ExamAttempt attempt,
             List<Question> questions,
-            Map<Integer, Answer> answerMap,
+            Map<Integer, List<Answer>> answersByQuestionId,
             Map<Integer, SubmitAnswerRequest> submittedAnswerMap
     ) {
         int correctCount = 0;
         int wrongCount = 0;
         int blankCount = 0;
 
-        List<StudentAnswer> studentAnswersToSave = new ArrayList<>();
+        deleteExistingStudentAnswers(attempt.getId());
 
         for (Question question : questions) {
             SubmitAnswerRequest submitted = submittedAnswerMap.get(question.getId());
 
-            if (submitted == null || submitted.getSelectedOptionId() == null) {
+            if (submitted == null || submitted.getSelectedAnswerIds() == null || submitted.getSelectedAnswerIds().isEmpty()) {
                 blankCount++;
-                studentAnswersToSave.add(buildUserAnswer(attempt, question, null, false));
                 continue;
             }
 
-            Answer selectedAnswer = answerMap.get(submitted.getSelectedOptionId());
-            validateSelectedAnswerBelongsToQuestion(selectedAnswer, question, submitted.getSelectedOptionId());
+            List<Integer> selectedIds = submitted.getSelectedAnswerIds().stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            if (selectedIds.isEmpty()) {
+                blankCount++;
+                continue;
+            }
+
+            if (selectedIds.size() > 1) {
+                throw new BadRequestException(
+                        "Question id " + question.getId() + " currently supports only one selected answer"
+                );
+            }
+
+            List<Answer> answersOfQuestion = answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList());
+            if (answersOfQuestion.isEmpty()) {
+                throw new BadRequestException("No answers configured for question id: " + question.getId());
+            }
+
+            Integer selectedAnswerId = selectedIds.get(0);
+
+            Answer selectedAnswer = findSelectedAnswer(answersOfQuestion, selectedAnswerId);
+            validateSelectedAnswerBelongsToQuestion(selectedAnswer, question, selectedAnswerId);
 
             boolean isCorrect = Boolean.TRUE.equals(selectedAnswer.getIsCorrect());
+
+            StudentAnswer studentAnswer = buildUserAnswer(attempt, question, selectedAnswer, isCorrect);
+            userAnswerRepository.save(studentAnswer);
 
             if (isCorrect) {
                 correctCount++;
             } else {
                 wrongCount++;
             }
-
-            studentAnswersToSave.add(buildUserAnswer(attempt, question, selectedAnswer, isCorrect));
         }
 
-        userAnswerRepository.saveAll(studentAnswersToSave);
         return new ResultSummary(correctCount, wrongCount, blankCount);
+    }
+
+    private Answer findSelectedAnswer(List<Answer> answersOfQuestion, Integer selectedAnswerId) {
+        return answersOfQuestion.stream()
+                .filter(answer -> Objects.equals(answer.getId(), selectedAnswerId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Selected answer not found with id: " + selectedAnswerId));
     }
 
     private StudentAnswer buildUserAnswer(ExamAttempt attempt, Question question, Answer selectedAnswer, boolean isCorrect) {
@@ -462,128 +601,39 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         }
     }
 
-    private double calculateScore(int correctCount, int totalQuestions) {
-        if (totalQuestions <= 0) {
-            return 0.0;
-        }
-        // tính điểm
-        return (correctCount * 100.0) / totalQuestions;
-    }
-
-    private int calculateTimeSpentSeconds(LocalDateTime startTime, LocalDateTime submittedAt) {
-        if (startTime == null || submittedAt == null) {
-            return 0;
-        }
-
-        long seconds = Duration.between(startTime, submittedAt).getSeconds();
-        return (int) Math.max(seconds, 0);
-    }
-
-    private record ResultSummary(int correctCount, int wrongCount, int blankCount) {
-    }
-
-
-    @Transactional(readOnly = true)
-    @Override
-    public AttemptResultResponse getAttemptResult(Integer attemptId) {
-        Users currentUser = getCurrentUser();
-
-        ExamAttempt attempt = examAttemptRepository.findByIdAndStudentUsername(attemptId, currentUser.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
-
-        validateAttemptCanViewResult(attempt);
-
-        Exam exam = attempt.getExam();
-
-        int correctCount = defaultIfNull(attempt.getCorrectCount());
-        int wrongCount = defaultIfNull(attempt.getWrongCount());
-        int blankCount = defaultIfNull(attempt.getBlankCount());
-
-        int totalQuestions = correctCount + wrongCount + blankCount;
-
-        if (totalQuestions == 0 && exam != null) {
-            totalQuestions = questionRepository.findQuestionsByExamId(exam.getId()).size();
-        }
-
-        double score = attempt.getScore() != null ? attempt.getScore() : 0.0;
-        double passScore = exam.getPassScore() != null ? exam.getPassScore() : 0.0;
-        boolean passed = score >= passScore;
-        String resultStatus = passed ? "PASSED" : "FAILED";
-
-        return AttemptResultResponse.builder()
-                .attemptId(attempt.getId())
-                .examId(exam.getId())
-                .examTitle(exam.getTitle())
-                .examType(exam.getExamType())
-                .score(score)
-                .passScore(passScore)
-                .passed(passed)
-                .resultStatus(resultStatus)
-                .totalQuestions(totalQuestions)
-                .correctCount(correctCount)
-                .wrongCount(wrongCount)
-                .blankCount(blankCount)
-                .timeSpentSeconds(defaultIfNull(attempt.getTimeSpentSeconds()))
-                .reviewAllowed(isReviewAllowed(exam))
-                .submittedAt(attempt.getEndTime())
-                .build();
-    }
-
-    private void validateAttemptCanViewResult(ExamAttempt attempt) {
-        if (attempt.getStatus() != AttemptStatus.SUBMITTED
-                && attempt.getStatus() != AttemptStatus.GRADED) {
-            throw new BadRequestException("Cannot view result because this attempt has not been submitted yet");
+    private void deleteExistingStudentAnswers(Integer attemptId) {
+        List<StudentAnswer> existingAnswers = userAnswerRepository.findByAttemptId(attemptId);
+        if (!existingAnswers.isEmpty()) {
+            userAnswerRepository.deleteAll(existingAnswers);
         }
     }
 
-    private void validateAttemptOwner(ExamAttempt attempt, Users currentUser) {
-        if (!Objects.equals(attempt.getStudent().getId(), currentUser.getId())) {
-            throw new ForbiddenException("Access denied");
-        }
-    }
+    private int calculateTotalQuestions(Exam exam,
+                                        int correctCount,
+                                        int wrongCount,
+                                        int blankCount) {
 
-    private int defaultIfNull(Integer value) {
-        return value == null ? 0 : value;
-    }
+        int total = correctCount + wrongCount + blankCount;
 
-
-    private static final Set<ExamType> REVIEW_ALLOWED_TYPES =
-            Set.of(ExamType.MOCK, ExamType.PRACTICE);
-
-    private boolean isReviewAllowed(Exam exam) {
-        return exam != null
-                && exam.getExamType() != null
-                && REVIEW_ALLOWED_TYPES.contains(exam.getExamType());
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public AttemptReviewDetailResponse getAttemptReviewDetail(Integer attemptId) {
-        Users currentUser = getCurrentUser();
-
-        ExamAttempt attempt = examAttemptRepository.findById(attemptId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
-
-        validateAttemptOwner(attempt, currentUser);
-        validateAttemptCanViewResult(attempt);
-
-        Exam exam = attempt.getExam();
-        if (exam == null) {
-            throw new ResourceNotFoundException("Exam not found for attempt id: " + attemptId);
+        if (total > 0) {
+            return total;
         }
 
-        validateReviewAllowed(exam);
+        return questionRepository.findQuestionsByExamId(exam.getId()).size();
+    }
 
+    private List<ReviewQuestionResponse> buildReviewQuestionResponses(ExamAttempt attempt, Exam exam) {
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
+
+        if (questions.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<Integer> questionIds = questions.stream()
                 .map(Question::getId)
                 .toList();
 
-        List<Answer> allAnswers = questionIds.isEmpty()
-                ? Collections.emptyList()
-                : answerRepository.findByQuestionIdIn(questionIds);
+        List<Answer> allAnswers = answerRepository.findByQuestionIdIn(questionIds);
 
         Map<Integer, List<Answer>> answersByQuestionId = allAnswers.stream()
                 .collect(Collectors.groupingBy(answer -> answer.getQuestion().getId()));
@@ -596,7 +646,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                         (existing, replacement) -> existing
                 ));
 
-        List<StudentAnswer> studentAnswers = userAnswerRepository.findByAttemptId(attemptId);
+        List<StudentAnswer> studentAnswers = userAnswerRepository.findByAttemptId(attempt.getId());
 
         Map<Integer, StudentAnswer> studentAnswerByQuestionId = studentAnswers.stream()
                 .collect(Collectors.toMap(
@@ -605,7 +655,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                         (existing, replacement) -> existing
                 ));
 
-        List<ReviewQuestionResponse> questionResponses = questions.stream()
+        return questions.stream()
                 .map(question -> mapToReviewQuestionResponse(
                         question,
                         answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList()),
@@ -613,16 +663,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                         studentAnswerByQuestionId.get(question.getId())
                 ))
                 .toList();
-
-        return AttemptReviewDetailResponse.builder()
-                .attemptId(attempt.getId())
-                .examId(exam.getId())
-                .examTitle(exam.getTitle())
-                .examType(exam.getExamType())
-                .reviewAllowed(true)
-                .submittedAt(attempt.getEndTime())
-                .questions(questionResponses)
-                .build();
     }
 
     private ReviewQuestionResponse mapToReviewQuestionResponse(
@@ -653,7 +693,6 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
         return ReviewQuestionResponse.builder()
                 .questionId(question.getId())
-//                .questionOrder(question.getOrderNo())
                 .questionContent(question.getContent())
                 .selectedOptionId(selectedOptionId)
                 .correctOptionId(correctOptionId)
@@ -663,81 +702,36 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 .build();
     }
 
-
-    private void validateReviewAllowed(Exam exam) {
-        if (!isReviewAllowed(exam)) {
-            throw new BadRequestException("Review detail is not allowed for this exam");
+    private double calculateScore(int correctCount, int totalQuestions) {
+        if (totalQuestions <= 0) {
+            return 0.0;
         }
+        return (correctCount * 100.0) / totalQuestions;
     }
 
-
-    //Lay danh sach ket qua de thi
-    @Override
-    public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType) {
-        if (examType == null || examType.isBlank()) {
-            throw new ApplicationException("exam type not null or not blank");
+    private int calculateTimeSpentSeconds(LocalDateTime startTime, LocalDateTime submittedAt) {
+        if (startTime == null || submittedAt == null) {
+            return 0;
         }
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ApplicationException("Unauthorized");
-        }
-
-        String username = authentication.getName();
-        Users user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Page<ExamAttempt> attempts;
-
-        attempts = examAttemptRepository.findByStudentAndExamExamType(user, ExamType.valueOf(examType), pageable);
-
-        return attempts.map(attempt -> {
-            ExamAttemptResponse res = new ExamAttemptResponse();
-            res.setId(attempt.getId());
-            res.setExam(modelMapper.map(attempt.getExam(), ExamSummaryResponse.class));
-            res.setStudent(modelMapper.map(attempt.getStudent(), StudentResponse.class));
-            res.setStartTime(attempt.getStartTime());
-            res.setEndTime(attempt.getEndTime());
-            res.setScore(attempt.getScore());
-            res.setStatus(attempt.getStatus());
-            res.setBlankCount(attempt.getBlankCount());
-            res.setCorrectCount(attempt.getCorrectCount());
-            res.setWrongCount(attempt.getWrongCount());
-            res.setTimeSpentSeconds(attempt.getTimeSpentSeconds());
-            return res;
-        });
+        long seconds = Duration.between(startTime, submittedAt).getSeconds();
+        return (int) Math.max(seconds, 0);
     }
 
-    // hải
-    @Override
-    public List<ScoreDistribution> getScoreDistribution() {
-//        return examAttemptRepository.getScoreDistribution();
-        // fix nếu số điểm k nằm trong cột nào
-        List<ScoreDistribution> data = examAttemptRepository.getScoreDistribution();
+    private int defaultIfNull(Integer value) {
+        return value == null ? 0 : value;
+    }
 
-        Map<String, Long> map = new HashMap<>();
-        for (ScoreDistribution d : data) {
-            map.put(d.getRange(), d.getCount());
-        }
-        List<String> ranges = List.of(
-                "0-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10"
-        );
-        List<ScoreDistribution> result = new ArrayList<>();
-        for (String r : ranges) {
-            result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
-        }
-        return result;
+    private double defaultIfNull(Double value) {
+        return value == null ? 0.0 : value;
+    }
+
+    private boolean isReviewAllowed(Exam exam) {
+        return exam != null
+                && exam.getExamType() != null
+                && REVIEW_ALLOWED_TYPES.contains(exam.getExamType());
+    }
+
+    private record ResultSummary(int correctCount, int wrongCount, int blankCount) {
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

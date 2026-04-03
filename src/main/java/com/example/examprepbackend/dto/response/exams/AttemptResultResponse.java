@@ -4,6 +4,7 @@ import com.example.examprepbackend.constant.ExamType;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -16,15 +17,20 @@ public class AttemptResultResponse {
     private Integer examId;
     private String examTitle;
     private ExamType examType;
+
     private Double score;
     private Double passScore;
     private Boolean passed;
     private String resultStatus;
+
     private Integer totalQuestions;
     private Integer correctCount;
     private Integer wrongCount;
     private Integer blankCount;
     private Integer timeSpentSeconds;
+
     private Boolean reviewAllowed;
     private LocalDateTime submittedAt;
+
+    private List<ReviewQuestionResponse> questions;
 }

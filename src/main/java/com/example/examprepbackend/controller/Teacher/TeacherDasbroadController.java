@@ -19,8 +19,8 @@ import java.util.List;
 public class TeacherDasbroadController {
     private final ExamAttemptService  examAttemptService;
 
-    @GetMapping("/score-distribution")
-    public ResponseEntity<BaseResponse<List<ScoreDistribution>>> getScoreDistribution() {
-        return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getScoreDistribution(),"Gen All Score successfull "));
-    }
+//    @GetMapping("/score-distribution")
+//    public ResponseEntity<BaseResponse<List<ScoreDistribution>>> getScoreDistribution() {
+//        return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getScoreDistribution(),"Gen All Score successfull "));
+//    }
 }
