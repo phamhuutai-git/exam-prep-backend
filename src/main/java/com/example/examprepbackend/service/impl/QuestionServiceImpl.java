@@ -7,8 +7,8 @@ import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateAnswerRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
-import com.example.examprepbackend.dto.response.exams.CheckAnswerResponse;
 import com.example.examprepbackend.dto.response.answer.AnswerPublicResponse;
+import com.example.examprepbackend.dto.response.exams.CheckAnswerResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
 import com.example.examprepbackend.dto.response.exams.CheckAnswerResponse;
 import com.example.examprepbackend.dto.response.teacher.AnswerResponse;
@@ -27,9 +27,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.apache.poi.ss.usermodel.*;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +43,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,6 +92,28 @@ public class QuestionServiceImpl implements QuestionService {
         questionResponse.setCreator(question.getCreator().getUsername());
 
         return questionResponse;
+    }
+
+    private QuestionPublicResponse convertToPublicDto(Question question) {
+
+        QuestionPublicResponse questionPublicResponse = new QuestionPublicResponse();
+
+        BeanUtils.copyProperties(question, questionPublicResponse);
+
+        //Lay danh sach answer
+        if (question.getAnswers() != null) {
+            List<AnswerPublicResponse> answerPublicResponses = question.getAnswers().stream().map(answer -> {
+                AnswerPublicResponse answerPublicResponse = new AnswerPublicResponse();
+                answerPublicResponse.setId(answer.getId());
+                answerPublicResponse.setContent(answer.getContent());
+                answerPublicResponse.setLabel(answer.getLabel());
+                return answerPublicResponse;
+            }).toList();
+
+            questionPublicResponse.setAnswers(answerPublicResponses);
+        }
+
+        return questionPublicResponse;
     }
 
 
@@ -187,6 +208,20 @@ public class QuestionServiceImpl implements QuestionService {
         List<Integer> questionIds = examQuestionRepository.findQuestionsByExamId(examId);
 
         return questionRepository.findByIdIn(questionIds).stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public List<QuestionPublicResponse> getQuestionsPublicByExamId(Integer examId) {
+
+        //Kiem tra exam
+        Optional<Exam> examOptional = examRepository.findById(examId);
+        if (examOptional.isEmpty()) {
+            throw new ApplicationException("Exam not found");
+        }
+
+        List<Integer> questionIds = examQuestionRepository.findQuestionsByExamId(examId);
+
+        return questionRepository.findByIdIn(questionIds).stream().map(this::convertToPublicDto).toList();
     }
 
     @Transactional
@@ -513,8 +548,6 @@ public class QuestionServiceImpl implements QuestionService {
                 .findQuestionsByExamIdsAndCreatorRole(examIds, Role.TEACHER, pageable);
 
         return questionsPage.map(this::convertToDto);
-
-
     }
 
     @Override
@@ -524,7 +557,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new ApplicationException("Question not found: " + request.getQuestionId()));
 
         //lấy danh sách đáp án của câu hỏi
-        List<Answer> answers = answerRepository.findByQuestion_Id(request.getQuestionId());
+        List<Answer> answers = answerRepository.findByQuestionIdIn(Collections.singletonList(request.getQuestionId()));
         if (answers.isEmpty()) {
             throw new ApplicationException("No answer found for question: " + request.getQuestionId());
         }
