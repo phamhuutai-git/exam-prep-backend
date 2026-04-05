@@ -12,6 +12,7 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionOptionR
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionResponse;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
+import com.example.examprepbackend.dto.response.teacher.DashboardStats;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
@@ -725,6 +726,26 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
         }
         return result;
+    }
+
+    @Override
+    public DashboardStats getStats() {
+        String username = SecurityUtils.getCurrentUsername();
+
+        Users user = usersRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        long totalExams = examRepository.countByCreator_Username(username);
+        long totalQuestions = questionRepository.countByCreator_Username(username);
+        long totalStudents = usersRepository.countStudentsByTeacher(user.getId());
+
+        return new DashboardStats(
+                totalExams,
+                totalQuestions,
+                totalStudents
+        );
     }
 }
 

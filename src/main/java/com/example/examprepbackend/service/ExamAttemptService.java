@@ -5,6 +5,7 @@ import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
+import com.example.examprepbackend.dto.response.teacher.DashboardStats;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,8 @@ public interface ExamAttemptService {
 
     Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType);
 
-
+    //dboard teacher
     List<ScoreDistribution> getScoreDistribution();
+
+    DashboardStats getStats();
 }

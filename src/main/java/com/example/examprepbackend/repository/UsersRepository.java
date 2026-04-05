@@ -58,4 +58,14 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     void updateClassIdByIdIn(@Param("classId") Integer classId, @Param("studentIdList") List<Integer> studentIdList);
 
     //user
+    //user : đếm số học sinh của teacher
+    @Query("""
+    SELECT COUNT(DISTINCT u)
+    FROM Users u
+    JOIN ClassTeacher ct ON u.classes.id = ct.classes.id
+    WHERE ct.teacher.id = :teacherId
+    AND u.role = 'STUDENT'
+""")
+    long countStudentsByTeacher(Integer teacherId);
+
 }

@@ -1,6 +1,7 @@
 package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.dto.response.teacher.DashboardStats;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
 import com.example.examprepbackend.service.ExamAttemptService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,10 @@ public class TeacherDasbroadController {
     @GetMapping("/score-distribution")
     public ResponseEntity<BaseResponse<List<ScoreDistribution>>> getScoreDistribution() {
         return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getScoreDistribution(),"Gen All Score successfull "));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<BaseResponse<DashboardStats>> getStats() {
+        return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getStats(),"Gen All Stats successfull "));
     }
 }

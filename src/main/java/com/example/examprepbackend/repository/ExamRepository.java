@@ -21,5 +21,6 @@ public interface ExamRepository extends JpaRepository<Exam, Integer>, JpaSpecifi
 
     Page<Exam> findPageByExamTypeAndIdIn(ExamType examType, List<Integer> idList, Pageable pageable);
 
-
+    //stats
+    long countByCreator_Username(String username);
 }
