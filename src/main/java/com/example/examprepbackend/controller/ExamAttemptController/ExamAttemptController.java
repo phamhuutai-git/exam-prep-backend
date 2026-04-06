@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -83,6 +85,7 @@ public class ExamAttemptController {
     //Lay danh sach ket qua thi
     @GetMapping("/attempts/exam-type")
     public ResponseEntity<BaseResponse<Page<ExamAttemptResponse>>> getAttemptsByExamType(Authentication authentication,
+                                                                                         @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC)
                                                                                          Pageable pageable,
                                                                                          @RequestParam String examType) {
         Page<ExamAttemptResponse> data = examAttemptService.getAttemptsByExamType(authentication, pageable, examType);
