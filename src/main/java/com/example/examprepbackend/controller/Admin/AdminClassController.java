@@ -69,4 +69,10 @@ public class AdminClassController {
     public ResponseEntity<BaseResponse<Boolean>> deleteById(@PathVariable Integer id) {
         return ResponseEntity.ok().body(new BaseResponse<>(classService.deleteById(id), "Class deleted"));
     }
+    @GetMapping("/count")
+    public Long countClasses() {
+
+        return classService.countClass();
+    }
+
 }

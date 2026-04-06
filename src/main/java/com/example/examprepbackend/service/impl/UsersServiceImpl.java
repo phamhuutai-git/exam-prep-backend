@@ -260,6 +260,15 @@ public class UsersServiceImpl implements UsersService {
 
         return modelMapper.map(user, UserSummaryResponse.class);
     }
+    @Override
+    public long countTeachers() {
+        return usersRepository.countByRole(Role.TEACHER);
+    }
+
+    @Override
+    public long countStudents() {
+        return usersRepository.countByRole(Role.STUDENT);
+    }
 
 
 }

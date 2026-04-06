@@ -27,4 +27,6 @@ public interface ClassService {
     Boolean addExamsToClass(Integer id, List<Integer> examIds);
 
     Boolean deleteById(Integer id);
+    long countClass ();
+
 }

@@ -25,6 +25,7 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     boolean existsByEmail(String email);
     boolean existsByUsernameIgnoreCase(String username);
     boolean existsByEmailIgnoreCase(String email);
+    long countByRole(Role role);
 
     // ===== UPDATE  =====
     boolean existsByEmailAndIdNot(String email, Integer id);
