@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/exam_management_system
     username: root
-    password: 2997
+    password: Quang204
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 #  jpa:
@@ -44,3 +44,8 @@ jwt:
 #    org.springframework.security: DEBUG
 #    org.hibernate.SQL: DEBUG
 
+# Cấu hình AI Gemini
+gemini:
+  api:
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+    key: "AIzaSyCDwKvqAljzI9_neNKAhYgaQP4SshCNCek"
