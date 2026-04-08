@@ -129,7 +129,7 @@ CREATE TABLE exam_attempt
     student_id         INT                              NOT NULL,
     start_time         DATETIME,
     end_time           DATETIME,
-    score              DECIMAL(4, 2),
+    score              DECIMAL(5, 2),
     correct_count      INT                              NOT NULL DEFAULT 0,
     wrong_count        INT                              NOT NULL DEFAULT 0,
     blank_count        INT                              NOT NULL DEFAULT 0,
@@ -185,12 +185,20 @@ VALUES ('Railway01', now()),
 
 INSERT INTO users
 (email, username, password, first_name, last_name, role, is_active, status, class_id, create_date)
-VALUES ('admin1@mail.com', 'admin1', 'admin123', 'Hai', 'Dong', 'ADMIN', true, 'ACTIVED', NULL, now()),
-       ('admin2@mail.com', 'admin2', 'admin123', 'Tai', 'Pham', 'ADMIN', true, 'ACTIVED', NULL, now()),
-       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, now()),
-       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, now()),
-       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, now()),
-       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, now());
+VALUES ('admin1@mail.com', 'admin1', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Hai', 'Dong',
+        'ADMIN', true, 'ACTIVED', NULL, now()),
+       ('admin2@mail.com', 'admin2', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Tai', 'Pham',
+        'ADMIN', true, 'ACTIVED', NULL, now()),
+       ('teacher1@mail.com', 'teacher1', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Binh', 'Tran',
+        'TEACHER', true, 'ACTIVED', NULL, now()),
+       ('teacher2@mail.com', 'teacher2', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Cuong', 'Le',
+        'TEACHER', true, 'ACTIVED', NULL, now()),
+       ('student1@mail.com', 'student1', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Dung', 'Pham',
+        'STUDENT', true, 'ACTIVED', 1, now()),
+       ('student2@mail.com', 'student2', '$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne', 'Huy', 'Hoang',
+        'STUDENT', true, 'ACTIVED', 2, now());
+
+##password: 1234
 
 INSERT INTO class_teacher (class_id, teacher_id)
 VALUES (1, 3),
@@ -206,6 +214,7 @@ VALUES ('Java'),
        ('HTML'),
        ('JavaScript'),
        ('CSS');
+
 INSERT INTO question
 (content, difficulty_level, category_id, creator_id, create_date, explanation)
 VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01',
@@ -262,14 +271,15 @@ VALUES
 ('Markup Language', 6, true),
 ('Database System', 6, false),
 ('Operating System', 6, false);
-INSERT INTO exam
-    (code, title, duration, category_id, creator_id, create_date)
+
+INSERT INTO exam (code, title, duration, category_id, creator_id, create_date)
 VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 3, NOW()),
        ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
        ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
        ('EX004', 'HTML Test', '00:20:00', 4, 3, NOW()),
        ('EX005', 'JS Test', '00:25:00', 5, 2, NOW()),
        ('EX006', 'JS 1', '00:25:00', 5, 2, NOW());
+
 INSERT INTO exam_question (exam_id, question_id)
 VALUES (1, 1),
        (1, 2),
@@ -287,14 +297,13 @@ VALUES (1, 6),
        (5, 6),
        (6, 5);
 
-INSERT INTO exam_attempt
-    (exam_id, student_id, start_time, end_time, score, status)
-VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
-       (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
-       (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
-       (4, 6, '2024-04-02 10:00:00', '2024-04-02 10:20:00', 9, 'SUBMITTED'),
-       (5, 5, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 10, 'SUBMITTED'),
-       (6, 6, '2024-04-03 10:00:00', '2024-04-03 10:25:00', 8, 'SUBMITTED');
+INSERT INTO exam_attempt (exam_id, student_id, start_time, end_time, score, status)
+VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 80, 'SUBMITTED'),
+       (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 75, 'SUBMITTED'),
+       (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 65, 'SUBMITTED'),
+       (4, 6, '2024-04-02 10:00:00', '2024-04-02 10:20:00', 90, 'SUBMITTED'),
+       (5, 5, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 100, 'SUBMITTED'),
+       (6, 6, '2024-04-03 10:00:00', '2024-04-03 10:25:00', 45, 'SUBMITTED');
 
 
 INSERT INTO student_answer (attempt_id, question_id, selected_answer_id, is_correct)
@@ -313,25 +322,5 @@ VALUES (1, 1),
        (5, 5),
        (5, 6);
 
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 1; -- ADMIN:1234
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 2; -- ADMIN:1234
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 3; -- TEACHER:1234
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 4; -- TEACHER:1234
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 5; -- STUDENT:1234
-update users
-set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'
-where id = 6; -- STUDENT:1234
-update users
-set email ='ngoquangtruongjk05@gmail.com'
-where id = 1;
+
 
