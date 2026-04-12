@@ -44,12 +44,7 @@ public class Users {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
-
     private Classes classes;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
-    private Department department;
 
     @Column(name = "create_date")
     private LocalDateTime createdDate;
@@ -59,4 +54,5 @@ public class Users {
 // hiển thị thời gian bị khóa
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
 }

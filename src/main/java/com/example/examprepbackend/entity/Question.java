@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +31,18 @@ public class Question {
     @JoinColumn(name = "creator_id")
     private Users creator;
 
+//    @ManyToOne
+//    @JoinColumn(name = "exam_id")
+//    private Exam exam;
+
+//    @Column(name = "order_no")
+//    private Integer orderNo;
+
     @Column(name = "create_date")
     private LocalDateTime createDate;
+
+    private String explanation;
+// thêm để xuất exccel
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    private List<Answer> answers;
 }

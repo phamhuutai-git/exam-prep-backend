@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync// tăng tốc độ gửi mail
 public class ExamPrepBackendApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ExamPrepBackendApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ExamPrepBackendApplication.class, args);
+    }
 
 }

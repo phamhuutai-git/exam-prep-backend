@@ -6,12 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "classes")
-@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Classes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

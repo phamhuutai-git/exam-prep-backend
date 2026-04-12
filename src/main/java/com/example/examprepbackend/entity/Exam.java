@@ -1,11 +1,13 @@
 package com.example.examprepbackend.entity;
 
+import com.example.examprepbackend.constant.ExamType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,4 +34,18 @@ public class Exam {
 
     @Column(name = "create_date")
     private LocalDateTime createDate;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exam_type", nullable = false)
+    private ExamType examType;
+
+    @Column(name = "review_allowed", nullable = false)
+    private Boolean reviewAllowed;
+
+    @Column(name = "pass_score", nullable = false)
+    private Double passScore;
+
 }
