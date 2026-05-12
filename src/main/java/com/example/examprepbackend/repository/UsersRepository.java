@@ -39,6 +39,10 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
 
 
     Optional<Users> findByUsernameOrEmail(String username, String email);
+
+    // Thêm hàm đếm tổng số user theo Role (Dùng cho API thống kê Dashboard)
+    long countByRole(Role role);
+
     Long countByRoleAndClasses_Id(Role role, Integer classes_id);
 
     List<Users> findByRole(Role role);

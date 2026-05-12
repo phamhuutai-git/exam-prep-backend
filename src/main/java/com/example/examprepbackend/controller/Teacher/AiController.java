@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/ai")
+@RequestMapping("/api/ai")
 @RequiredArgsConstructor
 @CrossOrigin("*") // Rất quan trọng: Mở CORS để ReactJS gọi sang không bị chặn
 public class AiController {

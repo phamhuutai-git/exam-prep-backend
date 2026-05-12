@@ -3,6 +3,8 @@ package com.example.examprepbackend.service.impl;
 import com.example.examprepbackend.config.SecurityUtils;
 import com.example.examprepbackend.constant.AttemptStatus;
 import com.example.examprepbackend.constant.ExamType;
+// Thêm dòng import Role (Hãy kiểm tra lại đường dẫn import Role của bạn nếu nó báo đỏ nhé)
+import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.dto.request.exams.CheckAnswerRequest;
 import com.example.examprepbackend.dto.request.exams.ExamTypeRequest;
 import com.example.examprepbackend.dto.request.exams.SubmitAnswerRequest;
@@ -13,6 +15,7 @@ import com.example.examprepbackend.dto.response.questions.AttemptQuestionRespons
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionPublicResponse;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
+import com.example.examprepbackend.dto.response.teacher.TeacherStatsResponse;
 import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.*;
@@ -725,5 +728,14 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             result.add(new ScoreDistribution(r, map.getOrDefault(r, 0L)));
         }
         return result;
+    }
+
+    @Override
+    public TeacherStatsResponse getTeacherStats() {
+        long totalExams = examRepository.count();
+        long totalQuestions = questionRepository.count();
+        long totalStudents = usersRepository.countByRole(Role.STUDENT);
+
+        return new TeacherStatsResponse(totalExams, totalQuestions, totalStudents);
     }
 }

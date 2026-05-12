@@ -1,6 +1,7 @@
 package com.example.examprepbackend.exception;
 
 import com.example.examprepbackend.common.BaseResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -14,11 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j // Thêm cái này để dùng log.error cho chuyên nghiệp
 @RestControllerAdvice
 public class GlobalException {
+
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<BaseResponse> handleApplicationException(ApplicationException ex) {
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new BaseResponse<>(null, ex.getMessage()));
@@ -27,12 +29,10 @@ public class GlobalException {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponse<Object>> handlerMethodArgumentNotValidException(MethodArgumentNotValidException notValidException) {
         List<String> fullErrorMessages = new ArrayList<>();
-
         List<FieldError> fieldErrorList = notValidException.getBindingResult().getFieldErrors();
         for (FieldError fieldError : fieldErrorList) {
             fullErrorMessages.add(fieldError.getDefaultMessage());
         }
-
         return ResponseEntity.badRequest().body(new BaseResponse<>(null, "Not valid: " + fullErrorMessages));
     }
 
@@ -52,9 +52,6 @@ public class GlobalException {
                 "status", 409,
                 "message", ex.getMessage()
         ));
-
-
-
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -62,7 +59,6 @@ public class GlobalException {
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
         response.put("message", ex.getMessage());
-
         return ResponseEntity.badRequest().body(response);
     }
 
@@ -71,20 +67,24 @@ public class GlobalException {
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
         response.put("message", ex.getMessage());
-
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // --- ĐÂY LÀ ĐOẠN QUAN TRỌNG NHẤT ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        // 1. In toàn bộ "dấu vết" lỗi ra IntelliJ để bạn debug
+        ex.printStackTrace();
+
+        // 2. Log lỗi bằng SLF4J (nếu cần xem trong log file)
+        log.error("Hệ thống gặp lỗi nghiêm trọng: ", ex);
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
-        response.put("message", "Đã xảy ra lỗi hệ thống");
+
+        // 3. Tạm thời trả về tin nhắn lỗi thật để bạn xem trên trình duyệt cho nhanh
+        response.put("message", "Lỗi hệ thống: " + ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
-
-
-
 }

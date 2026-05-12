@@ -1,9 +1,6 @@
-DROP
-    DATABASE IF EXISTS exam_management_system;
-CREATE
-    DATABASE exam_management_system;
-USE
-    exam_management_system;
+DROP DATABASE IF EXISTS exam_management_system;
+CREATE DATABASE exam_management_system;
+USE exam_management_system;
 
 -- ================= CLASSES =================
 CREATE TABLE classes
@@ -29,7 +26,7 @@ CREATE TABLE users
     create_date DATETIME,
     fail_count  INT                                         DEFAULT 0,
     lock_time   DATETIME,
-    FOREIGN KEY (class_id) REFERENCES classes (id)
+    FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE SET NULL
 );
 
 -- ================= CLASS TEACHER =================
@@ -40,8 +37,8 @@ CREATE TABLE class_teacher
 
     PRIMARY KEY (class_id, teacher_id),
 
-    FOREIGN KEY (class_id) REFERENCES classes (id),
-    FOREIGN KEY (teacher_id) REFERENCES users (id)
+    FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= CATEGORY QUESTION =================
@@ -62,8 +59,8 @@ CREATE TABLE question
     create_date      DATETIME,
     explanation      TEXT,
 
-    FOREIGN KEY (category_id) REFERENCES category_question (id),
-    FOREIGN KEY (creator_id) REFERENCES users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id) ON DELETE CASCADE,
+    FOREIGN KEY (creator_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= ANSWER =================
@@ -93,8 +90,8 @@ CREATE TABLE exam
     pass_score     DOUBLE                                NOT NULL DEFAULT 50.0,
     review_allowed TINYINT(1)                            NOT NULL DEFAULT 1,
 
-    FOREIGN KEY (category_id) REFERENCES category_question (id),
-    FOREIGN KEY (creator_id) REFERENCES users (id)
+    FOREIGN KEY (category_id) REFERENCES category_question (id) ON DELETE CASCADE,
+    FOREIGN KEY (creator_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ================= EXAM QUESTION =================
@@ -129,7 +126,7 @@ CREATE TABLE exam_attempt
     student_id         INT                              NOT NULL,
     start_time         DATETIME,
     end_time           DATETIME,
-    score              DECIMAL(4, 2),
+    score              DECIMAL(5, 2),
     correct_count      INT                              NOT NULL DEFAULT 0,
     wrong_count        INT                              NOT NULL DEFAULT 0,
     blank_count        INT                              NOT NULL DEFAULT 0,
@@ -153,6 +150,8 @@ CREATE TABLE student_answer
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
     FOREIGN KEY (selected_answer_id) REFERENCES answer (id) ON DELETE CASCADE
 );
+
+-- ================= CLASS EXAM =================
 CREATE TABLE class_exam
 (
     id            INT PRIMARY KEY AUTO_INCREMENT,
@@ -160,11 +159,11 @@ CREATE TABLE class_exam
     exam_id       INT NOT NULL,
     attempt_count INT,
 
-    -- tranh trung class voi xam
     CONSTRAINT unique_class_exam UNIQUE (class_id, exam_id),
     FOREIGN KEY (class_id) REFERENCES classes (id) ON DELETE CASCADE,
     FOREIGN KEY (exam_id) REFERENCES exam (id) ON DELETE CASCADE
 );
+
 -- ================= OTP TABLE =================
 CREATE TABLE otps
 (
@@ -174,121 +173,89 @@ CREATE TABLE otps
     type       VARCHAR(50),
     expire_at  DATETIME,
     created_at DATETIME,
-    FOREIGN KEY (email) REFERENCES users (email)
+    FOREIGN KEY (email) REFERENCES users (email) ON DELETE CASCADE
 );
-INSERT INTO classes (name, create_date)
-VALUES ('Railway01', now()),
-       ('Railway02', now()),
-       ('Railway03', now()),
-       ('Rocket01', now()),
-       ('Rocket02', now());
 
-INSERT INTO users
-(email, username, password, first_name, last_name, role, is_active, status, class_id, create_date)
-VALUES ('admin1@mail.com', 'admin1', 'admin123', 'Hai', 'Dong', 'ADMIN', true, 'ACTIVED', NULL, now()),
-       ('admin2@mail.com', 'admin2', 'admin123', 'Tai', 'Pham', 'ADMIN', true, 'ACTIVED', NULL, now()),
-       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', true, 'ACTIVED', NULL, now()),
-       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', true, 'ACTIVED', NULL, now()),
-       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', true, 'ACTIVED', 1, now()),
-       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', true, 'ACTIVED', 2, now());
+-- ================= DATA INSERTION =================
+
+INSERT INTO classes (name, create_date)
+VALUES ('Railway01', NOW()),
+       ('Railway02', NOW()),
+       ('Railway03', NOW()),
+       ('Rocket01', NOW()),
+       ('Rocket02', NOW());
+
+INSERT INTO users (email, username, password, first_name, last_name, role, is_active, status, class_id, create_date)
+VALUES ('admin1@mail.com', 'admin1', 'admin123', 'Hai', 'Dong', 'ADMIN', TRUE, 'ACTIVED', NULL, NOW()),
+       ('admin2@mail.com', 'admin2', 'admin123', 'Tai', 'Pham', 'ADMIN', TRUE, 'ACTIVED', NULL, NOW()),
+       ('teacher1@mail.com', 'teacher1', '12345', 'Binh', 'Tran', 'TEACHER', TRUE, 'ACTIVED', NULL, NOW()),
+       ('teacher2@mail.com', 'teacher2', '12345', 'Cuong', 'Le', 'TEACHER', TRUE, 'ACTIVED', NULL, NOW()),
+       ('student1@mail.com', 'student1', '1234', 'Dung', 'Pham', 'STUDENT', TRUE, 'ACTIVED', 1, NOW()),
+       ('student2@mail.com', 'student2', '1234', 'Huy', 'Hoang', 'STUDENT', TRUE, 'ACTIVED', 2, NOW());
 
 INSERT INTO class_teacher (class_id, teacher_id)
-VALUES (1, 3),
-       (1, 4),
-       (2, 3),
-       (3, 4),
-       (4, 3),
-       (5, 4);
+VALUES (1, 3), (1, 4), (2, 3), (3, 4), (4, 3), (5, 4);
+
 INSERT INTO category_question (name)
-VALUES ('Java'),
-       ('Spring'),
-       ('SQL'),
-       ('HTML'),
-       ('JavaScript'),
-       ('CSS');
-INSERT INTO question
-(content, difficulty_level, category_id, creator_id, create_date, explanation)
-VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01',
-        'Java is a high-level programming language used to build applications'),
+VALUES ('Java'), ('Spring'), ('SQL'), ('HTML'), ('JavaScript'), ('CSS');
 
-       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02',
-        'OOP has four main principles: Encapsulation, Inheritance, Polymorphism, and Abstraction'),
-
-       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03',
-        'Spring Boot is a framework that simplifies the development of Spring applications'),
-
-       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04',
-        'A primary key uniquely identifies each record in a database table'),
-
-       ('What is HTML?', 'EASY', 4, 3, '2024-02-05',
-        'HTML is a markup language used to structure web pages'),
-
-       ('What is CSS ?', 'EASY', 6, 1, '2024-02-05',
-        'CSS is a stylesheet language used for designing web pages');
+INSERT INTO question (content, difficulty_level, category_id, creator_id, create_date, explanation)
+VALUES ('What is Java?', 'EASY', 1, 2, '2024-02-01', 'Java is a high-level programming language used to build applications'),
+       ('Explain OOP principles', 'MEDIUM', 1, 2, '2024-02-02', 'OOP has four main principles: Encapsulation, Inheritance, Polymorphism, and Abstraction'),
+       ('What is Spring Boot?', 'EASY', 2, 3, '2024-02-03', 'Spring Boot is a framework that simplifies the development of Spring applications'),
+       ('What is Primary Key?', 'EASY', 3, 2, '2024-02-04', 'A primary key uniquely identifies each record in a database table'),
+       ('What is HTML?', 'EASY', 4, 3, '2024-02-05', 'HTML is a markup language used to structure web pages'),
+       ('What is CSS ?', 'EASY', 6, 1, '2024-02-05', 'CSS is a stylesheet language used for designing web pages');
 
 INSERT INTO answer (content, question_id, is_correct)
 VALUES
--- Question 1
-('Programming Language', 1, true),
-('Database', 1, false),
-('Operating System', 1, false),
-('Web Browser', 1, false),
+-- Question 1 (IDs 1-4)
+('Programming Language', 1, TRUE),
+('Database', 1, FALSE),
+('Operating System', 1, FALSE),
+('Web Browser', 1, FALSE),
+-- Question 2 (IDs 5-8)
+('Encapsulation', 2, TRUE),
+('Inheritance', 2, FALSE),
+('Compilation', 2, FALSE),
+('Indexing', 2, FALSE),
+-- Question 3 (IDs 9-12)
+('Java Framework', 3, FALSE),
+('Spring Boot Framework', 3, TRUE),
+('Database Tool', 3, FALSE),
+('Programming Language', 3, FALSE),
+-- Question 4 (IDs 13-16)
+('Primary key is unique identifier', 4, TRUE),
+('Primary key allows duplicate', 4, FALSE),
+('Primary key can be null', 4, FALSE),
+('Primary key is optional', 4, FALSE),
+-- Question 5 (IDs 17-20)
+('Programming Language', 5, FALSE),
+('Markup Language', 5, TRUE),
+('Database System', 5, FALSE),
+('Operating System', 5, FALSE),
+-- Question 6 (IDs 21-24)
+('Programming Language', 6, FALSE),
+('Markup Language', 6, TRUE),
+('Database System', 6, FALSE),
+('Operating System', 6, FALSE);
 
--- Question 2
-('Encapsulation', 2, true),
-('Inheritance', 2, false),
-('Compilation', 2, false),
-('Indexing', 2, false),
+-- FIX 1: Thêm trường exam_type
+INSERT INTO exam (code, title, duration, category_id, creator_id, create_date, exam_type)
+VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 3, NOW(), 'PRACTICE'),
+       ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW(), 'OFFICIAL'),
+       ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW(), 'PRACTICE'),
+       ('EX004', 'HTML Test', '00:20:00', 4, 3, NOW(), 'MOCK'),
+       ('EX005', 'JS Test', '00:25:00', 5, 2, NOW(), 'PRACTICE'),
+       ('EX006', 'JS 1', '00:25:00', 5, 2, NOW(), 'PRACTICE');
 
--- Question 3
-('Java Framework', 3, false),
-('Spring Boot Framework', 3, true),
-('Database Tool', 3, false),
-('Programming Language', 3, false),
-
--- Question 4
-('Primary key is unique identifier', 4, true),
-('Primary key allows duplicate', 4, false),
-('Primary key can be null', 4, false),
-('Primary key is optional', 4, false),
-
--- Question 5
-('Programming Language', 5, false),
-('Markup Language', 5, true),
-('Database System', 5, false),
-('Operating System', 5, false),
--- Question 6
-('Programming Language', 6, false),
-('Markup Language', 6, true),
-('Database System', 6, false),
-('Operating System', 6, false);
-INSERT INTO exam
-    (code, title, duration, category_id, creator_id, create_date)
-VALUES ('EX001', 'Java Basic Test', '00:30:00', 1, 3, NOW()),
-       ('EX002', 'Spring Test', '00:40:00', 2, 3, NOW()),
-       ('EX003', 'SQL Test', '00:30:00', 3, 2, NOW()),
-       ('EX004', 'HTML Test', '00:20:00', 4, 3, NOW()),
-       ('EX005', 'JS Test', '00:25:00', 5, 2, NOW()),
-       ('EX006', 'JS 1', '00:25:00', 5, 2, NOW());
 INSERT INTO exam_question (exam_id, question_id)
-VALUES (1, 1),
-       (1, 2),
-       (2, 3),
-       (3, 4),
-       (4, 5),
-       (5, 1),
-       (6, 2);
+VALUES (1, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (6, 2);
 
 INSERT INTO favorite_exam (exam_id, student_id)
-VALUES (1, 6),
-       (2, 5),
-       (3, 6),
-       (4, 5),
-       (5, 6),
-       (6, 5);
+VALUES (1, 6), (2, 5), (3, 6), (4, 5), (5, 6), (6, 5);
 
-INSERT INTO exam_attempt
-    (exam_id, student_id, start_time, end_time, score, status)
+INSERT INTO exam_attempt (exam_id, student_id, start_time, end_time, score, status)
 VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (2, 6, '2024-04-01 10:00:00', '2024-04-01 10:35:00', 7, 'SUBMITTED'),
        (3, 5, '2024-04-02 09:00:00', '2024-04-02 09:30:00', 6, 'SUBMITTED'),
@@ -296,22 +263,17 @@ VALUES (1, 5, '2024-04-01 09:00:00', '2024-04-01 09:25:00', 8, 'SUBMITTED'),
        (5, 5, '2024-04-03 09:00:00', '2024-04-03 09:25:00', 10, 'SUBMITTED'),
        (6, 6, '2024-04-03 10:00:00', '2024-04-03 10:25:00', 8, 'SUBMITTED');
 
-
+-- FIX 2: Cập nhật lại question_id khớp với các câu hỏi có trong từng exam
 INSERT INTO student_answer (attempt_id, question_id, selected_answer_id, is_correct)
-VALUES (1, 1, 1, TRUE),
-       (2, 2, 6, FALSE),
-       (3, 3, 10, TRUE),
-       (4, 4, 14, FALSE),
-       (5, 5, 18, TRUE),
-       (6, 6, 22, FALSE);
+VALUES (1, 1, 1, TRUE),   -- Attempt 1 (Exam 1) làm câu 1, chọn đáp án 1
+       (2, 3, 10, TRUE),  -- Attempt 2 (Exam 2) làm câu 3, chọn đáp án 10
+       (3, 4, 14, FALSE), -- Attempt 3 (Exam 3) làm câu 4, chọn đáp án 14
+       (4, 5, 18, TRUE),  -- Attempt 4 (Exam 4) làm câu 5, chọn đáp án 18
+       (5, 1, 2, FALSE),  -- Attempt 5 (Exam 5) làm câu 1, chọn đáp án 2
+       (6, 2, 6, FALSE);  -- Attempt 6 (Exam 6) làm câu 2, chọn đáp án 6
 
 INSERT INTO class_exam (class_id, exam_id)
-VALUES (1, 1),
-       (2, 2),
-       (3, 3),
-       (4, 4),
-       (5, 5),
-       (5, 6);
+VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (5, 6);
 
 update users
 set password ='$2a$10$nlMnkBVDx81dyJ9puJyf8.FWUOiOjJTb4M4RggYlPDuxFDgtxb.ne'

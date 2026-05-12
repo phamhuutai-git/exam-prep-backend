@@ -6,6 +6,7 @@ import com.example.examprepbackend.dto.request.exams.SubmitExamAttemptRequest;
 import com.example.examprepbackend.dto.response.exams.*;
 import com.example.examprepbackend.dto.response.questions.AttemptQuestionsFullResponse;
 import com.example.examprepbackend.dto.response.teacher.ScoreDistribution;
+import com.example.examprepbackend.dto.response.teacher.TeacherStatsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -37,4 +38,6 @@ public interface ExamAttemptService {
 
 
     List<ScoreDistribution> getScoreDistribution();
+
+    TeacherStatsResponse getTeacherStats();
 }

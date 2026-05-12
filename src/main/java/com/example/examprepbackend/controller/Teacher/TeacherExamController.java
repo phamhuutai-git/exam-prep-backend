@@ -2,11 +2,13 @@ package com.example.examprepbackend.controller.Teacher;
 
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
+import com.example.examprepbackend.dto.request.exams.ExamFastCreateRequest; // Import DTO mới
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
+import com.example.examprepbackend.dto.response.teacher.CategoryResponse;
 import com.example.examprepbackend.service.ExamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -73,5 +77,15 @@ public class TeacherExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.deleteExamById(id), "Exam deleted"));
     }
 
+    // --- ENDPOINT TẠO ĐỀ NHANH (AZOTA STYLE) ---
+    @PostMapping("/fast-create")
+    public ResponseEntity<BaseResponse<ExamSummaryResponse>> createExamFast(Authentication authentication,
+                                                                            @RequestBody @Valid ExamFastCreateRequest request) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.createExamFast(authentication, request), "Fast Exam created"));
+    }
 
+    @GetMapping("/allCategory")
+    public ResponseEntity<BaseResponse<List<CategoryResponse>>> getAllCategory() {
+        return ResponseEntity.ok(new BaseResponse<>(examService.getAllCategory(), "Get all category"));
+    }
 }

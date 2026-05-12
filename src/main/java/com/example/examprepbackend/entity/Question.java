@@ -1,6 +1,7 @@
 package com.example.examprepbackend.entity;
 
 import com.example.examprepbackend.constant.DifficultyLevel;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,5 +45,6 @@ public class Question {
     private String explanation;
 // thêm để xuất exccel
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Answer> answers;
 }

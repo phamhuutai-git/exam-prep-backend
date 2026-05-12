@@ -1,11 +1,13 @@
 package com.example.examprepbackend.service;
 
 import com.example.examprepbackend.dto.request.exams.ExamCreateRequest;
+import com.example.examprepbackend.dto.request.exams.ExamFastCreateRequest;
 import com.example.examprepbackend.dto.request.exams.ExamRequestParam;
 import com.example.examprepbackend.dto.request.exams.ExamUpdateRequest;
 import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
+import com.example.examprepbackend.dto.response.teacher.CategoryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -31,4 +33,7 @@ public interface ExamService {
 
     Boolean deleteExamById(Integer id);
 
+    ExamSummaryResponse createExamFast(Authentication authentication, ExamFastCreateRequest examFastCreateRequest);
+
+    List<CategoryResponse> getAllCategory();
 }

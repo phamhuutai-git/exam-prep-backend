@@ -21,7 +21,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ngoquangtruongx4@gmail.com  # Gmail gửi đi
+    username: trungquangle04@gmail.com  # Gmail gửi đi
     password: teyh srrf nuqo phgk   # App Password Gmail
     properties:
       mail:
@@ -48,4 +48,4 @@ jwt:
 gemini:
   api:
     url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
-    key: "AIzaSyCDwKvqAljzI9_neNKAhYgaQP4SshCNCek"
+    key: "AIzaSyDemHQDEBYsXHptCEbq3_ePDbyWo7xE9jw"

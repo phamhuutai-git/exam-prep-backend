@@ -23,4 +23,11 @@ public class TeacherDasbroadController {
     public ResponseEntity<BaseResponse<List<ScoreDistribution>>> getScoreDistribution() {
         return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getScoreDistribution(),"Gen All Score successfull "));
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<BaseResponse<?>> getDashboardStats() {
+        // Gọi xuống Service để lấy 3 con số thống kê (Tổng đề thi, câu hỏi, học sinh)
+        // Lưu ý: examAttemptService cần phải được viết thêm hàm getTeacherStats()
+        return ResponseEntity.ok(new BaseResponse<>(examAttemptService.getTeacherStats(), "Get stats successful"));
+    }
 }

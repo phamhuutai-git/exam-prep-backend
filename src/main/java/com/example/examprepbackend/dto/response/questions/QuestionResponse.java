@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@JsonPropertyOrder({"id","content","difficulty","category","creator","createdDate","answers"})
+@JsonPropertyOrder({"id","content","difficulty","category","creator","createdDate","answers", "explanation"})
 public class QuestionResponse {
 
     private Integer id;

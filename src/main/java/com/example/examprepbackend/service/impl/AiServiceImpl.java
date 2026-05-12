@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI; // <--- Thêm thư viện này để xử lý URL
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,67 +27,69 @@ public class AiServiceImpl implements AiService {
     public String generateQuestions(AiGenerateRequest request) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 1. Dịch độ khó sang tiếng Việt
-        String doKho = switch (request.getDifficulty()) {
-            case "EASY" -> "Dễ";
-            case "HARD" -> "Khó";
-            default -> "Trung bình";
-        };
+        // 1. Kiểm tra đầu vào
+        String topic = (request.getPromptText() != null) ? request.getPromptText() : "Kiến thức chung";
+        int count = (request.getQuantity() > 0) ? request.getQuantity() : 5;
 
-        // 2. Câu lệnh Prompt ép AI trả về JSON nguyên chất
+        // 2. Prompt tối ưu (Ép định dạng chuẩn)
         String prompt = String.format("""
-                Bạn là một chuyên gia ra đề thi trắc nghiệm. Dựa vào nội dung/chủ đề sau: '%s'.
-                Hãy tạo ra đúng %d câu hỏi trắc nghiệm ở mức độ %s.
-                Mỗi câu hỏi phải có 4 đáp án và chỉ định rõ 1 đáp án đúng.
-                BẮT BUỘC trả về kết quả là một mảng JSON nguyên chất theo đúng cấu trúc sau, không kèm văn bản giải thích (không dùng markdown):
-                [
-                  {
-                    "content": "Nội dung câu hỏi?",
-                    "explanation": "Giải thích vì sao đúng",
-                    "difficulty": "%s",
-                    "answers": [
-                      { "content": "Đáp án A", "isCorrect": true },
-                      { "content": "Đáp án B", "isCorrect": false },
-                      { "content": "Đáp án C", "isCorrect": false },
-                      { "content": "Đáp án D", "isCorrect": false }
-                    ]
-                  }
-                ]
-                """, request.getPromptText(), request.getQuantity(), doKho, request.getDifficulty());
+        Hãy tạo %d câu hỏi trắc nghiệm về chủ đề: '%s'.
+        Yêu cầu:
+        - 4 đáp án A, B, C, D. Đánh dấu * vào trước đáp án đúng.
+        - BẮT BUỘC có thêm một dòng "Giải thích: [Nội dung giải thích]" ngay sau đáp án D.
+        - Chỉ trả về nội dung câu hỏi, không chào hỏi, không dùng markdown.
+        Ví dụ:
+        Câu 1: Thủ đô của Việt Nam là gì?
+        A. TP.HCM
+        *B. Hà Nội
+        C. Đà Nẵng
+        D. Cần Thơ
+        Giải thích: Hà Nội là thủ đô của nước Cộng hòa Xã hội chủ nghĩa Việt Nam từ năm 1976.
+        """, count, topic);
 
-        // 3. Đóng gói Body Request
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("contents", List.of(
-                Map.of("parts", List.of(
-                        Map.of("text", prompt)
-                ))
-        ));
+        requestBody.put("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
 
-        // 4. Thiết lập Header chuẩn bảo mật
+        // 3. Cấu hình Header
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("x-goog-api-key", apiKey); // Chuyển API Key vào Header
 
+        // Gắn Key thẳng vào URL thay vì Header để tương thích tốt nhất với Gemini
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+        String finalUrl = apiUrl + "?key=" + apiKey;
 
-        // 5. Gửi Request bằng URI để tránh lỗi 404
         try {
-            // Ép kiểu sang URI để RestTemplate không tự động đổi dấu ":" thành "%3A"
-            URI uri = URI.create(apiUrl);
-            Map<String, Object> response = restTemplate.postForObject(uri, entity, Map.class);
+            System.out.println("--- ĐANG GỌI GEMINI API VỚI CHỦ ĐỀ: " + topic + " ---");
+
+            // Dùng postForObject lấy thẳng ra Map, không cần ResponseEntity nữa
+            Map response = restTemplate.postForObject(finalUrl, entity, Map.class);
+
+            // LOG TOÀN BỘ RESPONSE ĐỂ DEBUG
+            System.out.println("FULL RESPONSE TỪ GOOGLE: " + response);
 
             if (response != null && response.containsKey("candidates")) {
                 List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-                Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+                if (candidates.isEmpty()) return "Google AI không tìm thấy kết quả phù hợp.";
+
+                Map<String, Object> firstCandidate = candidates.get(0);
+
+                // KIỂM TRA LÝ DO DỪNG (Nếu bị chặn do an toàn)
+                if (firstCandidate.containsKey("finishReason") && !firstCandidate.get("finishReason").equals("STOP")) {
+                    return "AI từ chối trả lời do vi phạm chính sách nội dung (Safety Filter).";
+                }
+
+                Map<String, Object> content = (Map<String, Object>) firstCandidate.get("content");
                 List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
 
-                return (String) parts.get(0).get("text");
+                String rawText = (String) parts.get(0).get("text");
+                return rawText.replace("```", "").trim();
             }
-            return "[]";
+
+            return "Cấu trúc phản hồi không xác định.";
 
         } catch (Exception e) {
-            System.err.println("Lỗi khi gọi API Gemini: " + e.getMessage());
-            throw new RuntimeException("Lỗi kết nối AI Server. Hãy kiểm tra lại mạng!");
+            System.err.println("!!! LỖI CHI TIẾT: " + e.getMessage());
+            return "Lỗi kết nối AI: " + e.getMessage();
         }
     }
 }
