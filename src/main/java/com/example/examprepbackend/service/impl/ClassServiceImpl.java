@@ -81,7 +81,7 @@ public class ClassServiceImpl implements ClassService {
         LocalDate minDate = classRequestParam.getMinDate();
         LocalDate maxDate = classRequestParam.getMaxDate();
 
-        Specification<Classes> spec = Specification.unrestricted();
+        Specification<Classes> spec = Specification.where(null);
 
         if (name != null && !name.isBlank()) {
             spec = spec.and(ClassSpecification.hasNameLike(name));

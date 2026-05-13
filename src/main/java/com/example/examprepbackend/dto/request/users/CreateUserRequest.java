@@ -1,15 +1,14 @@
 package com.example.examprepbackend.dto.request.users;
 
-import com.example.examprepbackend.constant.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data // @Data bao gồm cả @Getter, @Setter, @ToString, @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserRequest {
 
     @Email
@@ -19,12 +18,20 @@ public class CreateUserRequest {
     @NotBlank(message = "UserName must not be blank")
     private String username;
 
-    @NotBlank(message = "ROlE must not be blank")
+    // THÊM TRƯỜNG NÀY ĐỂ HẾT ĐỎ setPassword
+    @NotBlank(message = "Password must not be blank")
+    private String password;
+
+    @NotBlank(message = "ROLE must not be blank")
     private String role;
 
-    @NotBlank(message = "fullName must not be blank")
+    // NẾU BẠN DÙNG firstName/lastName TRONG TEST THÌ PHẢI CÓ Ở ĐÂY
+    @NotBlank(message = "First name must not be blank")
+    private String firstName;
+
+    @NotBlank(message = "Last name must not be blank")
+    private String lastName;
+
+    // Trường fullName bạn đang có (tùy bạn quyết định dùng fullName hay tách first/last)
     private String fullName;
-
-
-
 }

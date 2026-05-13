@@ -127,7 +127,7 @@ public class QuestionServiceImpl implements QuestionService {
         LocalDate minDate = param.getMinDate();
         LocalDate maxDate = param.getMaxDate();
 
-        Specification<Question> spec = Specification.unrestricted();
+        Specification<Question> spec = Specification.where(null);
 
         if (content != null && !content.isBlank()) {
             spec = spec.and(QuestionSpecification.hasContentLike(content));

@@ -4,8 +4,12 @@ import com.example.examprepbackend.constant.DifficultyLevel;
 import com.example.examprepbackend.entity.Answer;
 import com.example.examprepbackend.entity.Question;
 import com.example.examprepbackend.service.QuestionParserService;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,6 +17,18 @@ import java.util.regex.Pattern;
 
 @Service
 public class QuestionParserServiceImpl implements QuestionParserService {
+
+    @Override
+    public List<Question> parseWordFile(MultipartFile file) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        // Sử dụng Apache POI bóc text từ file .docx
+        try (XWPFDocument doc = new XWPFDocument(file.getInputStream())) {
+            for (XWPFParagraph p : doc.getParagraphs()) {
+                sb.append(p.getText()).append("\n");
+            }
+        }
+        return parseRawText(sb.toString());
+    }
 
     @Override
     public List<Question> parseRawText(String rawText) {

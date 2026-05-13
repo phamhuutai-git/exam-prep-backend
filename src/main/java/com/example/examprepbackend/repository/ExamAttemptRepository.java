@@ -28,7 +28,8 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
 
     ExamAttempt findByExamAndStatus(Exam exam, AttemptStatus status);
 
-    boolean existsByExamAndStudentAndStatus(Integer exam, Integer studentId, AttemptStatus status);
+
+    boolean existsByExamIdAndStudentIdAndStatus(Integer examId, Integer studentId, AttemptStatus status);
 
     ExamAttempt findByExamAndStudentAndStatus(Exam exam, Users student, AttemptStatus status);
 

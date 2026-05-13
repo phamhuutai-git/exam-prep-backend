@@ -3,22 +3,30 @@ package com.example.examprepbackend.controller.Teacher;
 import com.example.examprepbackend.common.BaseResponse;
 import com.example.examprepbackend.dto.request.teacher.Question.CreateQuestionRequest;
 import com.example.examprepbackend.dto.request.teacher.Question.QuestionRequestParam;
+import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse; // Import thêm DTO này
 import com.example.examprepbackend.dto.response.teacher.QuestionCountResponse;
 import com.example.examprepbackend.dto.response.questions.QuestionResponse;
+import com.example.examprepbackend.entity.Question;
+import com.example.examprepbackend.service.ExamService; // Inject thêm ExamService
 import com.example.examprepbackend.service.QuestionService;
+import com.example.examprepbackend.service.QuestionParserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication; // Cần dùng để lấy thông tin giáo viên
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +34,9 @@ import java.util.List;
 @RequestMapping("/api/teacher/questions")
 public class TeacherQuestionController {
     private final QuestionService questionService;
+    private final ExamService examService; // Inject thêm ExamService để lưu đề
+    private final QuestionParserService questionParserService;
+    private final ModelMapper modelMapper;
 
     @GetMapping
     public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestions(QuestionRequestParam param, @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -112,6 +123,51 @@ public class TeacherQuestionController {
 
         return ResponseEntity.ok(
                 new BaseResponse<>("IMPORT", "Import questions successfully")
+        );
+    }
+
+    /**
+     * Endpoint bóc tách file Word và trả về danh sách câu hỏi để xem trước trên giao diện.
+     */
+    @PostMapping(value = "/import-word-preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BaseResponse<List<QuestionResponse>>> importWordPreview(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+        log.info("Teacher is previewing questions from Word file: {}", file.getOriginalFilename());
+
+        List<Question> questions = questionParserService.parseWordFile(file);
+
+        List<QuestionResponse> response = questions.stream()
+                .map(q -> modelMapper.map(q, QuestionResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                new BaseResponse<>(response, "Bóc tách file Word thành công. Tìm thấy " + response.size() + " câu hỏi.")
+        );
+    }
+
+    /**
+     * Endpoint lưu đề thi chính thức từ file Word (.docx)
+     * Gọi khi giáo viên nhấn nút "Lưu & Xuất bản đề"
+     */
+    @PostMapping(value = "/import-word", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BaseResponse<ExamSummaryResponse>> createExamFromWord(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("categoryName") String categoryName,
+            @RequestParam("duration") String duration,
+            @RequestParam("examType") String examType
+    ) {
+        log.info("Teacher {} is creating exam '{}' from Word file", authentication.getName(), title);
+
+        // Gọi hàm lưu đề chính thức đã Build Success ở Service
+        ExamSummaryResponse response = examService.createExamFromWord(
+                authentication, file, title, categoryName, duration, examType
+        );
+
+        return ResponseEntity.ok(
+                new BaseResponse<>(response, "Tạo đề thi từ file Word thành công!")
         );
     }
 
