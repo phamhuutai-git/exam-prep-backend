@@ -39,6 +39,7 @@ public interface UsersService {
     UserProfileResponse getCurrentUser(Authentication authentication);
 
     UserSummaryResponse updateProfile(Authentication authentication, UserProfileUpdateRequest profileUpdateRequest);
-
+    long countTeachers();
+    long countStudents();
 
 }

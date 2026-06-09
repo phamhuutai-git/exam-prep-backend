@@ -262,4 +262,9 @@ public class ClassServiceImpl implements ClassService {
 
         return true;
     }
+
+    @Override
+    public long countClass() {
+        return classRepository.count();
+    }
 }

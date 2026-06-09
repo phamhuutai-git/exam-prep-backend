@@ -229,6 +229,11 @@ public class ExamServiceImpl implements ExamService {
             throw new ApplicationException("Category not found");
         }
 
+//        //Check số lượng câu hỏi với đề thi thật
+//        if ("OFFICIAL".equals(examCreateRequest.getExamType())) {
+//            validateLimitQuestion(examCreateRequest.getDuration(), examCreateRequest.getQuestionIds().size());
+//        }
+
         //Save exam
         Users creator = optionalUsers.get();
 
@@ -249,6 +254,7 @@ public class ExamServiceImpl implements ExamService {
 
         return modelMapper.map(newExam, ExamSummaryResponse.class);
     }
+
 
     @Transactional
     @Override
@@ -271,6 +277,11 @@ public class ExamServiceImpl implements ExamService {
             }
         }
 
+//        //Check số lượng câu hỏi với đề thi thật
+//        if ("OFFICIAL".equals(examUpdateRequest.getExamType())) {
+//            validateLimitQuestion(examUpdateRequest.getDuration(), examUpdateRequest.getQuestionIds().size());
+//        }
+
         //Save exam
         modelMapper.map(examUpdateRequest, exam);
         exam.setExamType(ExamType.valueOf(examUpdateRequest.getExamType()));
@@ -289,6 +300,27 @@ public class ExamServiceImpl implements ExamService {
 
         return modelMapper.map(exam, ExamSummaryResponse.class);
     }
+
+//    //Check số lượng câu hỏi tối đa trong 1 đề thi theo thời gian
+//    private void validateLimitQuestion(LocalTime duration, Integer questionCount) {
+//        Integer maxQuestion;
+//
+//        int examMinutesTime = duration.getHour() * 60 + duration.getMinute();
+//
+//        if (examMinutesTime <= 15) {
+//            maxQuestion = 10;
+//        } else if (examMinutesTime <= 30) {
+//            maxQuestion = 15;
+//        } else if (examMinutesTime <= 45) {
+//            maxQuestion = 30;
+//        } else {
+//            maxQuestion = examMinutesTime * 2 / 3;
+//        }
+//
+//        if (questionCount > maxQuestion) {
+//            throw new ApplicationException("Số lượng câu hỏi đã vượt quá giới hạn. Số câu hỏi tối đa cho phép: " + maxQuestion);
+//        }
+//    }
 
     @Transactional
     @Override

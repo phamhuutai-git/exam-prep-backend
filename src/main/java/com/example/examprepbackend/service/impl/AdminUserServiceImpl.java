@@ -132,4 +132,14 @@ public class AdminUserServiceImpl implements AdminUserService {
         usersRepository.save(targetUser);
     }
 
+    @Override
+    public Long countStudents() {
+        return usersRepository.countByRole(Role.STUDENT);
+    }
+
+    @Override
+    public Long countTeachers() {
+        return usersRepository.countByRole(Role.TEACHER);
+    }
+
 }

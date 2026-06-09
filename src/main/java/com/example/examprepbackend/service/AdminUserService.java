@@ -10,4 +10,7 @@ public interface AdminUserService {
 
     void deleteUserByAdmin(Integer userId);
 
+    Long countStudents();
+
+     Long countTeachers();
 }

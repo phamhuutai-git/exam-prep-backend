@@ -32,4 +32,15 @@ public class AdminUserController {
         adminUserService.deleteUserByAdmin(userId);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/teachers/count")
+    public ResponseEntity<Long> countTeachers() {
+        return ResponseEntity.ok(adminUserService.countTeachers());
+    }
+
+    @GetMapping("/students/count")
+    public ResponseEntity<Long> countStudents() {
+        return ResponseEntity.ok(adminUserService.countStudents());
+    }
 }
+
+

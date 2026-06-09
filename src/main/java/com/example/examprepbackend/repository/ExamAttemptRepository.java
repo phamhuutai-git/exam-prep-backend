@@ -36,13 +36,13 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
     @Query("""
                 SELECT new com.example.examprepbackend.dto.response.teacher.ScoreDistribution(
                     CASE 
-                        WHEN e.score >= 0 AND e.score < 4 THEN '0-4'
-                               WHEN e.score >= 4 AND e.score < 5 THEN '4-5'
-                               WHEN e.score >= 5 AND e.score < 6 THEN '5-6'
-                               WHEN e.score >= 6 AND e.score < 7 THEN '6-7'
-                               WHEN e.score >= 7 AND e.score < 8 THEN '7-8'
-                               WHEN e.score >= 8 AND e.score < 9 THEN '8-9'
-                               WHEN e.score >= 9 AND e.score <= 10 THEN '9-10'
+                        WHEN e.score >= 0 AND e.score < 40 THEN '0-40'
+                               WHEN e.score >= 40 AND e.score < 50 THEN '40-50'
+                               WHEN e.score >= 50 AND e.score < 60 THEN '50-60'
+                               WHEN e.score >= 60 AND e.score < 70 THEN '60-70'
+                               WHEN e.score >= 70 AND e.score < 80 THEN '70-80'
+                               WHEN e.score >= 80 AND e.score < 90 THEN '80-90'
+                               WHEN e.score >= 90 AND e.score <= 100 THEN '90-100'
                     END,
                     COUNT(e)
                 )
@@ -50,13 +50,13 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Intege
                 WHERE e.status = 'SUBMITTED'
                 GROUP BY 
                     CASE 
-                               WHEN e.score >= 0 AND e.score < 4 THEN '0-4'
-                                  WHEN e.score >= 4 AND e.score < 5 THEN '4-5'
-                                  WHEN e.score >= 5 AND e.score < 6 THEN '5-6'
-                                  WHEN e.score >= 6 AND e.score < 7 THEN '6-7'
-                                  WHEN e.score >= 7 AND e.score < 8 THEN '7-8'
-                                  WHEN e.score >= 8 AND e.score < 9 THEN '8-9'
-                                  WHEN e.score >= 9 AND e.score <= 10 THEN '9-10'
+                               WHEN e.score >= 0 AND e.score < 40 THEN '0-40'
+                                 WHEN e.score >= 40 AND e.score < 50 THEN '40-50'
+                               WHEN e.score >= 50 AND e.score < 60 THEN '50-60'
+                               WHEN e.score >= 60 AND e.score < 70 THEN '60-70'
+                               WHEN e.score >= 70 AND e.score < 80 THEN '70-80'
+                               WHEN e.score >= 80 AND e.score < 90 THEN '80-90'
+                               WHEN e.score >= 90 AND e.score <= 100 THEN '90-100'
                     END
                 ORDER BY 1
             """)
