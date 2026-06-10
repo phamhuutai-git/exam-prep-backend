@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/teacher/questions")
 public class TeacherQuestionController {
     private final QuestionService questionService;
-    private final ExamService examService; // Inject thêm ExamService để lưu đề
+    private final ExamService examService;
     private final QuestionParserService questionParserService;
     private final ModelMapper modelMapper;
 
@@ -146,22 +146,16 @@ public class TeacherQuestionController {
         );
     }
 
-    /**
-     * Endpoint lưu đề thi chính thức từ file Word (.docx)
-     * Gọi khi giáo viên nhấn nút "Lưu & Xuất bản đề"
-     */
     @PostMapping(value = "/import-word", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BaseResponse<ExamSummaryResponse>> createExamFromWord(
             Authentication authentication,
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("categoryName") String categoryName,
-            @RequestParam("duration") String duration,
+            @RequestParam("duration") Integer duration,
             @RequestParam("examType") String examType
     ) {
         log.info("Teacher {} is creating exam '{}' from Word file", authentication.getName(), title);
-
-        // Gọi hàm lưu đề chính thức đã Build Success ở Service
         ExamSummaryResponse response = examService.createExamFromWord(
                 authentication, file, title, categoryName, duration, examType
         );

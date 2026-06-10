@@ -20,7 +20,7 @@ public class ExamStartResponse {
 
     private String examTitle;
 
-    private LocalTime duration;
+    private Integer duration;
 
     private String examType;
 

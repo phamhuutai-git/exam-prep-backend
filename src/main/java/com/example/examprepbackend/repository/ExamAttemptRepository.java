@@ -16,6 +16,8 @@ import java.util.Optional;
 
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Integer> {
 
+    List<ExamAttempt> findByExamId(Integer examId);
+
     Long countByExam_Id(Integer exam_id);
 
     Optional<ExamAttempt> findByIdAndStudentUsername(Integer id, String username);

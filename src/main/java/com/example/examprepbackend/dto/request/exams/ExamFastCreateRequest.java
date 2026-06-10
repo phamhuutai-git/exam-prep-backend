@@ -6,9 +6,9 @@ import lombok.Data;
 public class ExamFastCreateRequest {
     private String title;
     private String categoryName;
-    private String examType; // PRACTICE, OFFICIAL, MOCK
-    private String duration; // Định dạng "HH:mm:ss" hoặc "HH:mm"
+    private String examType;
+    private String duration;
     private Double passScore;
     private Boolean reviewAllowed;
-    private String rawText;// Toàn bộ nội dung giáo viên đã gõ
+    private String rawText;
 }

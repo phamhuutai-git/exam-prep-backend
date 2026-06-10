@@ -27,11 +27,11 @@ public class AiServiceImpl implements AiService {
     public String generateQuestions(AiGenerateRequest request) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 1. Kiểm tra đầu vào
+        //Kiểm tra đầu vào
         String topic = (request.getPromptText() != null) ? request.getPromptText() : "Kiến thức chung";
         int count = (request.getQuantity() > 0) ? request.getQuantity() : 5;
 
-        // 2. Prompt tối ưu (Ép định dạng chuẩn)
+        //  Prompt
         String prompt = String.format("""
         Hãy tạo %d câu hỏi trắc nghiệm về chủ đề: '%s'.
         Yêu cầu:
@@ -50,7 +50,7 @@ public class AiServiceImpl implements AiService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
 
-        // 3. Cấu hình Header
+        //Cấu hình
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

@@ -1,6 +1,7 @@
 package com.example.examprepbackend.dto.response.users;
 
 import com.example.examprepbackend.constant.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.entity.Classes;
@@ -36,6 +37,7 @@ public class UserResponse {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Classes classes;
 
     private LocalDateTime createdDate;

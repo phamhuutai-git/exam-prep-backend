@@ -9,6 +9,7 @@ import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
 import com.example.examprepbackend.dto.response.teacher.CategoryResponse;
+import com.example.examprepbackend.dto.response.users.StudentProgressDTO;
 import com.example.examprepbackend.dto.response.users.StudentResponse;
 import com.example.examprepbackend.entity.*;
 import com.example.examprepbackend.exception.ApplicationException;
@@ -31,10 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @Slf4j
 @Service
@@ -96,7 +96,6 @@ public class ExamServiceImpl implements ExamService {
         return spec;
     }
 
-
     @Override
     public Page<ExamResponse> getAllExams(ExamRequestParam examRequestParam, Pageable pageable) {
         Specification<Exam> spec = buildExamFilter(examRequestParam);
@@ -149,6 +148,12 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public ExamSummaryResponse createExam(Authentication authentication, ExamCreateRequest examCreateRequest) {
         if (authentication == null || !authentication.isAuthenticated()) throw new ApplicationException("Unauthorized");
+        if (examCreateRequest.getStartTime() != null && examCreateRequest.getEndTime() != null) {
+            if (examCreateRequest.getEndTime().isBefore(examCreateRequest.getStartTime())) {
+                throw new ApplicationException("Lỗi: Thời gian khóa đề (Hạn chót nộp) phải diễn ra sau Thời gian phát đề!");
+            }
+        }
+
         Optional<Users> optionalUsers = usersRepository.findByUsername(authentication.getName());
         if (optionalUsers.isEmpty()) throw new ApplicationException("User not found");
         if (examRepository.findByCode(examCreateRequest.getCode()) != null) throw new ApplicationException("Exam code exited");
@@ -156,6 +161,7 @@ public class ExamServiceImpl implements ExamService {
         if (category == null) throw new ApplicationException("Category not found");
 
         Users creator = optionalUsers.get();
+        // ModelMapper sẽ tự động map các trường duration, startTime, endTime từ DTO sang Entity
         Exam newExam = modelMapper.map(examCreateRequest, Exam.class);
         newExam.setCreator(creator);
         newExam.setCategory(category);
@@ -200,9 +206,9 @@ public class ExamServiceImpl implements ExamService {
         exam.setCode("FAST-" + System.currentTimeMillis());
 
         try {
-            exam.setDuration(LocalTime.parse(request.getDuration()));
+            exam.setDuration(Integer.parseInt(String.valueOf(request.getDuration())));
         } catch (Exception e) {
-            exam.setDuration(LocalTime.of(1, 0));
+            exam.setDuration(60);
         }
 
         exam.setCategory(category);
@@ -245,15 +251,13 @@ public class ExamServiceImpl implements ExamService {
             MultipartFile file,
             String title,
             String categoryName,
-            String duration,
+            Integer duration,
             String examType
     ) {
-        // 1. Kiểm tra User
         if (authentication == null || !authentication.isAuthenticated()) throw new ApplicationException("Unauthorized");
         Users creator = usersRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ApplicationException("User not found"));
 
-        // 2. Bóc tách file Word thành List Question
         List<Question> parsedQuestions;
         try {
             parsedQuestions = questionParserService.parseWordFile(file);
@@ -265,26 +269,24 @@ public class ExamServiceImpl implements ExamService {
             throw new ApplicationException("Không tìm thấy câu hỏi hợp lệ trong file Word!");
         }
 
-        // 3. Kiểm tra danh mục
         CategoryQuestion category = categoryQuestionRepository.findByName(categoryName);
         if (category == null) throw new ApplicationException("Danh mục không tồn tại");
 
-        // 4. Khởi tạo và lưu Exam
         Exam exam = new Exam();
         exam.setTitle(title);
-        exam.setCode("WORD-" + System.currentTimeMillis()); // Mã định danh tự động cho file Word
+        exam.setCode("WORD-" + System.currentTimeMillis());
 
-        try {
-            exam.setDuration(LocalTime.parse(duration));
-        } catch (Exception e) {
-            exam.setDuration(LocalTime.of(1, 0)); // Mặc định 1 giờ
+        if (duration != null && duration > 0) {
+            exam.setDuration(duration);
+        } else {
+            exam.setDuration(60);
         }
 
         exam.setCategory(category);
         exam.setCreator(creator);
         exam.setCreateDate(LocalDateTime.now());
         exam.setIsActive(true);
-        exam.setPassScore(5.0); // Mặc định điểm đạt là 5
+        exam.setPassScore(5.0);
         exam.setReviewAllowed(true);
 
         try {
@@ -295,13 +297,11 @@ public class ExamServiceImpl implements ExamService {
 
         exam = examRepository.save(exam);
 
-        // 5. Lưu từng câu hỏi và tạo liên kết trung gian ExamQuestion
         for (Question q : parsedQuestions) {
             q.setCreator(creator);
             q.setCategory(category);
             q.setCreateDate(LocalDateTime.now());
 
-            // Lưu câu hỏi (Answers sẽ được cascade lưu theo)
             Question savedQuestion = questionRepository.save(q);
 
             ExamQuestion examQuestion = new ExamQuestion();
@@ -362,5 +362,51 @@ public class ExamServiceImpl implements ExamService {
                 .stream()
                 .map(cat -> modelMapper.map(cat, CategoryResponse.class))
                 .toList();
+    }
+
+    @Override
+    public List<StudentProgressDTO> getExamProgress(Integer examId) {
+        examRepository.findById(examId).orElseThrow(() -> new ApplicationException("Không tìm thấy bài thi"));
+
+        List<Integer> classIds = classExamRepository.findByExamId(examId);
+        if (classIds == null || classIds.isEmpty()) return new ArrayList<>();
+
+        Integer targetClassId = classIds.get(0);
+        List<Users> allStudentsInClass = usersRepository.findByRoleAndClasses_Id(com.example.examprepbackend.constant.Role.STUDENT, targetClassId);
+        List<ExamAttempt> allAttemptsForExam = examAttemptRepository.findByExamId(examId);
+        List<StudentProgressDTO> progressList = new ArrayList<>();
+
+        if (allStudentsInClass != null) {
+            for (Users student : allStudentsInClass) {
+                StudentProgressDTO dto = new StudentProgressDTO();
+
+                dto.setStudentId(student.getId().longValue());
+
+                String firstName = student.getFirstName() != null ? student.getFirstName() : "";
+                String lastName = student.getLastName() != null ? student.getLastName() : "";
+                dto.setFullName((firstName + " " + lastName).trim());
+
+                dto.setEmail(student.getEmail());
+
+                List<ExamAttempt> studentAttempts = allAttemptsForExam.stream()
+                        .filter(attempt -> attempt.getStudent().getId().equals(student.getId()))
+                        .toList();
+
+                if (studentAttempts.isEmpty()) {
+                    dto.setCompleted(false);
+                    dto.setAttemptCount(0);
+                    dto.setHighestScore(0.0);
+                } else {
+                    dto.setCompleted(true);
+                    dto.setAttemptCount(studentAttempts.size());
+                    double maxScore = studentAttempts.stream()
+                            .mapToDouble(ExamAttempt::getScore)
+                            .max().orElse(0.0);
+                    dto.setHighestScore(maxScore);
+                }
+                progressList.add(dto);
+            }
+        }
+        return progressList;
     }
 }

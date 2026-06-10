@@ -3,6 +3,8 @@ package com.example.examprepbackend.repository;
 import com.example.examprepbackend.constant.Role;
 import com.example.examprepbackend.constant.Status;
 import com.example.examprepbackend.entity.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -46,6 +48,16 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     Long countByRoleAndClasses_Id(Role role, Integer classes_id);
 
     List<Users> findByRole(Role role);
+    @Query("SELECT u FROM Users u WHERE " +
+            "(:role IS NULL OR u.role = :role) AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Users> searchUsers(@Param("keyword") String keyword,
+                            @Param("role") Role role,
+                            Pageable pageable);
 
     List<Users> findByRoleAndClasses_Id(Role role, Integer classesId);
 

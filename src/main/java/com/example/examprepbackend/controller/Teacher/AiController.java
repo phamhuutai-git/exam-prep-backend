@@ -9,17 +9,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
-@CrossOrigin("*") // Rất quan trọng: Mở CORS để ReactJS gọi sang không bị chặn
+@CrossOrigin("*")
 public class AiController {
 
     private final AiService aiService;
 
     @PostMapping("/generate-questions")
     public ResponseEntity<String> generateQuestionsByAI(@RequestBody AiGenerateRequest request) {
-        // Gọi Service nhờ Google làm đề thi
         String jsonResult = aiService.generateQuestions(request);
-
-        // Trả kết quả về cho ReactJS
         return ResponseEntity.ok(jsonResult);
     }
 }

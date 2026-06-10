@@ -9,6 +9,7 @@ import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
 import com.example.examprepbackend.dto.response.teacher.CategoryResponse;
+import com.example.examprepbackend.dto.response.users.StudentProgressDTO; // Import thêm DTO này
 import com.example.examprepbackend.service.ExamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,6 @@ public class TeacherExamController {
         return ResponseEntity.ok().body(new BaseResponse<>(examService.deleteExamById(id), "Exam deleted"));
     }
 
-    // --- ENDPOINT TẠO ĐỀ NHANH (AZOTA STYLE) ---
     @PostMapping("/fast-create")
     public ResponseEntity<BaseResponse<ExamSummaryResponse>> createExamFast(Authentication authentication,
                                                                             @RequestBody @Valid ExamFastCreateRequest request) {
@@ -87,5 +87,10 @@ public class TeacherExamController {
     @GetMapping("/allCategory")
     public ResponseEntity<BaseResponse<List<CategoryResponse>>> getAllCategory() {
         return ResponseEntity.ok(new BaseResponse<>(examService.getAllCategory(), "Get all category"));
+    }
+
+    @GetMapping("/{examId}/progress")
+    public ResponseEntity<BaseResponse<List<StudentProgressDTO>>> getExamProgress(@PathVariable Integer examId) {
+        return ResponseEntity.ok().body(new BaseResponse<>(examService.getExamProgress(examId), "Get exam progress by examId"));
     }
 }

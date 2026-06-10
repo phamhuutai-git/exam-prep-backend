@@ -144,6 +144,31 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    public Page<UserResponse> searchUsers(String keyword, Role role, Pageable pageable) {
+        // Gọi hàm @Query bạn vừa viết trong Repository
+        Page<Users> usersPage = usersRepository.searchUsers(keyword, role, pageable);
+
+        return usersPage.map(user -> UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                // Tự động nối chuỗi tạo FullName trả về cho Frontend hiển thị cho đẹp
+                .fullName(user.getLastName() + " " + user.getFirstName())
+
+                // Sửa lỗi dòng 158: Truyền thẳng Enum, KHÔNG dùng .name()
+                .role(user.getRole())
+                .isActive(user.getIsActive())
+                .status(user.getStatus())
+
+                // SỬA LỖI DÒNG 161: Dùng createdDate có chữ "d"
+                .createdDate(user.getCreatedDate())
+
+                .build());
+    }
+
+    @Override
     public List<UserResponse> getStudentsByClassId(Integer id) {
         Optional<Classes> classesOptional = classRepository.findById(id);
         if (classesOptional.isEmpty()) {

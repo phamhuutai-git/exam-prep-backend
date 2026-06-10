@@ -139,7 +139,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
         Otp newOtp = new Otp();
         newOtp.setEmail(forgetpw.getEmail());
         newOtp.setOtp(otp);
-        newOtp.setExpireAt(LocalDateTime.now().plusSeconds(30));//30s bị xóa
+        newOtp.setExpireAt(LocalDateTime.now().plusMinutes(3));//3p bị xoá
         newOtp.setCreatedAt(LocalDateTime.now());
         otpRepository.save(newOtp);
         log.info("Send OTP for user {} : {}", forgetpw.getEmail(), otp);
@@ -149,7 +149,7 @@ public class AuthentiationServiceImpl implements AuthenticationService {
                 "Xin chào " + user.get().getUsername() + ",\n\n"
                         + "Mã OTP xác thực của bạn là:\n\n"
                         + otp + "\n\n"
-                        + "Mã OTP này có hiệu lực trong vòng 1 phút.\n\n"
+                        + "Mã OTP này có hiệu lực trong vòng 3 phút.\n\n"
                         + "Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn cho tài khoản.\n\n"
                         + "Trân trọng"
         );

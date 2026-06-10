@@ -22,11 +22,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer>, Jp
 
     long countByCreator_UsernameAndDifficultyLevel(String username, DifficultyLevel level);
 
-    // =========================
-    // Student / Exam
-    // Question không còn examId trực tiếp,
-    // nên phải join qua bảng trung gian ExamQuestion
-    // =========================
+
     @Query("""
 select q
 from Question q

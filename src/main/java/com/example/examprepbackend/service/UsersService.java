@@ -28,6 +28,8 @@ public interface UsersService {
 
     List<UserResponse> getAllStudents();
 
+    Page<UserResponse> searchUsers(String keyword, Role role, Pageable pageable);
+
     List<UserResponse> getStudentsByClassId(Integer id);
 
     List<UserResponse> getAllTeachers();

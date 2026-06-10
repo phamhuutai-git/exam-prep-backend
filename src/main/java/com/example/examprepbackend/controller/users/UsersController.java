@@ -1,6 +1,7 @@
 package com.example.examprepbackend.controller.users;
 
 import com.example.examprepbackend.common.BaseResponse;
+import com.example.examprepbackend.constant.Role; // Thêm import Role
 import com.example.examprepbackend.dto.request.users.ChangePasswordRequest;
 import com.example.examprepbackend.dto.request.users.CreateUserRequest;
 import com.example.examprepbackend.dto.request.users.UserProfileUpdateRequest;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -34,8 +34,12 @@ public class UsersController {
     private final QuestionService questionService;
 
     @GetMapping
-    public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok().body(new BaseResponse<>(usersService.getAllUsers(pageable), "Get all users"));
+    public ResponseEntity<BaseResponse<Page<UserResponse>>> getAllUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Role role,
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<UserResponse> usersPage = usersService.searchUsers(keyword, role, pageable);
+        return ResponseEntity.ok().body(new BaseResponse<>(usersPage, "Get users successfully"));
     }
 
     @GetMapping("/students")
@@ -78,7 +82,6 @@ public class UsersController {
         return ResponseEntity.ok().body(new BaseResponse<>(userSummary, "Get current user successfully"));
     }
 
-
     @PostMapping
     public ResponseEntity<BaseResponse<UserSummaryResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
         UserSummaryResponse dto = usersService.createUser(request);
@@ -89,5 +92,4 @@ public class UsersController {
     public ResponseEntity<BaseResponse<Page<QuestionResponse>>> getAllQuestionsByStudent(Pageable pageable) {
         return ResponseEntity.ok().body(new BaseResponse<>(questionService.getAllQuestionsByStudent(pageable), "Get All Question Succcesfull!"));
     }
-
 }

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j // Thêm cái này để dùng log.error cho chuyên nghiệp
+@Slf4j
 @RestControllerAdvice
 public class GlobalException {
 
@@ -70,19 +70,15 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // --- ĐÂY LÀ ĐOẠN QUAN TRỌNG NHẤT ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-        // 1. In toàn bộ "dấu vết" lỗi ra IntelliJ để bạn debug
+
         ex.printStackTrace();
 
-        // 2. Log lỗi bằng SLF4J (nếu cần xem trong log file)
         log.error("Hệ thống gặp lỗi nghiêm trọng: ", ex);
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
-
-        // 3. Tạm thời trả về tin nhắn lỗi thật để bạn xem trên trình duyệt cho nhanh
         response.put("message", "Lỗi hệ thống: " + ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -22,7 +20,8 @@ public class Exam {
 
     private String title;
 
-    private LocalTime duration;
+    // 🔥 Đã đổi sang Integer để hứng dữ liệu Số phút từ Database
+    private Integer duration;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -47,5 +46,12 @@ public class Exam {
 
     @Column(name = "pass_score", nullable = false)
     private Double passScore;
+
+    // 🔥 Bổ sung 2 trường để quản lý thời gian bắt đầu và kết thúc làm bài
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
 }

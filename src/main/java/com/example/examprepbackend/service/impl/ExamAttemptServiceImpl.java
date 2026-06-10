@@ -408,8 +408,18 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
     @Override
     public Page<ExamAttemptResponse> getAttemptsByExamType(Authentication authentication, Pageable pageable, String examType) {
+
+        // 🔥 1. CHỐT CHẶN AN TOÀN TUYỆT ĐỐI
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ApplicationException("Vui lòng đăng nhập lại để xem lịch sử làm bài!");
+        }
+
         if (examType == null || examType.isBlank()) throw new ApplicationException("Type required");
-        Users user = usersRepository.findByUsername(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // 2. Code cũ an toàn
+        Users user = usersRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         return examAttemptRepository.findByStudentAndExamExamType(user, ExamType.valueOf(examType.toUpperCase()), pageable)
                 .map(a -> {
                     ExamAttemptResponse res = new ExamAttemptResponse();

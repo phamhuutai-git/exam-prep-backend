@@ -21,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: trungquangle04@gmail.com  # Gmail gửi đi
-    password: teyh srrf nuqo phgk   # App Password Gmail
+    username: Trungquangle04@gmail.com
+    password: ckkpxigkddtkavuz
     properties:
       mail:
         smtp:
@@ -35,7 +35,7 @@ spring:
 
 jwt:
   secret: my-super-secret-key-my-super-secret-key
-  expiration: 18000000 # 5 tiếng (5 * 60 * 60 * 1000) bị out token
+  expiration: 18000000
 
 ##debug
 #logging:
@@ -48,4 +48,4 @@ jwt:
 gemini:
   api:
     url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
-    key: "AIzaSyDemHQDEBYsXHptCEbq3_ePDbyWo7xE9jw"
+    key: "AQ.Ab8RN6KsWBr1gS-lHb_YIuCwnvvI8buoKnIv7YeJFE2xiY_OwQ"

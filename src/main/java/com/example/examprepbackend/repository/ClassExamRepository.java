@@ -14,6 +14,10 @@ public interface ClassExamRepository extends JpaRepository<ClassExam, Integer> {
     @Query("select ce.examId from ClassExam ce where ce.classId = :classId ")
     List<Integer> findByClassId(@Param("classId") Integer classId);
 
+    // 🔥 THÊM MỚI: Lấy danh sách classId theo examId để xem bài thi này giao cho lớp nào
+    @Query("select ce.classId from ClassExam ce where ce.examId = :examId")
+    List<Integer> findByExamId(@Param("examId") Integer examId);
+
     @Modifying
     @Query("delete from ClassExam cl where cl.classId = :classId")
     void deleteByClasses_Id(@Param("classId") Integer classId);

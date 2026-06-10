@@ -27,16 +27,10 @@ public class QuestionParserController {
         if (request.getRawText() == null || request.getRawText().isBlank()) {
             return ResponseEntity.ok().body(new BaseResponse<>(null, "Nội dung trống"));
         }
-
-        // 1. Gọi Service lấy danh sách Entity
         List<Question> parsedQuestions = questionParserService.parseRawText(request.getRawText());
-
-        // 2. Chuyển đổi Entity -> DTO
         List<QuestionPreviewDTO> responseData = parsedQuestions.stream().map(q -> {
             QuestionPreviewDTO qDto = new QuestionPreviewDTO();
             qDto.setContent(q.getContent());
-
-            // --- DÒNG QUAN TRỌNG NHẤT: Gán giải thích vào đây ---
             qDto.setExplanation(q.getExplanation());
 
             if (q.getAnswers() != null) {
@@ -50,14 +44,12 @@ public class QuestionParserController {
         return ResponseEntity.ok().body(new BaseResponse<>(responseData, "Bóc tách thành công"));
     }
 
-    // --- CÁC DTO ĐÃ ĐƯỢC CẬP NHẬT ---
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class QuestionPreviewDTO {
         private String content;
-        private String explanation; // <--- ĐÃ THÊM TRƯỜNG NÀY
+        private String explanation;
         private List<AnswerPreviewDTO> answers;
     }
 

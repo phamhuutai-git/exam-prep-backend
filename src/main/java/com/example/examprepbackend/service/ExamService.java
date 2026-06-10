@@ -8,10 +8,11 @@ import com.example.examprepbackend.dto.response.exams.ExamAttemptResponse;
 import com.example.examprepbackend.dto.response.exams.ExamResponse;
 import com.example.examprepbackend.dto.response.exams.ExamSummaryResponse;
 import com.example.examprepbackend.dto.response.teacher.CategoryResponse;
+import com.example.examprepbackend.dto.response.users.StudentProgressDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.multipart.MultipartFile; // Import để xử lý file Word
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,18 +37,16 @@ public interface ExamService {
 
     ExamSummaryResponse createExamFast(Authentication authentication, ExamFastCreateRequest examFastCreateRequest);
 
-    /**
-     * Phương thức tạo đề thi trực tiếp từ file Word (.docx)
-     * Phục vụ tính năng soạn đề siêu tốc cho giáo viên trường Hoàng Cầu
-     */
     ExamSummaryResponse createExamFromWord(
             Authentication authentication,
             MultipartFile file,
             String title,
             String categoryName,
-            String duration,
+            Integer duration,
             String examType
     );
 
     List<CategoryResponse> getAllCategory();
+
+    List<StudentProgressDTO> getExamProgress(Integer examId);
 }

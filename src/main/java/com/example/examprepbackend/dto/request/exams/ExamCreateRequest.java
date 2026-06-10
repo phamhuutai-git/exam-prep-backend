@@ -1,17 +1,12 @@
 package com.example.examprepbackend.dto.request.exams;
 
-import com.example.examprepbackend.entity.CategoryQuestion;
-import com.example.examprepbackend.entity.Users;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -27,7 +22,8 @@ public class ExamCreateRequest {
     private String title;
 
     @NotNull(message = "Exam duration not null")
-    private LocalTime duration;
+    @Min(value = 1, message = "Thời gian làm bài tối thiểu là 1 phút")
+    private Integer duration;
 
     @NotNull(message = "Exam category not null")
     @NotBlank(message = "Exam category not blank")
@@ -45,5 +41,10 @@ public class ExamCreateRequest {
     private Double passScore;
 
     private List<Integer> questionIds;
+
+    // 🔥 Bổ sung 2 trường hứng thời gian phát đề và thu đề từ Frontend
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
 
 }
