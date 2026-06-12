@@ -43,7 +43,8 @@ public interface ExamService {
             String title,
             String categoryName,
             Integer duration,
-            String examType
+            String examType,
+            String examCode
     );
 
     List<CategoryResponse> getAllCategory();

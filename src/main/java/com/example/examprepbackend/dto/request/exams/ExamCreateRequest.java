@@ -42,7 +42,6 @@ public class ExamCreateRequest {
 
     private List<Integer> questionIds;
 
-    // 🔥 Bổ sung 2 trường hứng thời gian phát đề và thu đề từ Frontend
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;

@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ExamFastCreateRequest {
+    private String examCode;
     private String title;
     private String categoryName;
     private String examType;

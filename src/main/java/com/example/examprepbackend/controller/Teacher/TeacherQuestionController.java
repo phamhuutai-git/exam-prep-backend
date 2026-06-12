@@ -126,9 +126,7 @@ public class TeacherQuestionController {
         );
     }
 
-    /**
-     * Endpoint bóc tách file Word và trả về danh sách câu hỏi để xem trước trên giao diện.
-     */
+
     @PostMapping(value = "/import-word-preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BaseResponse<List<QuestionResponse>>> importWordPreview(
             @RequestParam("file") MultipartFile file
@@ -153,11 +151,12 @@ public class TeacherQuestionController {
             @RequestParam("title") String title,
             @RequestParam("categoryName") String categoryName,
             @RequestParam("duration") Integer duration,
-            @RequestParam("examType") String examType
+            @RequestParam("examType") String examType,
+            @RequestParam("examCode") String examCode
     ) {
         log.info("Teacher {} is creating exam '{}' from Word file", authentication.getName(), title);
         ExamSummaryResponse response = examService.createExamFromWord(
-                authentication, file, title, categoryName, duration, examType
+                authentication, file, title, categoryName, duration, examType, examCode
         );
 
         return ResponseEntity.ok(

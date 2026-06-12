@@ -203,7 +203,16 @@ public class ExamServiceImpl implements ExamService {
 
         Exam exam = new Exam();
         exam.setTitle(request.getTitle());
-        exam.setCode("FAST-" + System.currentTimeMillis());
+
+        // --- Kiểm tra bắt buộc nhập mã đề ---
+        if (request.getExamCode() == null || request.getExamCode().trim().isEmpty()) {
+            throw new ApplicationException("Lỗi: Mã đề thi là bắt buộc. Vui lòng nhập mã đề thi!");
+        }
+        String finalExamCode = request.getExamCode().trim();
+        if (examRepository.findByCode(finalExamCode) != null) {
+            throw new ApplicationException("Lỗi: Mã đề thi đã tồn tại trong hệ thống. Vui lòng chọn mã khác!");
+        }
+        exam.setCode(finalExamCode);
 
         try {
             exam.setDuration(Integer.parseInt(String.valueOf(request.getDuration())));
@@ -252,7 +261,8 @@ public class ExamServiceImpl implements ExamService {
             String title,
             String categoryName,
             Integer duration,
-            String examType
+            String examType,
+            String examCode
     ) {
         if (authentication == null || !authentication.isAuthenticated()) throw new ApplicationException("Unauthorized");
         Users creator = usersRepository.findByUsername(authentication.getName())
@@ -274,7 +284,16 @@ public class ExamServiceImpl implements ExamService {
 
         Exam exam = new Exam();
         exam.setTitle(title);
-        exam.setCode("WORD-" + System.currentTimeMillis());
+
+
+        if (examCode == null || examCode.trim().isEmpty()) {
+            throw new ApplicationException("Lỗi: Mã đề thi là bắt buộc. Vui lòng nhập mã đề thi!");
+        }
+        String finalWordCode = examCode.trim();
+        if (examRepository.findByCode(finalWordCode) != null) {
+            throw new ApplicationException("Lỗi: Mã đề thi đã tồn tại trong hệ thống. Vui lòng chọn mã khác!");
+        }
+        exam.setCode(finalWordCode);
 
         if (duration != null && duration > 0) {
             exam.setDuration(duration);
